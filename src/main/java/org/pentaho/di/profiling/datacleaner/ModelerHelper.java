@@ -23,9 +23,9 @@ import org.eobjects.analyzer.connection.DatastoreConnection;
 import org.eobjects.analyzer.data.InputColumn;
 import org.eobjects.analyzer.job.JaxbJobWriter;
 import org.eobjects.analyzer.job.builder.AnalysisJobBuilder;
+import org.eobjects.datacleaner.Main;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.gui.SpoonFactory;
-import org.pentaho.di.core.logging.LogChannelInterface;
 import org.pentaho.di.core.plugins.PluginInterface;
 import org.pentaho.di.core.plugins.PluginRegistry;
 import org.pentaho.di.core.variables.Variables;
@@ -44,13 +44,14 @@ import org.pentaho.di.ui.trans.dialog.TransExecutionConfigurationDialog;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.dom.Document;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenuController {
 
-    private static ModelerHelper instance = null;
+    private static final Logger logger = LoggerFactory.getLogger(ModelerHelper.class);
 
-    // private static Logger logger =
-    // LoggerFactory.getLogger(ModelerHelper.class);
+    private static ModelerHelper instance = null;
 
     private ModelerHelper() {
     }
@@ -97,90 +98,48 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     }
 
     public static void launchDataCleaner(String confFile, String jobFile, String datastore, String dataFile) {
-
-        LogChannelInterface log = Spoon.getInstance().getLog();
+        final Spoon spoon = Spoon.getInstance();
 
         try {
             // figure out path for DC
             //
-            String pluginPath;
+            final String pluginPath = getPluginPath();
 
-            try {
-                pluginPath = System.getProperty("DATACLEANER_HOME");
-                if (Const.isEmpty(pluginPath)) {
-                    PluginInterface spoonPlugin = PluginRegistry.getInstance().findPluginWithId(SpoonPluginType.class,
-                            "SpoonDataCleaner");
-                    pluginPath = KettleVFS.getFilename(KettleVFS.getFileObject(spoonPlugin.getPluginDirectory()
-                            .toString()));
-                    pluginPath += "/DataCleaner";
-                }
-            } catch (Exception e) {
-                throw new XulException(
-                        "Unable to determine location of the spoon profile plugin.  It is needed to know where DataCleaner is installed.");
+            logger.info("DataCleaner plugin path = '" + pluginPath + "'");
+
+            List<String> args = new ArrayList<String>();
+
+            args.add("-Ddatacleaner.ui.visible=true");
+            args.add("-Ddatacleaner.embed.client=Kettle");
+            
+            if (pluginPath != null) {
+                args.add("-DDATACLEANER_HOME=" + pluginPath);
             }
-
-            log.logBasic("DataCleaner plugin path = '" + pluginPath + "'");
-
-            List<String> cmds = new ArrayList<String>();
-
-            cmds.add(System.getProperty("java.home") + "/bin/java");
-
-            // Assemble the class path for DataCleaner
-            //
-            String[] paths = new String[] { pluginPath + "/DataCleaner.jar",
-                    pluginPath + "/../datacleaner-kettle-plugin.jar", pluginPath + "/../kettle-core.jar", };
-            String classPath = "";
-            for (String path : paths) {
-                if (!classPath.isEmpty())
-                    classPath += File.pathSeparator;
-                classPath += path;
-            }
-
-            cmds.add("-cp");
-            cmds.add(classPath);
-            cmds.add("-Ddatacleaner.ui.visible=true");
-            cmds.add("-Ddatacleaner.embed.client=Kettle");
-            cmds.add("-DDATACLEANER_HOME=" + pluginPath);
-
-            // Finally, the class to launch
-            //
-            cmds.add("org.eobjects.datacleaner.Main");
 
             // The optional arguments for DataCleaner
             //
             if (!Const.isEmpty(confFile)) {
-                cmds.add("-conf");
-                cmds.add(confFile);
+                args.add("-conf");
+                args.add(confFile);
             }
             if (!Const.isEmpty(jobFile)) {
-                cmds.add("-job");
-                cmds.add(jobFile);
+                args.add("-job");
+                args.add(jobFile);
             }
             if (!Const.isEmpty(datastore)) {
-                cmds.add("-ds");
-                cmds.add(datastore);
+                args.add("-ds");
+                args.add(datastore);
             }
 
             // Log the command
-            //
             StringBuilder commandString = new StringBuilder();
-            for (String cmd : cmds)
+            for (String cmd : args) {
+                assert cmd.indexOf(' ') == -1;
                 commandString.append(cmd).append(" ");
-            log.logBasic("DataCleaner launch commands : " + commandString);
+            }
+            logger.info("DataCleaner launch commands : " + commandString);
 
-            ProcessBuilder processBuilder = new ProcessBuilder(cmds);
-            processBuilder.environment().put("DATACLEANER_HOME", pluginPath);
-            Process process = processBuilder.start();
-
-            ProcessStreamReader psrStdout = new ProcessStreamReader(process.getInputStream(), log, false);
-            ProcessStreamReader psrStderr = new ProcessStreamReader(process.getErrorStream(), log, true);
-            psrStdout.start();
-            psrStderr.start();
-
-            process.waitFor();
-
-            psrStdout.join();
-            psrStderr.join();
+            Main.main(args.toArray(new String[args.size()]), true, false);
 
             // When DC finishes we clean up the temporary files...
             //
@@ -194,8 +153,30 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                 new File(dataFile).delete();
             }
         } catch (Throwable e) {
-            new ErrorDialog(Spoon.getInstance().getShell(), "Error launching DataCleaner",
-                    "There was an unexpected error launching DataCleaner", e);
+            logger.error("Unexpected error: {}", e.getMessage(), e);
+            if (spoon != null) {
+                new ErrorDialog(spoon.getShell(), "Error launching DataCleaner",
+                        "There was an unexpected error launching DataCleaner", e);
+            }
+        }
+    }
+
+    private static String getPluginPath() throws XulException {
+        try {
+            String pluginPath = System.getProperty("DATACLEANER_HOME");
+            if (Const.isEmpty(pluginPath)) {
+                PluginInterface spoonPlugin = PluginRegistry.getInstance().findPluginWithId(SpoonPluginType.class,
+                        "SpoonDataCleaner");
+                pluginPath = KettleVFS
+                        .getFilename(KettleVFS.getFileObject(spoonPlugin.getPluginDirectory().toString()));
+                pluginPath += "/DataCleaner";
+            }
+            return pluginPath;
+        } catch (Exception e) {
+            logger.warn(
+                    "Unable to determine location of the spoon profile plugin. It is needed to know where DataCleaner is installed.",
+                    e);
+            return null;
         }
     }
 
@@ -220,8 +201,6 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             }
 
             // TODO: show the transformation execution configuration dialog
-            //
-            //
             TransExecutionConfiguration executionConfiguration = spoon.getTransPreviewExecutionConfiguration();
             TransExecutionConfigurationDialog tecd = new TransExecutionConfigurationDialog(spoon.getShell(),
                     executionConfiguration, transMeta);
@@ -229,7 +208,6 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                 return;
 
             // Pass the configuration to the transMeta object:
-            //
             String[] args = null;
             Map<String, String> arguments = executionConfiguration.getArguments();
             if (arguments != null) {
@@ -340,9 +318,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                     }
 
                     // Launch DataCleaner and point to the generated
-                    // configuration
-                    // and job XML files...
-                    //
+                    // configuration and job XML files...
                     Spoon.getInstance().getDisplay().syncExec(new Runnable() {
                         public void run() {
                             new Thread() {
@@ -367,31 +343,24 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         StringBuilder xml = new StringBuilder();
 
         xml.append(XMLHandler.getXMLHeader());
-        xml.append("<configuration xmlns=\"http://eobjects.org/analyzerbeans/configuration/1.0\"");
-        xml.append("   xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">").append(Const.CR);
-        xml.append(XMLHandler.openTag("datastore-catalog"));
-
-        /*
-         * <custom-datastore
-         * class-name="org.eobjects.analyzer.configuration.SampleCustomDatastore"
-         * > <property name="Name" value="my_custom" /> <property
-         * name="Xml file" value="pom.xml" /> <property name="Description"
-         * value="custom" /> </custom-datastore>
-         */
-
-        xml.append("<custom-datastore class-name=\"" + KettleDatastore.class.getName() + "\">").append(Const.CR);
-        xml.append("<property name=\"Name\" value=\"" + name + "\" />");
-        xml.append("<property name=\"Filename\" value=\"" + filename + "\" />");
-
-        xml.append(XMLHandler.closeTag("custom-datastore"));
-        xml.append(XMLHandler.closeTag("datastore-catalog"));
-
-        xml.append("<multithreaded-taskrunner max-threads=\"30\" />");
-        xml.append(XMLHandler.openTag("classpath-scanner"));
-        xml.append("<package recursive=\"true\">org.eobjects.analyzer.beans</package> <package>org.eobjects.analyzer.result.renderer</package> <package>org.eobjects.datacleaner.output.beans</package> <package>org.eobjects.datacleaner.panels</package> <package recursive=\"true\">org.eobjects.datacleaner.widgets.result</package> <package recursive=\"true\">com.hi</package>");
-        xml.append(XMLHandler.closeTag("classpath-scanner"));
-
-        xml.append(XMLHandler.closeTag("configuration"));
+        xml.append("<configuration xmlns=\"http://eobjects.org/analyzerbeans/configuration/1.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
+        xml.append(" <datastore-catalog>");
+        xml.append("  <custom-datastore class-name=\"" + KettleDatastore.class.getName() + "\">").append(Const.CR);
+        xml.append("   <property name=\"Name\" value=\"" + name + "\" />");
+        xml.append("   <property name=\"Filename\" value=\"" + filename + "\" />");
+        xml.append("  </custom-datastore>");
+        xml.append(" </datastore-catalog>");
+        xml.append(" <multithreaded-taskrunner max-threads=\"30\" />");
+        xml.append(" <classpath-scanner>");
+        xml.append("  <package recursive=\"true\">org.eobjects.analyzer.beans</package>");
+        xml.append("  <package>org.eobjects.analyzer.result.renderer</package>");
+        xml.append("  <package recursive=\"true\">org.eobjects.datacleaner.extension</package>");
+        xml.append("  <package>org.eobjects.datacleaner.panels</package>");
+        xml.append("  <package recursive=\"true\">org.eobjects.datacleaner.widgets.result</package>");
+        xml.append("  <package recursive=\"true\">com.neopost</package>");
+        xml.append("  <package recursive=\"true\">com.hi</package>");
+        xml.append(" </classpath-scanner>");
+        xml.append("</configuration>");
 
         return xml.toString();
     }
@@ -410,7 +379,5 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
     @Override
     public void updateMenu(Document doc) {
-        // TODO Auto-generated method stub
-
     }
 }
