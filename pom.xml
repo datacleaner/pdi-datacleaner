@@ -32,6 +32,12 @@
 			<artifactId>kettle-core</artifactId>
 			<version>${kettle.version}</version>
 			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>pentaho-kettle</groupId>
@@ -44,6 +50,12 @@
 			<artifactId>kettle-ui-swt</artifactId>
 			<version>${kettle.version}</version>
 			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- DataCleaner dependencies -->
