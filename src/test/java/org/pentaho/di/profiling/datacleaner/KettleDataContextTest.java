@@ -22,10 +22,10 @@ public class KettleDataContextTest extends TestCase {
 
         assertEquals(2, table.getColumnCount());
         assertEquals(
-                "Column[name=name,columnNumber=0,type=VARCHAR,nullable=true,indexed=false,nativeType=String,columnSize=10]",
+                "Column[name=name,columnNumber=0,type=VARCHAR,nullable=true,nativeType=String,columnSize=10]",
                 table.getColumns()[0].toString());
         assertEquals(
-                "Column[name=age,columnNumber=1,type=DOUBLE,nullable=true,indexed=false,nativeType=Number,columnSize=10]",
+                "Column[name=age,columnNumber=1,type=DOUBLE,nullable=true,nativeType=Number,columnSize=10]",
                 table.getColumns()[1].toString());
 
         DataSet ds = dc.query().from(table).select(table.getColumns()).execute();

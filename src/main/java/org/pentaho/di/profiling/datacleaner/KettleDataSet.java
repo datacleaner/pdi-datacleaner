@@ -9,6 +9,7 @@ import org.apache.metamodel.data.DefaultRow;
 import org.apache.metamodel.data.Row;
 import org.apache.metamodel.schema.Column;
 import org.apache.metamodel.util.FileHelper;
+import org.pentaho.di.core.exception.KettleEOFException;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,9 @@ final class KettleDataSet extends AbstractDataSet implements DataSet {
     public boolean next() {
         try {
             row = rowMeta.readData(inputStream);
+        } catch (KettleEOFException e) {
+            logger.debug("No more data to read from input");
+            row = null;
         } catch (Exception e) {
             logger.info("Next row not readable, ending stream", e);
             row = null;
