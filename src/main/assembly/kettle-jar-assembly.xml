@@ -1,0 +1,16 @@
+<assembly>
+	<id>plugin</id>
+	<formats>
+		<format>jar</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+
+	<dependencySets>
+		<dependencySet>
+			<outputDirectory>/</outputDirectory>
+			<!-- no includes and no excludes means we get all dependencies -->
+			<useProjectArtifact>true</useProjectArtifact>
+			<unpack>true</unpack>
+		</dependencySet>
+	</dependencySets>
+</assembly>

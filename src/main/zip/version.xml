@@ -1,0 +1,1 @@
+<version branch="Release" buildId="${project.version}">${project.version}</version>

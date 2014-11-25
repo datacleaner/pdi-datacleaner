@@ -1,0 +1,16 @@
+<assembly>
+	<id>plugin</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<includeBaseDirectory>true</includeBaseDirectory>
+	<baseDirectory>profiling-datacleaner</baseDirectory>
+	<files>
+		<file>
+			<source>target/DataCleaner-PDI-plugin.jar</source>
+		</file>
+		<file>
+			<source>target/version.xml</source>
+		</file>
+	</files>
+</assembly>

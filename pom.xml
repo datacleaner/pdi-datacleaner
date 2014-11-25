@@ -26,6 +26,45 @@
 		</repository>
 	</repositories>
 
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+			<resource>
+				<directory>src/main/zip</directory>
+				<targetPath>${project.build.directory}</targetPath>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+
+		<plugins>
+			<!-- Assembly which creates the zip and tar.gz distributables -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.3</version><!--$NO-MVN-MAN-VER$ -->
+				<configuration>
+					<finalName>DataCleaner-PDI</finalName>
+					<descriptors>
+						<descriptor>src/main/assembly/kettle-jar-assembly.xml</descriptor>
+						<!-- 
+						<descriptor>src/main/assembly/kettle-zip-assembly.xml</descriptor>
+						 -->
+					</descriptors>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>verify</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
 	<dependencies>
 		<!-- KETTLE dependencies -->
 		<dependency>
@@ -58,19 +97,17 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
+		
 		<!-- DataCleaner dependencies -->
 		<dependency>
 			<groupId>org.eobjects.datacleaner</groupId>
 			<artifactId>DataCleaner-desktop</artifactId>
 			<version>${datacleaner.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.eobjects.datacleaner</groupId>
 			<artifactId>DataCleaner-visualization</artifactId>
 			<version>${datacleaner.version}</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<!-- TEST dependencies -->

@@ -1,6 +1,7 @@
 package org.pentaho.di.profiling.datacleaner;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -103,44 +104,28 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         try {
             // figure out path for DC
             //
-            String pluginPath;
+            final String pluginFolderPath = getPluginFolderPath();
 
-            try {
-                pluginPath = System.getProperty("DATACLEANER_HOME");
-                if (Const.isEmpty(pluginPath)) {
-                    PluginInterface spoonPlugin = PluginRegistry.getInstance().findPluginWithId(SpoonPluginType.class,
-                            "SpoonDataCleaner");
-                    pluginPath = KettleVFS.getFilename(KettleVFS.getFileObject(spoonPlugin.getPluginDirectory()
-                            .toString()));
-                    pluginPath += "/DataCleaner";
-                }
-            } catch (Exception e) {
-                throw new XulException(
-                        "Unable to determine location of the spoon profile plugin.  It is needed to know where DataCleaner is installed.");
-            }
-
-            log.logBasic("DataCleaner plugin path = '" + pluginPath + "'");
-
-            List<String> cmds = new ArrayList<String>();
-
-            cmds.add(System.getProperty("java.home") + "/bin/java");
+            final String kettleLibPath = pluginFolderPath + "/../../lib";
+            final String kettleCorePath = getJarFile(kettleLibPath, "kettle-core");
 
             // Assemble the class path for DataCleaner
-            //
-            String[] paths = new String[] { pluginPath + "/DataCleaner.jar",
-                    pluginPath + "/../datacleaner-kettle-plugin.jar", pluginPath + "/../kettle-core.jar", };
-            String classPath = "";
+            final String[] paths = new String[] { pluginFolderPath + "/DataCleaner-PDI-plugin.jar", kettleCorePath, };
+            final StringBuilder classPathBuilder = new StringBuilder();
             for (String path : paths) {
-                if (!classPath.isEmpty())
-                    classPath += File.pathSeparator;
-                classPath += path;
+                if (classPathBuilder.length() == 0) {
+                    classPathBuilder.append(File.pathSeparator);
+                }
+                classPathBuilder.append(path);
             }
 
+            final List<String> cmds = new ArrayList<String>();
+            cmds.add(System.getProperty("java.home") + "/bin/java");
             cmds.add("-cp");
-            cmds.add(classPath);
+            cmds.add(classPathBuilder.toString());
             cmds.add("-Ddatacleaner.ui.visible=true");
             cmds.add("-Ddatacleaner.embed.client=Kettle");
-            cmds.add("-DDATACLEANER_HOME=" + pluginPath);
+            cmds.add("-DDATACLEANER_HOME=" + pluginFolderPath);
 
             // Finally, the class to launch
             //
@@ -167,18 +152,20 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             for (String cmd : cmds) {
                 commandString.append(cmd).append(" ");
             }
-            
+
             log.logBasic("DataCleaner launch commands : " + commandString);
+            
+            System.out.println("Launching DataCleaner: " + commandString);
 
             ProcessBuilder processBuilder = new ProcessBuilder(cmds);
-            processBuilder.environment().put("DATACLEANER_HOME", pluginPath);
+            processBuilder.environment().put("DATACLEANER_HOME", pluginFolderPath);
             Process process = processBuilder.start();
 
             ProcessStreamReader psrStdout = new ProcessStreamReader(process.getInputStream(), log, false);
             ProcessStreamReader psrStderr = new ProcessStreamReader(process.getErrorStream(), log, true);
             psrStdout.start();
             psrStderr.start();
-            
+
             process.waitFor();
 
             psrStdout.join();
@@ -199,6 +186,37 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             new ErrorDialog(Spoon.getInstance().getShell(), "Error launching DataCleaner",
                     "There was an unexpected error launching DataCleaner", e);
         }
+    }
+
+    private static String getJarFile(String libPath, final String filename) {
+        final File directory = new File(libPath);
+        assert directory.exists() && directory.isDirectory();
+
+        final String[] filenames = directory.list(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.startsWith(filename);
+            }
+        });
+
+        return libPath + "/" + filenames[0];
+    }
+
+    private static String getPluginFolderPath() throws XulException {
+        final String pluginFolderPath;
+        try {
+            final PluginInterface spoonPlugin = PluginRegistry.getInstance().findPluginWithId(SpoonPluginType.class,
+                    "SpoonDataCleaner");
+            pluginFolderPath = KettleVFS.getFilename(KettleVFS.getFileObject(spoonPlugin.getPluginDirectory()
+                    .toString()));
+        } catch (Exception e) {
+            throw new XulException(
+                    "Unable to determine location of the spoon profile plugin.  It is needed to know where DataCleaner is installed.");
+        }
+
+        final LogChannelInterface log = Spoon.getInstance().getLog();
+        log.logBasic("DataCleaner plugin path = '" + pluginFolderPath + "'");
+        return pluginFolderPath;
     }
 
     public void openProfiler() throws Exception {
@@ -311,18 +329,28 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
                     // Write the job.xml to a temporary file...
                     //
-                    final FileObject jobFile = KettleVFS.createTempFile("datacleaner-job", ".xml",
+                    FileObject jobFile = KettleVFS.createTempFile("datacleaner-job", ".xml",
                             System.getProperty("java.io.tmpdir"), new Variables());
                     OutputStream jobOutputStream = null;
                     try {
                         jobOutputStream = KettleVFS.getOutputStream(jobFile, false);
-                        new JaxbJobWriter(analyzerBeansConfiguration).write(analysisJobBuilder.toAnalysisJob(),
-                                jobOutputStream);
-                        jobOutputStream.close();
+                        JaxbJobWriter jobWriter = new JaxbJobWriter(analyzerBeansConfiguration);
+                        jobWriter.write(analysisJobBuilder.toAnalysisJob(), jobOutputStream);
+                    } catch (Exception e) {
+                        LogChannelInterface log = Spoon.getInstance().getLog();
+                        log.logError("Failed to save DataCleaner job", e);
+                        jobFile = null;
                     } finally {
                         if (jobOutputStream != null) {
                             jobOutputStream.close();
                         }
+                    }
+
+                    final String jobFilename;
+                    if (jobFile == null) {
+                        jobFilename = null;
+                    } else {
+                        jobFilename = KettleVFS.getFilename(jobFile);
                     }
 
                     // Write the conf.xml to a temporary file...
@@ -349,7 +377,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                         public void run() {
                             new Thread() {
                                 public void run() {
-                                    launchDataCleaner(KettleVFS.getFilename(confFile), KettleVFS.getFilename(jobFile),
+                                    launchDataCleaner(KettleVFS.getFilename(confFile), jobFilename,
                                             transMeta.getName(), writer.getFilename());
                                 }
                             }.start();
