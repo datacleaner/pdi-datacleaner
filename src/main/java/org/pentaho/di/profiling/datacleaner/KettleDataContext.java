@@ -17,9 +17,12 @@ import org.apache.metamodel.schema.Schema;
 import org.apache.metamodel.schema.Table;
 import org.apache.metamodel.schema.TableType;
 import org.apache.metamodel.util.FileHelper;
+import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.plugins.PluginRegistry;
 import org.pentaho.di.core.row.RowMeta;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueMetaInterface;
+import org.pentaho.di.core.row.value.ValueMetaPluginType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +81,12 @@ public class KettleDataContext extends QueryPostprocessDataContext {
         DataInputStream inputStream = createInputStream();
 
         // skip through the metadata section
-        readMetadataSection(inputStream);
+        try {
+            readMetadataSection(inputStream);
+        } catch (RuntimeException e) {
+            FileHelper.safeClose(inputStream);
+            throw e;
+        }
 
         DataSet dataSet = new KettleDataSet(columns, inputStream, rowMeta);
         if (maxRows >= 0) {
@@ -88,6 +96,16 @@ public class KettleDataContext extends QueryPostprocessDataContext {
     }
 
     private void readMetadataSection(DataInputStream inputStream) {
+        try {
+            ValueMetaPluginType pluginType = ValueMetaPluginType.getInstance();
+            pluginType.searchPlugins();
+
+            PluginRegistry.init();
+            PluginRegistry.addPluginType(pluginType);
+        } catch (KettleException e) {
+            throw new MetaModelException(e);
+        }
+
         // transformation name, step name & RowMeta ...
         try {
             transformationName = inputStream.readUTF();

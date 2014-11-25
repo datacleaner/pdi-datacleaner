@@ -4,11 +4,11 @@
 	<parent>
 		<groupId>org.eobjects.datacleaner</groupId>
 		<artifactId>DataCleaner</artifactId>
-		<version>3.7.1</version>
+		<version>3.7</version>
 	</parent>
 	<properties>
 		<kettle.version>5.0.0</kettle.version>
-		<datacleaner.version>3.7.1</datacleaner.version>
+		<datacleaner.version>3.7</datacleaner.version>
 	</properties>
 	<artifactId>pdi-datacleaner</artifactId>
 	<name>DataCleaner for Pentaho Data Integration</name>
