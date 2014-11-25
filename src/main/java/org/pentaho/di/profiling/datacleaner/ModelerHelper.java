@@ -22,9 +22,11 @@ import org.eobjects.analyzer.configuration.AnalyzerBeansConfigurationImpl;
 import org.eobjects.analyzer.connection.Datastore;
 import org.eobjects.analyzer.connection.DatastoreConnection;
 import org.eobjects.analyzer.data.InputColumn;
+import org.eobjects.analyzer.job.AnalysisJob;
 import org.eobjects.analyzer.job.JaxbJobWriter;
 import org.eobjects.analyzer.job.builder.AnalysisJobBuilder;
 import org.pentaho.di.core.Const;
+import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.gui.SpoonFactory;
 import org.pentaho.di.core.logging.LogChannelInterface;
 import org.pentaho.di.core.plugins.PluginInterface;
@@ -48,11 +50,7 @@ import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 
 public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenuController {
 
-    private static final String SYSTEM_PROPERTY_DATATYPE_FACTORY = "javax.xml.datatype.DatatypeFactory";
     private static ModelerHelper instance = null;
-
-    // private static Logger logger =
-    // LoggerFactory.getLogger(ModelerHelper.class);
 
     private ModelerHelper() {
     }
@@ -100,7 +98,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
     public static void launchDataCleaner(String confFile, String jobFile, String datastore, String dataFile) {
 
-        LogChannelInterface log = Spoon.getInstance().getLog();
+        final LogChannelInterface log = Spoon.getInstance().getLog();
 
         try {
             // figure out path for DC
@@ -244,9 +242,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                 return;
             }
 
-            // TODO: show the transformation execution configuration dialog
-            //
-            //
+            // Show the transformation execution configuration dialog
             TransExecutionConfiguration executionConfiguration = spoon.getTransPreviewExecutionConfiguration();
             TransExecutionConfigurationDialog tecd = new TransExecutionConfigurationDialog(spoon.getShell(),
                     executionConfiguration, transMeta);
@@ -254,32 +250,27 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                 return;
 
             // Pass the configuration to the transMeta object:
-            //
-            String[] args = null;
-            Map<String, String> arguments = executionConfiguration.getArguments();
-            if (arguments != null) {
-                args = convertArguments(arguments);
-            }
+            final String[] args = convertArguments(executionConfiguration.getArguments());
             transMeta.injectVariables(executionConfiguration.getVariables());
 
             // Set the named parameters
-            Map<String, String> paramMap = executionConfiguration.getParams();
-            Set<String> keys = paramMap.keySet();
-            for (String key : keys) {
-                transMeta.setParameterValue(key, Const.NVL(paramMap.get(key), "")); //$NON-NLS-1$
+            final Map<String, String> paramMap = executionConfiguration.getParams();
+            {
+                final Set<String> keys = paramMap.keySet();
+                for (String key : keys) {
+                    transMeta.setParameterValue(key, Const.NVL(paramMap.get(key), "")); //$NON-NLS-1$
+                }
             }
 
             transMeta.activateParameters();
 
             // Do we need to clear the log before running?
-            //
             if (executionConfiguration.isClearingLog()) {
                 spoon.getActiveTransGraph().transLogDelegate.clearLog();
             }
 
             // Now that we have the transformation and everything we can run it
             // and profile it...
-            //
             Trans trans = new Trans(transMeta, Spoon.loggingObject);
             trans.prepareExecution(executionConfiguration.getArgumentStrings());
             trans.setSafeModeEnabled(executionConfiguration.isSafeModeEnabled());
@@ -287,8 +278,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             trans.prepareExecution(args);
             trans.setRepository(spoon.rep);
 
-            // Open a server socket. This thing will block on init() until
-            // DataCleaner connects to it...
+            // Write the data to a file that DataCleaner will read
             final DataCleanerKettleFileWriter writer = new DataCleanerKettleFileWriter(trans, stepMeta);
             try {
                 writer.run();
@@ -297,116 +287,105 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             }
 
             // Pass along the configuration of the KettleDatabaseStore...
-            //
             final AnalyzerBeansConfiguration analyzerBeansConfiguration = new AnalyzerBeansConfigurationImpl();
-            try (final AnalysisJobBuilder analysisJobBuilder = new AnalysisJobBuilder(analyzerBeansConfiguration)) {
+            final AnalysisJob analysisJob = createAnalysisJob(transMeta, stepMeta, analyzerBeansConfiguration);
 
-                final Datastore datastore = new KettleDatastore(transMeta.getName(), stepMeta.getName(),
-                        transMeta.getStepFields(stepMeta));
-                analysisJobBuilder.setDatastore(datastore);
+            // Write the job.xml to a temporary file...
+            FileObject jobFile = KettleVFS.createTempFile("datacleaner-job", ".xml",
+                    System.getProperty("java.io.tmpdir"), new Variables());
+            OutputStream jobOutputStream = null;
 
-                try (DatastoreConnection connection = datastore.openConnection();) {
-                    DataContext dataContext = connection.getDataContext();
-
-                    // add all columns of a table
-                    Column[] customerColumns = dataContext.getTableByQualifiedLabel(stepMeta.getName()).getColumns();
-                    analysisJobBuilder.addSourceColumns(customerColumns);
-
-                    List<InputColumn<?>> numberColumns = analysisJobBuilder.getAvailableInputColumns(Number.class);
-                    if (!numberColumns.isEmpty()) {
-                        analysisJobBuilder.addAnalyzer(NumberAnalyzer.class).addInputColumns(numberColumns);
-                    }
-
-                    List<InputColumn<?>> dateColumns = analysisJobBuilder.getAvailableInputColumns(Date.class);
-                    if (!dateColumns.isEmpty()) {
-                        analysisJobBuilder.addAnalyzer(DateAndTimeAnalyzer.class).addInputColumns(dateColumns);
-                    }
-
-                    List<InputColumn<?>> booleanColumns = analysisJobBuilder.getAvailableInputColumns(Boolean.class);
-                    if (!booleanColumns.isEmpty()) {
-                        analysisJobBuilder.addAnalyzer(BooleanAnalyzer.class).addInputColumns(booleanColumns);
-                    }
-
-                    List<InputColumn<?>> stringColumns = analysisJobBuilder.getAvailableInputColumns(String.class);
-                    if (!stringColumns.isEmpty()) {
-                        analysisJobBuilder.addAnalyzer(StringAnalyzer.class).addInputColumns(stringColumns);
-                    }
-
-                    // Write the job.xml to a temporary file...
-                    //
-                    FileObject jobFile = KettleVFS.createTempFile("datacleaner-job", ".xml",
-                            System.getProperty("java.io.tmpdir"), new Variables());
-                    OutputStream jobOutputStream = null;
-
-                    // prevent lame xerces issue
-                    final String previousSystemProperty = System.setProperty(SYSTEM_PROPERTY_DATATYPE_FACTORY,
-                            "org.apache.xerces.jaxp.datatype.DatatypeFactoryImpl");
-                    try {
-                        try {
-                            jobOutputStream = KettleVFS.getOutputStream(jobFile, false);
-                            final JaxbJobWriter jobWriter = new JaxbJobWriter(analyzerBeansConfiguration);
-                            jobWriter.write(analysisJobBuilder.toAnalysisJob(), jobOutputStream);
-                        } catch (Exception e) {
-                            final LogChannelInterface log = Spoon.getInstance().getLog();
-                            log.logError("Failed to save DataCleaner job", e);
-                            jobFile = null;
-                        } finally {
-                            if (jobOutputStream != null) {
-                                jobOutputStream.close();
-                            }
-                        }
-                    } finally {
-                        if (previousSystemProperty == null) {
-                            System.clearProperty(SYSTEM_PROPERTY_DATATYPE_FACTORY);
-                        } else {
-                            System.setProperty(SYSTEM_PROPERTY_DATATYPE_FACTORY, previousSystemProperty);
-                        }
-                    }
-
-                    final String jobFilename;
-                    if (jobFile == null) {
-                        jobFilename = null;
-                    } else {
-                        jobFilename = KettleVFS.getFilename(jobFile);
-                    }
-
-                    // Write the conf.xml to a temporary file...
-                    //
-                    String confXml = generateConfXml(transMeta.getName(), stepMeta.getName(), writer.getFilename());
-                    final FileObject confFile = KettleVFS.createTempFile("datacleaner-conf", ".xml",
-                            System.getProperty("java.io.tmpdir"), new Variables());
-                    OutputStream confOutputStream = null;
-                    try {
-                        confOutputStream = KettleVFS.getOutputStream(confFile, false);
-                        confOutputStream.write(confXml.getBytes(Const.XML_ENCODING));
-                        confOutputStream.close();
-                    } finally {
-                        if (confOutputStream != null) {
-                            confOutputStream.close();
-                        }
-                    }
-
-                    // Launch DataCleaner and point to the generated
-                    // configuration
-                    // and job XML files...
-                    //
-                    Spoon.getInstance().getDisplay().syncExec(new Runnable() {
-                        public void run() {
-                            new Thread() {
-                                public void run() {
-                                    launchDataCleaner(KettleVFS.getFilename(confFile), jobFilename,
-                                            transMeta.getName(), writer.getFilename());
-                                }
-                            }.start();
-                        }
-                    });
-
+            try {
+                jobOutputStream = KettleVFS.getOutputStream(jobFile, false);
+                final JaxbJobWriter jobWriter = new JaxbJobWriter(analyzerBeansConfiguration);
+                jobWriter.write(analysisJob, jobOutputStream);
+            } catch (Exception e) {
+                final LogChannelInterface log = Spoon.getInstance().getLog();
+                log.logError("Failed to save DataCleaner job", e);
+                jobFile = null;
+            } finally {
+                if (jobOutputStream != null) {
+                    jobOutputStream.close();
                 }
             }
+
+            // Write the conf.xml to a temporary file...
+            String confXml = generateConfXml(transMeta.getName(), stepMeta.getName(), writer.getFilename());
+            final FileObject confFile = KettleVFS.createTempFile("datacleaner-conf", ".xml",
+                    System.getProperty("java.io.tmpdir"), new Variables());
+            OutputStream confOutputStream = null;
+            try {
+                confOutputStream = KettleVFS.getOutputStream(confFile, false);
+                confOutputStream.write(confXml.getBytes(Const.XML_ENCODING));
+                confOutputStream.close();
+            } finally {
+                if (confOutputStream != null) {
+                    confOutputStream.close();
+                }
+            }
+
+            // Launch DataCleaner and point to the generated
+            // configuration and job XML files...
+
+            final String jobFilename;
+            if (jobFile == null) {
+                jobFilename = null;
+            } else {
+                jobFilename = KettleVFS.getFilename(jobFile);
+            }
+
+            Spoon.getInstance().getDisplay().syncExec(new Runnable() {
+                public void run() {
+                    new Thread() {
+                        public void run() {
+                            launchDataCleaner(KettleVFS.getFilename(confFile), jobFilename, transMeta.getName(),
+                                    writer.getFilename());
+                        }
+                    }.start();
+                }
+            });
         } catch (final Exception e) {
             new ErrorDialog(spoon.getShell(), "Error", "unexpected error occurred", e);
         } finally {
             //
+        }
+    }
+
+    private AnalysisJob createAnalysisJob(final TransMeta transMeta, final StepMeta stepMeta,
+            final AnalyzerBeansConfiguration analyzerBeansConfiguration) throws KettleStepException {
+        try (final AnalysisJobBuilder analysisJobBuilder = new AnalysisJobBuilder(analyzerBeansConfiguration)) {
+            final Datastore datastore = new KettleDatastore(transMeta.getName(), stepMeta.getName(),
+                    transMeta.getStepFields(stepMeta));
+            analysisJobBuilder.setDatastore(datastore);
+
+            try (final DatastoreConnection connection = datastore.openConnection();) {
+                final DataContext dataContext = connection.getDataContext();
+
+                // add all columns of a table
+                final Column[] customerColumns = dataContext.getTableByQualifiedLabel(stepMeta.getName()).getColumns();
+                analysisJobBuilder.addSourceColumns(customerColumns);
+
+                final List<InputColumn<?>> numberColumns = analysisJobBuilder.getAvailableInputColumns(Number.class);
+                if (!numberColumns.isEmpty()) {
+                    analysisJobBuilder.addAnalyzer(NumberAnalyzer.class).addInputColumns(numberColumns);
+                }
+
+                final List<InputColumn<?>> dateColumns = analysisJobBuilder.getAvailableInputColumns(Date.class);
+                if (!dateColumns.isEmpty()) {
+                    analysisJobBuilder.addAnalyzer(DateAndTimeAnalyzer.class).addInputColumns(dateColumns);
+                }
+
+                final List<InputColumn<?>> booleanColumns = analysisJobBuilder.getAvailableInputColumns(Boolean.class);
+                if (!booleanColumns.isEmpty()) {
+                    analysisJobBuilder.addAnalyzer(BooleanAnalyzer.class).addInputColumns(booleanColumns);
+                }
+
+                final List<InputColumn<?>> stringColumns = analysisJobBuilder.getAvailableInputColumns(String.class);
+                if (!stringColumns.isEmpty()) {
+                    analysisJobBuilder.addAnalyzer(StringAnalyzer.class).addInputColumns(stringColumns);
+                }
+            }
+            return analysisJobBuilder.toAnalysisJob();
         }
     }
 
@@ -459,6 +438,9 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     }
 
     private String[] convertArguments(Map<String, String> arguments) {
+        if (arguments == null || arguments.isEmpty()) {
+            return new String[0];
+        }
         String[] argumentNames = arguments.keySet().toArray(new String[arguments.size()]);
         Arrays.sort(argumentNames);
 
@@ -472,7 +454,5 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
     @Override
     public void updateMenu(Document doc) {
-        // TODO Auto-generated method stub
-
     }
 }
