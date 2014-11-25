@@ -107,10 +107,16 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             final String pluginFolderPath = getPluginFolderPath();
 
             final String kettleLibPath = pluginFolderPath + "/../../lib";
+
+            final String pluginPath = pluginFolderPath + "/DataCleaner-PDI-plugin.jar";
             final String kettleCorePath = getJarFile(kettleLibPath, "kettle-core");
+            final String commonsVfsPath = getJarFile(kettleLibPath, "commons-vfs");
+            final String scannotationPath = getJarFile(kettleLibPath, "scannotation");
+            final String javassistPath = getJarFile(kettleLibPath, "javassist");
 
             // Assemble the class path for DataCleaner
-            final String[] paths = new String[] { pluginFolderPath + "/DataCleaner-PDI-plugin.jar", kettleCorePath, };
+            final String[] paths = new String[] { pluginPath, kettleCorePath, commonsVfsPath, scannotationPath,
+                    javassistPath };
             final StringBuilder classPathBuilder = new StringBuilder();
             for (String path : paths) {
                 if (classPathBuilder.length() > 0) {
@@ -154,7 +160,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             }
 
             log.logBasic("DataCleaner launch commands : " + commandString);
-            
+
             ProcessBuilder processBuilder = new ProcessBuilder(cmds);
             processBuilder.environment().put("DATACLEANER_HOME", pluginFolderPath);
             Process process = processBuilder.start();
