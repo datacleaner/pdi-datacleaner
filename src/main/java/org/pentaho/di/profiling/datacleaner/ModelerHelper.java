@@ -23,9 +23,7 @@ import org.eobjects.analyzer.connection.DatastoreConnection;
 import org.eobjects.analyzer.data.InputColumn;
 import org.eobjects.analyzer.job.JaxbJobWriter;
 import org.eobjects.analyzer.job.builder.AnalysisJobBuilder;
-import org.eobjects.datacleaner.bootstrap.Bootstrap;
-import org.eobjects.datacleaner.bootstrap.BootstrapOptions;
-import org.eobjects.datacleaner.bootstrap.DefaultBootstrapOptions;
+import org.eobjects.datacleaner.Main;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.gui.SpoonFactory;
 import org.pentaho.di.core.plugins.PluginInterface;
@@ -113,7 +111,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             args.add("-Ddatacleaner.ui.visible=true");
             args.add("-Ddatacleaner.embed.client=Kettle");
-
+            
             if (pluginPath != null) {
                 args.add("-DDATACLEANER_HOME=" + pluginPath);
             }
@@ -141,11 +139,10 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             }
             logger.info("DataCleaner launch commands : " + commandString);
 
-            BootstrapOptions bootstrapOptions = new DefaultBootstrapOptions(args.toArray(new String[args.size()]));
-            Bootstrap bootstrap = new Bootstrap(bootstrapOptions);
-            bootstrap.run();
+            Main.main(args.toArray(new String[args.size()]), true, false);
 
             // When DC finishes we clean up the temporary files...
+            //
             if (!Const.isEmpty(confFile)) {
                 new File(confFile).delete();
             }
