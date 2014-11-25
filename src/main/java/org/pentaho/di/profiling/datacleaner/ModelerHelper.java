@@ -435,7 +435,22 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
         xml.append("<multithreaded-taskrunner max-threads=\"30\" />");
         xml.append(XMLHandler.openTag("classpath-scanner"));
-        xml.append("<package recursive=\"true\">org.eobjects.analyzer.beans</package> <package>org.eobjects.analyzer.result.renderer</package> <package>org.eobjects.datacleaner.output.beans</package> <package>org.eobjects.datacleaner.panels</package> <package recursive=\"true\">org.eobjects.datacleaner.widgets.result</package> <package recursive=\"true\">com.hi</package>");
+        xml.append(" <package recursive=\"true\">org.eobjects.analyzer.beans</package>");
+        xml.append(" <package>org.eobjects.analyzer.result.renderer</package>");
+
+        // TODO: Remove after v. 3.7.1
+        xml.append(" <package>org.eobjects.datacleaner.output.beans</package>");
+
+        // TODO: Would be nice if extensions could be auto-discovered but the
+        // datacleaner-extension.xml file is overwritten during assembly to a
+        // single jar file.
+        xml.append(" <package>org.eobjects.datacleaner.visualization</package>");
+
+        xml.append(" <package recursive=\"true\">org.eobjects.datacleaner.extension</package>");
+        xml.append(" <package>org.eobjects.datacleaner.panels</package>");
+        xml.append(" <package recursive=\"true\">org.eobjects.datacleaner.widgets.result</package>");
+        xml.append(" <package recursive=\"true\">com.hi</package>");
+        xml.append(" <package recursive=\"true\">com.neopost</package>");
         xml.append(XMLHandler.closeTag("classpath-scanner"));
 
         xml.append(XMLHandler.closeTag("configuration"));
