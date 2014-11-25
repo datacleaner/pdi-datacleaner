@@ -164,8 +164,10 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             // Log the command
             //
             StringBuilder commandString = new StringBuilder();
-            for (String cmd : cmds)
+            for (String cmd : cmds) {
                 commandString.append(cmd).append(" ");
+            }
+            
             log.logBasic("DataCleaner launch commands : " + commandString);
 
             ProcessBuilder processBuilder = new ProcessBuilder(cmds);
@@ -176,7 +178,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             ProcessStreamReader psrStderr = new ProcessStreamReader(process.getErrorStream(), log, true);
             psrStdout.start();
             psrStderr.start();
-
+            
             process.waitFor();
 
             psrStdout.join();
