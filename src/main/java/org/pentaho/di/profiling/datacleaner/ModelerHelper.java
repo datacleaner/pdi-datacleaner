@@ -48,6 +48,7 @@ import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 
 public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenuController {
 
+    private static final String SYSTEM_PROPERTY_DATATYPE_FACTORY = "javax.xml.datatype.DatatypeFactory";
     private static ModelerHelper instance = null;
 
     // private static Logger logger =
@@ -336,17 +337,29 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                     FileObject jobFile = KettleVFS.createTempFile("datacleaner-job", ".xml",
                             System.getProperty("java.io.tmpdir"), new Variables());
                     OutputStream jobOutputStream = null;
+
+                    // prevent lame xerces issue
+                    final String previousSystemProperty = System.setProperty(SYSTEM_PROPERTY_DATATYPE_FACTORY,
+                            "org.apache.xerces.jaxp.datatype.DatatypeFactoryImpl");
                     try {
-                        jobOutputStream = KettleVFS.getOutputStream(jobFile, false);
-                        JaxbJobWriter jobWriter = new JaxbJobWriter(analyzerBeansConfiguration);
-                        jobWriter.write(analysisJobBuilder.toAnalysisJob(), jobOutputStream);
-                    } catch (Exception e) {
-                        LogChannelInterface log = Spoon.getInstance().getLog();
-                        log.logError("Failed to save DataCleaner job", e);
-                        jobFile = null;
+                        try {
+                            jobOutputStream = KettleVFS.getOutputStream(jobFile, false);
+                            final JaxbJobWriter jobWriter = new JaxbJobWriter(analyzerBeansConfiguration);
+                            jobWriter.write(analysisJobBuilder.toAnalysisJob(), jobOutputStream);
+                        } catch (Exception e) {
+                            final LogChannelInterface log = Spoon.getInstance().getLog();
+                            log.logError("Failed to save DataCleaner job", e);
+                            jobFile = null;
+                        } finally {
+                            if (jobOutputStream != null) {
+                                jobOutputStream.close();
+                            }
+                        }
                     } finally {
-                        if (jobOutputStream != null) {
-                            jobOutputStream.close();
+                        if (previousSystemProperty == null) {
+                            System.clearProperty(SYSTEM_PROPERTY_DATATYPE_FACTORY);
+                        } else {
+                            System.setProperty(SYSTEM_PROPERTY_DATATYPE_FACTORY, previousSystemProperty);
                         }
                     }
 

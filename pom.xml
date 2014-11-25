@@ -103,6 +103,12 @@
 			<groupId>org.eobjects.datacleaner</groupId>
 			<artifactId>DataCleaner-desktop</artifactId>
 			<version>${datacleaner.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.eobjects.datacleaner</groupId>
