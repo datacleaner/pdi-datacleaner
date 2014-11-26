@@ -6,7 +6,7 @@
     xmlns:pen="http://www.pentaho.org/2008/xul" >
     
     <menupopup id="tools-popup">
-	    <menuitem id="tools-datacleaner" label="DataCleaner profiling"
+	    <menuitem id="tools-datacleaner" label="Start DataCleaner (data profiling and data quality)"
               command="profiler.openProfiler()" />
 	</menupopup>	
   

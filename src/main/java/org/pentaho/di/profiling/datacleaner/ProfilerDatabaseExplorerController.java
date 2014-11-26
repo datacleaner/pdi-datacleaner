@@ -1,21 +1,3 @@
-/*
- * This program is free software; you can redistribute it and/or modify it under the
- * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
- * Foundation.
- *
- * You should have received a copy of the GNU Lesser General Public License along with this
- * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
- * or from the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
- *
- * Copyright (c) 2009 Pentaho Corporation..  All rights reserved.
- * 
- * Author: Ezequiel Cuellar
- */
 package org.pentaho.di.profiling.datacleaner;
 
 import java.io.OutputStream;
@@ -70,7 +52,6 @@ public class ProfilerDatabaseExplorerController extends AbstractXulEventHandler 
 
             getDbController();
             // Close the db explorer...
-            //
             dbExplorerController.close();
 
             final DatabaseMeta dbMeta = dbExplorerController.getDatabaseMeta();
@@ -196,20 +177,11 @@ public class ProfilerDatabaseExplorerController extends AbstractXulEventHandler 
         StringBuilder xml = new StringBuilder();
 
         xml.append(XMLHandler.getXMLHeader());
-        xml.append("<configuration xmlns=\"http://eobjects.org/analyzerbeans/configuration/1.0\"");
-        xml.append("   xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">").append(Const.CR);
+        xml.append("<configuration xmlns=\"http://eobjects.org/analyzerbeans/configuration/1.0\"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
         xml.append(XMLHandler.openTag("datastore-catalog"));
 
-        /*
-         * <jdbc-datastore name="my_jdbc_connection" description="jdbc_con">
-         * <url>jdbc:hsqldb:file:../../clie/examples/orderdb;readonly=true</url>
-         * <driver>org.hsqldb.jdbcDriver</driver> <username>SA</username>
-         * <password></password> </jdbc-datastore>
-         */
-
-        xml.append(
-                "<jdbc-datastore name=\"" + name + "\" description=\"Database defined in Pentaho Data Integration\">")
-                .append(Const.CR);
+        xml.append("<jdbc-datastore name=\"" + name
+                + "\" description=\"Database defined in Pentaho Data Integration\">");
         xml.append(XMLHandler.addTagValue("url", url));
         xml.append(XMLHandler.addTagValue("driver", driver));
         xml.append(XMLHandler.addTagValue("username", username));
@@ -228,15 +200,10 @@ public class ProfilerDatabaseExplorerController extends AbstractXulEventHandler 
         return xml.toString();
     }
 
-    private XulDatabaseExplorerController getDbController() {
+    private XulDatabaseExplorerController getDbController() throws XulException {
         if (dbExplorerController == null) {
-            try {
-                dbExplorerController = (XulDatabaseExplorerController) this.getXulDomContainer().getEventHandler(
-                        "dbexplorer");
-            } catch (XulException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            dbExplorerController = (XulDatabaseExplorerController) this.getXulDomContainer().getEventHandler(
+                    "dbexplorer");
         }
         return dbExplorerController;
     }

@@ -163,7 +163,7 @@ abstract class AbstractJobEntryDialog extends JobEntryDialog implements JobEntry
         BaseStepDialog.positionBottomButtons(shell, new Button[] { okButton, cancelButton }, margin, propertiesGroup);
 
         // HI banner
-        final HumanInferenceFooter footer = new HumanInferenceFooter(shell);
+        final DataCleanerFooter footer = new DataCleanerFooter(shell);
         {
             final FormData footerLayoutData = new FormData();
             footerLayoutData.left = new FormAttachment(0, 0);

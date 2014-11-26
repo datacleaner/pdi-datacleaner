@@ -64,8 +64,8 @@ public class DataCleanerBanner extends Composite {
             label.setCursor(cursor);
             label.addMouseListener(new MouseAdapter() {
                 @Override
-                public void mouseUp(MouseEvent arg0) {
-                    Program.launch("http://datacleaner.eobjects.org");
+                public void mouseUp(MouseEvent event) {
+                    Program.launch("http://datacleaner.org");
                 }
             });
 

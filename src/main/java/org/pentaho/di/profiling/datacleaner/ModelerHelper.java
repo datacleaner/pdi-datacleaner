@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,17 +15,22 @@ import org.apache.commons.vfs.FileObject;
 import org.apache.metamodel.DataContext;
 import org.apache.metamodel.schema.Column;
 import org.eobjects.analyzer.beans.BooleanAnalyzer;
+import org.eobjects.analyzer.beans.CompletenessAnalyzer;
 import org.eobjects.analyzer.beans.DateAndTimeAnalyzer;
 import org.eobjects.analyzer.beans.NumberAnalyzer;
 import org.eobjects.analyzer.beans.StringAnalyzer;
+import org.eobjects.analyzer.beans.uniqueness.UniqueKeyCheckAnalyzer;
 import org.eobjects.analyzer.configuration.AnalyzerBeansConfiguration;
 import org.eobjects.analyzer.configuration.AnalyzerBeansConfigurationImpl;
 import org.eobjects.analyzer.connection.Datastore;
 import org.eobjects.analyzer.connection.DatastoreConnection;
 import org.eobjects.analyzer.data.InputColumn;
+import org.eobjects.analyzer.data.MetaModelInputColumn;
+import org.eobjects.analyzer.descriptors.ConfiguredPropertyDescriptor;
 import org.eobjects.analyzer.job.AnalysisJob;
 import org.eobjects.analyzer.job.JaxbJobWriter;
 import org.eobjects.analyzer.job.builder.AnalysisJobBuilder;
+import org.eobjects.analyzer.job.builder.AnalyzerJobBuilder;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.gui.SpoonFactory;
@@ -48,7 +54,13 @@ import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.dom.Document;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Splitter;
+
 public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenuController {
+
+    private static final Set<String> ID_COLUMN_TOKENS = new HashSet<>(Arrays.asList("id", "pk", "number", "no", "nr",
+            "key"));
 
     private static ModelerHelper instance = null;
 
@@ -226,7 +238,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         launchDataCleaner(null, null, null, null);
     }
 
-    public void profileStep() throws Exception {
+    public void profileStep(final boolean buildJob) throws Exception {
 
         final Spoon spoon = ((Spoon) SpoonFactory.getInstance());
 
@@ -288,7 +300,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             // Pass along the configuration of the KettleDatabaseStore...
             final AnalyzerBeansConfiguration analyzerBeansConfiguration = new AnalyzerBeansConfigurationImpl();
-            final AnalysisJob analysisJob = createAnalysisJob(transMeta, stepMeta, analyzerBeansConfiguration);
+            final AnalysisJob analysisJob = createAnalysisJob(transMeta, stepMeta, analyzerBeansConfiguration, buildJob);
 
             // Write the job.xml to a temporary file...
             FileObject jobFile = KettleVFS.createTempFile("datacleaner-job", ".xml",
@@ -352,7 +364,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     }
 
     private AnalysisJob createAnalysisJob(final TransMeta transMeta, final StepMeta stepMeta,
-            final AnalyzerBeansConfiguration analyzerBeansConfiguration) throws KettleStepException {
+            final AnalyzerBeansConfiguration analyzerBeansConfiguration, final boolean buildJob)
+            throws KettleStepException {
         try (final AnalysisJobBuilder analysisJobBuilder = new AnalysisJobBuilder(analyzerBeansConfiguration)) {
             final Datastore datastore = new KettleDatastore(transMeta.getName(), stepMeta.getName(),
                     transMeta.getStepFields(stepMeta));
@@ -365,24 +378,79 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                 final Column[] customerColumns = dataContext.getTableByQualifiedLabel(stepMeta.getName()).getColumns();
                 analysisJobBuilder.addSourceColumns(customerColumns);
 
-                final List<InputColumn<?>> numberColumns = analysisJobBuilder.getAvailableInputColumns(Number.class);
-                if (!numberColumns.isEmpty()) {
-                    analysisJobBuilder.addAnalyzer(NumberAnalyzer.class).addInputColumns(numberColumns);
-                }
+                final List<MetaModelInputColumn> sourceColumns = analysisJobBuilder.getSourceColumns();
 
-                final List<InputColumn<?>> dateColumns = analysisJobBuilder.getAvailableInputColumns(Date.class);
-                if (!dateColumns.isEmpty()) {
-                    analysisJobBuilder.addAnalyzer(DateAndTimeAnalyzer.class).addInputColumns(dateColumns);
-                }
+                if (buildJob && !sourceColumns.isEmpty()) {
+                    // if something looks like an ID, add a unique key analyzer
+                    // for it.
+                    final Set<InputColumn<?>> idColumns = new HashSet<>();
+                    {
+                        final CharMatcher charMatcher = CharMatcher.BREAKING_WHITESPACE.or(CharMatcher
+                                .anyOf("_-|#.,/+-!@&()[]"));
+                        final Splitter splitter = Splitter.on(charMatcher).trimResults().omitEmptyStrings();
+                        for (InputColumn<?> sourceColumn : sourceColumns) {
+                            final String columnName = sourceColumn.getName().toLowerCase();
+                            final List<String> columnTokens = splitter.splitToList(columnName);
+                            for (String token : columnTokens) {
+                                if (ID_COLUMN_TOKENS.contains(token)) {
+                                    // this looks like an ID column
+                                    idColumns.add(sourceColumn);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    for (InputColumn<?> idColumn : idColumns) {
+                        final AnalyzerJobBuilder<UniqueKeyCheckAnalyzer> uniqueKeyCheck = analysisJobBuilder
+                                .addAnalyzer(UniqueKeyCheckAnalyzer.class);
+                        uniqueKeyCheck.setName("Uniqueness of " + idColumn.getName());
+                        uniqueKeyCheck.addInputColumn(idColumn);
+                    }
 
-                final List<InputColumn<?>> booleanColumns = analysisJobBuilder.getAvailableInputColumns(Boolean.class);
-                if (!booleanColumns.isEmpty()) {
-                    analysisJobBuilder.addAnalyzer(BooleanAnalyzer.class).addInputColumns(booleanColumns);
-                }
+                    // add a completeness analyzer for all columns
+                    final AnalyzerJobBuilder<CompletenessAnalyzer> completenessAnalyzer = analysisJobBuilder
+                            .addAnalyzer(CompletenessAnalyzer.class);
+                    completenessAnalyzer.addInputColumns(sourceColumns);
 
-                final List<InputColumn<?>> stringColumns = analysisJobBuilder.getAvailableInputColumns(String.class);
-                if (!stringColumns.isEmpty()) {
-                    analysisJobBuilder.addAnalyzer(StringAnalyzer.class).addInputColumns(stringColumns);
+                    // add a number analyzer for all number columns
+                    final List<InputColumn<?>> numberColumns = analysisJobBuilder
+                            .getAvailableInputColumns(Number.class);
+                    if (!numberColumns.isEmpty()) {
+                        final AnalyzerJobBuilder<NumberAnalyzer> numberAnalyzer = analysisJobBuilder
+                                .addAnalyzer(NumberAnalyzer.class);
+                        final ConfiguredPropertyDescriptor descriptiveStatisticsProperty = numberAnalyzer
+                                .getDescriptor().getConfiguredProperty("Descriptive statistics");
+                        if (descriptiveStatisticsProperty != null) {
+                            numberAnalyzer.setConfiguredProperty(descriptiveStatisticsProperty, true);
+                        }
+                        numberAnalyzer.addInputColumns(numberColumns);
+                    }
+
+                    // add a date/time analyzer for all date columns
+                    final List<InputColumn<?>> dateColumns = analysisJobBuilder.getAvailableInputColumns(Date.class);
+                    if (!dateColumns.isEmpty()) {
+                        final AnalyzerJobBuilder<DateAndTimeAnalyzer> dateAndTimeAnalyzer = analysisJobBuilder
+                                .addAnalyzer(DateAndTimeAnalyzer.class);
+                        dateAndTimeAnalyzer.addInputColumns(dateColumns);
+                    }
+
+                    // add a boolean analyzer for all boolean columns
+                    final List<InputColumn<?>> booleanColumns = analysisJobBuilder
+                            .getAvailableInputColumns(Boolean.class);
+                    if (!booleanColumns.isEmpty()) {
+                        final AnalyzerJobBuilder<BooleanAnalyzer> booleanAnalyzer = analysisJobBuilder
+                                .addAnalyzer(BooleanAnalyzer.class);
+                        booleanAnalyzer.addInputColumns(booleanColumns);
+                    }
+
+                    // add a string analyzer for all string columns
+                    final List<InputColumn<?>> stringColumns = analysisJobBuilder
+                            .getAvailableInputColumns(String.class);
+                    if (!stringColumns.isEmpty()) {
+                        final AnalyzerJobBuilder<StringAnalyzer> stringAnalyzer = analysisJobBuilder
+                                .addAnalyzer(StringAnalyzer.class);
+                        stringAnalyzer.addInputColumns(stringColumns);
+                    }
                 }
             }
             return analysisJobBuilder.toAnalysisJob();
@@ -393,26 +461,19 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         StringBuilder xml = new StringBuilder();
 
         xml.append(XMLHandler.getXMLHeader());
-        xml.append("<configuration xmlns=\"http://eobjects.org/analyzerbeans/configuration/1.0\"");
-        xml.append("   xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">").append(Const.CR);
+        xml.append("<configuration xmlns=\"http://eobjects.org/analyzerbeans/configuration/1.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
         xml.append(XMLHandler.openTag("datastore-catalog"));
 
-        /*
-         * <custom-datastore
-         * class-name="org.eobjects.analyzer.configuration.SampleCustomDatastore"
-         * > <property name="Name" value="my_custom" /> <property
-         * name="Xml file" value="pom.xml" /> <property name="Description"
-         * value="custom" /> </custom-datastore>
-         */
-
-        xml.append("<custom-datastore class-name=\"" + KettleDatastore.class.getName() + "\">").append(Const.CR);
+        // add a custom datastore
+        xml.append("<custom-datastore class-name=\"" + KettleDatastore.class.getName() + "\">");
         xml.append("<property name=\"Name\" value=\"" + name + "\" />");
         xml.append("<property name=\"Filename\" value=\"" + filename + "\" />");
+        xml.append("</custom-datastore>");
 
-        xml.append(XMLHandler.closeTag("custom-datastore"));
         xml.append(XMLHandler.closeTag("datastore-catalog"));
 
         xml.append("<multithreaded-taskrunner max-threads=\"30\" />");
+
         xml.append(XMLHandler.openTag("classpath-scanner"));
         xml.append(" <package recursive=\"true\">org.eobjects.analyzer.beans</package>");
         xml.append(" <package>org.eobjects.analyzer.result.renderer</package>");

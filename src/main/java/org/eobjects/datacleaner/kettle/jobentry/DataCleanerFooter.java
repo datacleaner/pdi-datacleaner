@@ -20,7 +20,7 @@ import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-public class HumanInferenceFooter extends Composite {
+public class DataCleanerFooter extends Composite {
 
     private final List<Object> resources;
 
@@ -29,7 +29,7 @@ public class HumanInferenceFooter extends Composite {
      *
      * @param parent
      */
-    public HumanInferenceFooter(Composite parent) {
+    public DataCleanerFooter(Composite parent) {
         super(parent, SWT.NONE);
 
         resources = new ArrayList<Object>();
@@ -85,8 +85,8 @@ public class HumanInferenceFooter extends Composite {
             label.setCursor(cursor);
             label.addMouseListener(new MouseAdapter() {
                 @Override
-                public void mouseUp(MouseEvent arg0) {
-                    Program.launch("http://www.humaninference.com");
+                public void mouseUp(MouseEvent event) {
+                    Program.launch("http://www.neopost.com");
                 }
             });
         }

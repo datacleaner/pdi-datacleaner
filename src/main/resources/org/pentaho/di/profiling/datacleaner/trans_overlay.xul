@@ -5,7 +5,8 @@
   xmlns:pen="http://www.pentaho.org/2008/xul">
 
   <menupopup id="trans-graph-entry">
-    <menuitem id="trans-graph-entry-profile" label="Profile" command="profiler.profileStep()" />
+  	<menuitem id="trans-graph-entry-profile" label="Profile with DataCleaner" command="profiler.profileStep(false)" />
+    <menuitem id="trans-graph-entry-profile" label="Profile with DataCleaner (pre-built job)" command="profiler.profileStep(true)" />
   </menupopup>
 
 </overlay>
