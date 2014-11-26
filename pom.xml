@@ -48,9 +48,7 @@
 					<finalName>DataCleaner-PDI</finalName>
 					<descriptors>
 						<descriptor>src/main/assembly/kettle-jar-assembly.xml</descriptor>
-						<!-- 
 						<descriptor>src/main/assembly/kettle-zip-assembly.xml</descriptor>
-						 -->
 					</descriptors>
 				</configuration>
 				<executions>
