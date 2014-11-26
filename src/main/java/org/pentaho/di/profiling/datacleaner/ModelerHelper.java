@@ -411,6 +411,10 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                     final AnalyzerJobBuilder<CompletenessAnalyzer> completenessAnalyzer = analysisJobBuilder
                             .addAnalyzer(CompletenessAnalyzer.class);
                     completenessAnalyzer.addInputColumns(sourceColumns);
+                    final CompletenessAnalyzer.Condition[] conditions = new CompletenessAnalyzer.Condition[sourceColumns
+                            .size()];
+                    Arrays.fill(conditions, CompletenessAnalyzer.Condition.NOT_BLANK_OR_NULL);
+                    completenessAnalyzer.setConfiguredProperty("Conditions", conditions);
 
                     // add a number analyzer for all number columns
                     final List<InputColumn<?>> numberColumns = analysisJobBuilder
@@ -453,7 +457,12 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                     }
                 }
             }
-            return analysisJobBuilder.toAnalysisJob();
+
+            if (buildJob) {
+                return analysisJobBuilder.toAnalysisJob();
+            } else {
+                return analysisJobBuilder.toAnalysisJob(false);
+            }
         }
     }
 
