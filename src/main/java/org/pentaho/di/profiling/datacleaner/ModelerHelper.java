@@ -14,6 +14,7 @@ import java.util.Set;
 import org.apache.commons.vfs.FileObject;
 import org.apache.metamodel.DataContext;
 import org.apache.metamodel.schema.Column;
+import org.eclipse.swt.program.Program;
 import org.eobjects.analyzer.beans.BooleanAnalyzer;
 import org.eobjects.analyzer.beans.CompletenessAnalyzer;
 import org.eobjects.analyzer.beans.DateAndTimeAnalyzer;
@@ -236,6 +237,10 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
     public void openProfiler() throws Exception {
         launchDataCleaner(null, null, null, null);
+    }
+    
+    public void readMore() {
+        Program.launch("http://datacleaner.org/focus/pentaho");
     }
 
     public void profileStep(final boolean buildJob) throws Exception {
