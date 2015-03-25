@@ -1,12 +1,12 @@
 package org.pentaho.di.profiling.datacleaner;
 
-import org.eobjects.analyzer.beans.api.Configured;
-import org.eobjects.analyzer.connection.Datastore;
-import org.eobjects.analyzer.connection.DatastoreConnectionImpl;
-import org.eobjects.analyzer.connection.PerformanceCharacteristics;
-import org.eobjects.analyzer.connection.PerformanceCharacteristicsImpl;
-import org.eobjects.analyzer.connection.UsageAwareDatastore;
-import org.eobjects.analyzer.connection.UsageAwareDatastoreConnection;
+import org.datacleaner.api.Configured;
+import org.datacleaner.connection.Datastore;
+import org.datacleaner.connection.DatastoreConnectionImpl;
+import org.datacleaner.connection.PerformanceCharacteristics;
+import org.datacleaner.connection.PerformanceCharacteristicsImpl;
+import org.datacleaner.connection.UsageAwareDatastore;
+import org.datacleaner.connection.UsageAwareDatastoreConnection;
 import org.pentaho.di.core.row.RowMetaInterface;
 
 public class KettleDatastore extends UsageAwareDatastore<KettleDataContext> implements Datastore {

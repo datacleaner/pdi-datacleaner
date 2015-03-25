@@ -8,7 +8,7 @@
 	</parent>
 	<properties>
 		<kettle.version>5.0.0</kettle.version>
-		<datacleaner.version>3.7</datacleaner.version>
+		<datacleaner.version>4.0</datacleaner.version>
 	</properties>
 	<artifactId>pdi-datacleaner</artifactId>
 	<name>DataCleaner for Pentaho Data Integration</name>
@@ -99,7 +99,7 @@
 		<!-- DataCleaner dependencies -->
 		<dependency>
 			<groupId>org.eobjects.datacleaner</groupId>
-			<artifactId>DataCleaner-desktop</artifactId>
+			<artifactId>DataCleaner-desktop-ui</artifactId>
 			<version>${datacleaner.version}</version>
 			<exclusions>
 				<exclusion>
@@ -108,17 +108,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<dependency>
-			<groupId>org.eobjects.datacleaner</groupId>
-			<artifactId>DataCleaner-visualization</artifactId>
-			<version>${datacleaner.version}</version>
-		</dependency>
 
 		<!-- TEST dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.11</version>
+			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

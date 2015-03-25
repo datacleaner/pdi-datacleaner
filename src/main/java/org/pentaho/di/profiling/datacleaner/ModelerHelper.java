@@ -14,24 +14,24 @@ import java.util.Set;
 import org.apache.commons.vfs.FileObject;
 import org.apache.metamodel.DataContext;
 import org.apache.metamodel.schema.Column;
+import org.datacleaner.api.InputColumn;
+import org.datacleaner.beans.BooleanAnalyzer;
+import org.datacleaner.beans.CompletenessAnalyzer;
+import org.datacleaner.beans.DateAndTimeAnalyzer;
+import org.datacleaner.beans.NumberAnalyzer;
+import org.datacleaner.beans.StringAnalyzer;
+import org.datacleaner.beans.uniqueness.UniqueKeyCheckAnalyzer;
+import org.datacleaner.configuration.AnalyzerBeansConfiguration;
+import org.datacleaner.configuration.AnalyzerBeansConfigurationImpl;
+import org.datacleaner.connection.Datastore;
+import org.datacleaner.connection.DatastoreConnection;
+import org.datacleaner.data.MetaModelInputColumn;
+import org.datacleaner.descriptors.ConfiguredPropertyDescriptor;
+import org.datacleaner.job.AnalysisJob;
+import org.datacleaner.job.JaxbJobWriter;
+import org.datacleaner.job.builder.AnalysisJobBuilder;
+import org.datacleaner.job.builder.AnalyzerComponentBuilder;
 import org.eclipse.swt.program.Program;
-import org.eobjects.analyzer.beans.BooleanAnalyzer;
-import org.eobjects.analyzer.beans.CompletenessAnalyzer;
-import org.eobjects.analyzer.beans.DateAndTimeAnalyzer;
-import org.eobjects.analyzer.beans.NumberAnalyzer;
-import org.eobjects.analyzer.beans.StringAnalyzer;
-import org.eobjects.analyzer.beans.uniqueness.UniqueKeyCheckAnalyzer;
-import org.eobjects.analyzer.configuration.AnalyzerBeansConfiguration;
-import org.eobjects.analyzer.configuration.AnalyzerBeansConfigurationImpl;
-import org.eobjects.analyzer.connection.Datastore;
-import org.eobjects.analyzer.connection.DatastoreConnection;
-import org.eobjects.analyzer.data.InputColumn;
-import org.eobjects.analyzer.data.MetaModelInputColumn;
-import org.eobjects.analyzer.descriptors.ConfiguredPropertyDescriptor;
-import org.eobjects.analyzer.job.AnalysisJob;
-import org.eobjects.analyzer.job.JaxbJobWriter;
-import org.eobjects.analyzer.job.builder.AnalysisJobBuilder;
-import org.eobjects.analyzer.job.builder.AnalyzerJobBuilder;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.gui.SpoonFactory;
@@ -406,26 +406,26 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                         }
                     }
                     for (InputColumn<?> idColumn : idColumns) {
-                        final AnalyzerJobBuilder<UniqueKeyCheckAnalyzer> uniqueKeyCheck = analysisJobBuilder
+                        final AnalyzerComponentBuilder<UniqueKeyCheckAnalyzer> uniqueKeyCheck = analysisJobBuilder
                                 .addAnalyzer(UniqueKeyCheckAnalyzer.class);
                         uniqueKeyCheck.setName("Uniqueness of " + idColumn.getName());
                         uniqueKeyCheck.addInputColumn(idColumn);
                     }
 
                     // add a completeness analyzer for all columns
-                    final AnalyzerJobBuilder<CompletenessAnalyzer> completenessAnalyzer = analysisJobBuilder
+                    final AnalyzerComponentBuilder<CompletenessAnalyzer> completenessAnalyzer = analysisJobBuilder
                             .addAnalyzer(CompletenessAnalyzer.class);
                     completenessAnalyzer.addInputColumns(sourceColumns);
                     final CompletenessAnalyzer.Condition[] conditions = new CompletenessAnalyzer.Condition[sourceColumns
                             .size()];
                     Arrays.fill(conditions, CompletenessAnalyzer.Condition.NOT_BLANK_OR_NULL);
-                    completenessAnalyzer.setConfiguredProperty("Conditions", conditions);
+                    completenessAnalyzer.setConfiguredProperty(CompletenessAnalyzer.PROPERTY_CONDITIONS, conditions);
 
                     // add a number analyzer for all number columns
                     final List<InputColumn<?>> numberColumns = analysisJobBuilder
                             .getAvailableInputColumns(Number.class);
                     if (!numberColumns.isEmpty()) {
-                        final AnalyzerJobBuilder<NumberAnalyzer> numberAnalyzer = analysisJobBuilder
+                        final AnalyzerComponentBuilder<NumberAnalyzer> numberAnalyzer = analysisJobBuilder
                                 .addAnalyzer(NumberAnalyzer.class);
                         final ConfiguredPropertyDescriptor descriptiveStatisticsProperty = numberAnalyzer
                                 .getDescriptor().getConfiguredProperty("Descriptive statistics");
@@ -438,7 +438,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                     // add a date/time analyzer for all date columns
                     final List<InputColumn<?>> dateColumns = analysisJobBuilder.getAvailableInputColumns(Date.class);
                     if (!dateColumns.isEmpty()) {
-                        final AnalyzerJobBuilder<DateAndTimeAnalyzer> dateAndTimeAnalyzer = analysisJobBuilder
+                        final AnalyzerComponentBuilder<DateAndTimeAnalyzer> dateAndTimeAnalyzer = analysisJobBuilder
                                 .addAnalyzer(DateAndTimeAnalyzer.class);
                         dateAndTimeAnalyzer.addInputColumns(dateColumns);
                     }
@@ -447,7 +447,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                     final List<InputColumn<?>> booleanColumns = analysisJobBuilder
                             .getAvailableInputColumns(Boolean.class);
                     if (!booleanColumns.isEmpty()) {
-                        final AnalyzerJobBuilder<BooleanAnalyzer> booleanAnalyzer = analysisJobBuilder
+                        final AnalyzerComponentBuilder<BooleanAnalyzer> booleanAnalyzer = analysisJobBuilder
                                 .addAnalyzer(BooleanAnalyzer.class);
                         booleanAnalyzer.addInputColumns(booleanColumns);
                     }
@@ -456,7 +456,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                     final List<InputColumn<?>> stringColumns = analysisJobBuilder
                             .getAvailableInputColumns(String.class);
                     if (!stringColumns.isEmpty()) {
-                        final AnalyzerJobBuilder<StringAnalyzer> stringAnalyzer = analysisJobBuilder
+                        final AnalyzerComponentBuilder<StringAnalyzer> stringAnalyzer = analysisJobBuilder
                                 .addAnalyzer(StringAnalyzer.class);
                         stringAnalyzer.addInputColumns(stringColumns);
                     }
