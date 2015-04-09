@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.eobjects.datacleaner</groupId>
 		<artifactId>DataCleaner</artifactId>
-		<version>3.7</version>
+		<version>4.0</version>
 	</parent>
 	<properties>
 		<kettle.version>5.0.0</kettle.version>
@@ -113,7 +113,6 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
