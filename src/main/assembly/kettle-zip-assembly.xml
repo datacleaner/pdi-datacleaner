@@ -5,6 +5,12 @@
 	</formats>
 	<includeBaseDirectory>true</includeBaseDirectory>
 	<baseDirectory>profiling-datacleaner</baseDirectory>
+	<fileSets>
+		<fileSet>
+			<outputDirectory>lib</outputDirectory>
+			<directory>target/lib</directory>
+		</fileSet>
+	</fileSets>
 	<files>
 		<file>
 			<source>target/DataCleaner-PDI-plugin.jar</source>
