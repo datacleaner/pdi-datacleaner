@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JOptionPane;
+
 import org.apache.commons.vfs.FileObject;
 import org.apache.metamodel.DataContext;
 import org.apache.metamodel.schema.Column;
@@ -59,6 +61,8 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 
 public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenuController {
+
+    private static final String MAIN_CLASS = "org.datacleaner.Main";
 
     private static final Set<String> ID_COLUMN_TOKENS = new HashSet<>(Arrays.asList("id", "pk", "number", "no", "nr",
             "key"));
@@ -143,11 +147,10 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             cmds.add(classPathBuilder.toString());
             cmds.add("-Ddatacleaner.ui.visible=true");
             cmds.add("-Ddatacleaner.embed.client=Kettle");
-            cmds.add("-DDATACLEANER_HOME=" + pluginFolderPath);
 
             // Finally, the class to launch
             //
-            cmds.add("org.eobjects.datacleaner.Main");
+            cmds.add(MAIN_CLASS);
 
             // The optional arguments for DataCleaner
             //
@@ -182,10 +185,15 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             psrStdout.start();
             psrStderr.start();
 
-            process.waitFor();
-
-            psrStdout.join();
-            psrStderr.join();
+            final int exitCode = process.waitFor();
+            try {
+                psrStdout.join();
+                psrStderr.join();
+            } finally {
+                if (exitCode != 0) {
+                    JOptionPane.showMessageDialog(null, "Unexpected error code: " + exitCode);
+                }
+            }
 
             // When DC finishes we clean up the temporary files...
             //
@@ -238,7 +246,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     public void openProfiler() throws Exception {
         launchDataCleaner(null, null, null, null);
     }
-    
+
     public void readMore() {
         Program.launch("http://datacleaner.org/focus/pentaho");
     }
@@ -486,23 +494,14 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
         xml.append(XMLHandler.closeTag("datastore-catalog"));
 
+        // TODO: Eventually we want to rely on default here, not specifying the
+        // task runner type
         xml.append("<multithreaded-taskrunner max-threads=\"30\" />");
 
+        // TODO: Eventually we want to rely on defaults here, not specifying any
+        // package names
         xml.append(XMLHandler.openTag("classpath-scanner"));
-        xml.append(" <package recursive=\"true\">org.eobjects.analyzer.beans</package>");
-        xml.append(" <package>org.eobjects.analyzer.result.renderer</package>");
-
-        // TODO: Remove after v. 3.7.1
-        xml.append(" <package>org.eobjects.datacleaner.output.beans</package>");
-
-        // TODO: Would be nice if extensions could be auto-discovered but the
-        // datacleaner-extension.xml file is overwritten during assembly to a
-        // single jar file.
-        xml.append(" <package>org.eobjects.datacleaner.visualization</package>");
-
-        xml.append(" <package recursive=\"true\">org.eobjects.datacleaner.extension</package>");
-        xml.append(" <package>org.eobjects.datacleaner.panels</package>");
-        xml.append(" <package recursive=\"true\">org.eobjects.datacleaner.widgets.result</package>");
+        xml.append(" <package recursive=\"true\">org.datacleaner</package>");
         xml.append(" <package recursive=\"true\">com.hi</package>");
         xml.append(" <package recursive=\"true\">com.neopost</package>");
         xml.append(XMLHandler.closeTag("classpath-scanner"));
