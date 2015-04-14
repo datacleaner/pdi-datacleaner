@@ -4,11 +4,11 @@
 	<parent>
 		<groupId>org.eobjects.datacleaner</groupId>
 		<artifactId>DataCleaner</artifactId>
-		<version>4.0</version>
+		<version>4.0.1</version>
 	</parent>
 	<properties>
 		<kettle.version>5.0.0</kettle.version>
-		<datacleaner.version>4.0</datacleaner.version>
+		<datacleaner.version>4.0.1</datacleaner.version>
 		<mainClass>org.datacleaner.Main</mainClass>
 	</properties>
 	<artifactId>pdi-datacleaner</artifactId>

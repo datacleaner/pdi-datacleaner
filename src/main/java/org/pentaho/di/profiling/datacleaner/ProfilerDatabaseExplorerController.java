@@ -14,8 +14,8 @@ import org.datacleaner.beans.BooleanAnalyzer;
 import org.datacleaner.beans.DateAndTimeAnalyzer;
 import org.datacleaner.beans.NumberAnalyzer;
 import org.datacleaner.beans.StringAnalyzer;
-import org.datacleaner.configuration.AnalyzerBeansConfiguration;
-import org.datacleaner.configuration.AnalyzerBeansConfigurationImpl;
+import org.datacleaner.configuration.DataCleanerConfiguration;
+import org.datacleaner.configuration.DataCleanerConfigurationImpl;
 import org.datacleaner.connection.Datastore;
 import org.datacleaner.connection.DatastoreConnection;
 import org.datacleaner.connection.JdbcDatastore;
@@ -60,8 +60,8 @@ public class ProfilerDatabaseExplorerController extends AbstractXulEventHandler 
             final String schemaTable = dbMeta.getQuotedSchemaTableCombination(schemaName, tableName);
 
             // Pass along the configuration of the KettleDatabaseStore...
-            final AnalyzerBeansConfiguration analyzerBeansConfiguration = new AnalyzerBeansConfigurationImpl();
-            try (final AnalysisJobBuilder analysisJobBuilder = new AnalysisJobBuilder(analyzerBeansConfiguration)) {
+            final DataCleanerConfiguration dataCleanerConfiguration = new DataCleanerConfigurationImpl();
+            try (final AnalysisJobBuilder analysisJobBuilder = new AnalysisJobBuilder(dataCleanerConfiguration)) {
 
                 final Datastore datastore = new JdbcDatastore(dbMeta.getName(), dbMeta.getURL(),
                         dbMeta.getDriverClass(), dbMeta.getUsername(), dbMeta.getPassword(), false);
@@ -114,7 +114,7 @@ public class ProfilerDatabaseExplorerController extends AbstractXulEventHandler 
                         OutputStream jobOutputStream = null;
                         try {
                             jobOutputStream = KettleVFS.getOutputStream(jobFile, false);
-                            new JaxbJobWriter(analyzerBeansConfiguration).write(analysisJobBuilder.toAnalysisJob(),
+                            new JaxbJobWriter(dataCleanerConfiguration).write(analysisJobBuilder.toAnalysisJob(),
                                     jobOutputStream);
                             jobOutputStream.close();
                         } finally {

@@ -23,8 +23,8 @@ import org.datacleaner.beans.DateAndTimeAnalyzer;
 import org.datacleaner.beans.NumberAnalyzer;
 import org.datacleaner.beans.StringAnalyzer;
 import org.datacleaner.beans.uniqueness.UniqueKeyCheckAnalyzer;
-import org.datacleaner.configuration.AnalyzerBeansConfiguration;
-import org.datacleaner.configuration.AnalyzerBeansConfigurationImpl;
+import org.datacleaner.configuration.DataCleanerConfiguration;
+import org.datacleaner.configuration.DataCleanerConfigurationImpl;
 import org.datacleaner.connection.Datastore;
 import org.datacleaner.connection.DatastoreConnection;
 import org.datacleaner.data.MetaModelInputColumn;
@@ -312,8 +312,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             }
 
             // Pass along the configuration of the KettleDatabaseStore...
-            final AnalyzerBeansConfiguration analyzerBeansConfiguration = new AnalyzerBeansConfigurationImpl();
-            final AnalysisJob analysisJob = createAnalysisJob(transMeta, stepMeta, analyzerBeansConfiguration, buildJob);
+            final DataCleanerConfiguration dataCleanerConfiguration = new DataCleanerConfigurationImpl();
+            final AnalysisJob analysisJob = createAnalysisJob(transMeta, stepMeta, dataCleanerConfiguration, buildJob);
 
             // Write the job.xml to a temporary file...
             FileObject jobFile = KettleVFS.createTempFile("datacleaner-job", ".xml",
@@ -322,7 +322,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             try {
                 jobOutputStream = KettleVFS.getOutputStream(jobFile, false);
-                final JaxbJobWriter jobWriter = new JaxbJobWriter(analyzerBeansConfiguration);
+                final JaxbJobWriter jobWriter = new JaxbJobWriter(dataCleanerConfiguration);
                 jobWriter.write(analysisJob, jobOutputStream);
             } catch (Exception e) {
                 final LogChannelInterface log = Spoon.getInstance().getLog();
@@ -377,9 +377,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     }
 
     private AnalysisJob createAnalysisJob(final TransMeta transMeta, final StepMeta stepMeta,
-            final AnalyzerBeansConfiguration analyzerBeansConfiguration, final boolean buildJob)
-            throws KettleStepException {
-        try (final AnalysisJobBuilder analysisJobBuilder = new AnalysisJobBuilder(analyzerBeansConfiguration)) {
+            final DataCleanerConfiguration dataCleanerConfiguration, final boolean buildJob) throws KettleStepException {
+        try (final AnalysisJobBuilder analysisJobBuilder = new AnalysisJobBuilder(dataCleanerConfiguration)) {
             final Datastore datastore = new KettleDatastore(transMeta.getName(), stepMeta.getName(),
                     transMeta.getStepFields(stepMeta));
             analysisJobBuilder.setDatastore(datastore);
