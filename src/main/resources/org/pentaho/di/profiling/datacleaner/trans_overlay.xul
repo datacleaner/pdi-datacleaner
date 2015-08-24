@@ -5,10 +5,10 @@
   xmlns:pen="http://www.pentaho.org/2008/xul">
 
   <menupopup id="trans-graph-entry">
-  	<menu label="Profile with DataCleaner">
+  	<menu label="Profile with DataCleaner" class="menu-iconic" image="images/datacleaner-menuitem.png">
   		<menupopup>
-		  	<menuitem id="trans-graph-entry-profile-blank-job" label="Build your own profiling job" command="profiler.profileStep(false)" />
-		    <menuitem id="trans-graph-entry-profile-generated-job" label="Generate sample job from metadata" command="profiler.profileStep(true)" />
+		  	<menuitem id="trans-graph-entry-profile-blank-job" label="Build your own profiling job" command="profiler.profileStep(false)" class="menuitem-iconic" image="images/datacleaner-menuitem.png" />
+		    <menuitem id="trans-graph-entry-profile-generated-job" label="Generate sample job from metadata" command="profiler.profileStep(true)" class="menuitem-iconic" image="images/datacleaner-menuitem.png" />
 		    <menuitem id="trans-graph-entry-profile-readmore" label="Read more" command="profiler.readMore()" />
   		</menupopup>
   	</menu>
