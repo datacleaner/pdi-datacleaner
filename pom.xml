@@ -3,11 +3,11 @@
 	<parent>
 		<groupId>org.eobjects.datacleaner</groupId>
 		<artifactId>DataCleaner</artifactId>
-		<version>4.0.1</version>
+		<version>4.0.10</version>
 	</parent>
 	<properties>
 		<kettle.version>5.0.0</kettle.version>
-		<datacleaner.version>4.0.1</datacleaner.version>
+		<datacleaner.version>4.0.10</datacleaner.version>
 		<mainClass>org.datacleaner.Main</mainClass>
 	</properties>
 	<artifactId>pdi-datacleaner</artifactId>
@@ -26,7 +26,7 @@
 		<!-- PENTAHO REPOSITORIES -->
 		<repository>
 			<id>pentaho-repo</id>
-			<url>http://repo.pentaho.org/artifactory/pentaho/</url>
+			<url>http://repo.pentaho.org/artifactory/repo</url>
 		</repository>
 		<repository>
 			<id>pentaho-third-party</id>

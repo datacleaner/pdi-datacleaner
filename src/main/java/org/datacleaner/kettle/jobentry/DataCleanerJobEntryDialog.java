@@ -1,5 +1,7 @@
-package org.eobjects.datacleaner.kettle.jobentry;
+package org.datacleaner.kettle.jobentry;
 
+import org.datacleaner.kettle.ui.EnumCombo;
+import org.datacleaner.kettle.ui.WidgetFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;

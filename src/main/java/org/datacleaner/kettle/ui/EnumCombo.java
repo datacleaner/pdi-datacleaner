@@ -1,4 +1,4 @@
-package org.eobjects.datacleaner.kettle.jobentry;
+package org.datacleaner.kettle.ui;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;

@@ -1,4 +1,4 @@
-package org.eobjects.datacleaner.kettle.jobentry;
+package org.datacleaner.kettle.ui;
 
 import java.util.ArrayList;
 import java.util.List;

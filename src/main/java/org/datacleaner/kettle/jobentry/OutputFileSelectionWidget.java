@@ -1,5 +1,6 @@
-package org.eobjects.datacleaner.kettle.jobentry;
+package org.datacleaner.kettle.jobentry;
 
+import org.datacleaner.kettle.ui.WidgetFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;

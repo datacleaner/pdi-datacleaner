@@ -1,8 +1,10 @@
-package org.eobjects.datacleaner.kettle.jobentry;
+package org.datacleaner.kettle.jobentry;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.datacleaner.kettle.ui.DataCleanerBanner;
+import org.datacleaner.kettle.ui.DataCleanerFooter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -82,7 +84,7 @@ abstract class AbstractJobEntryDialog extends JobEntryDialog implements JobEntry
         final int middle = Const.MIDDLE_PCT;
         final int margin = Const.MARGIN;
 
-        // HI banner
+        // DC banner
         final DataCleanerBanner banner = new DataCleanerBanner(shell);
         {
             final FormData bannerLayoutData = new FormData();

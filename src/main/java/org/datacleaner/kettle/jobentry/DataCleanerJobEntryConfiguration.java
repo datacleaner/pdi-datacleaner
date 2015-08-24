@@ -1,4 +1,4 @@
-package org.eobjects.datacleaner.kettle.jobentry;
+package org.datacleaner.kettle.jobentry;
 
 import java.io.Serializable;
 

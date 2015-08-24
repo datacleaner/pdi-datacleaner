@@ -62,7 +62,8 @@ import com.google.common.base.Splitter;
 
 public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenuController {
 
-    private static final String MAIN_CLASS = "org.datacleaner.Main";
+    private static final String MAIN_CLASS_COMMUNITY = "org.datacleaner.Main";
+    private static final String MAIN_CLASS_COMMERCIAL = "com.hi.datacleaner.Main";
 
     private static final Set<String> ID_COLUMN_TOKENS = new HashSet<>(Arrays.asList("id", "pk", "number", "no", "nr",
             "key"));
@@ -150,7 +151,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             // Finally, the class to launch
             //
-            cmds.add(MAIN_CLASS);
+            cmds.add(MAIN_CLASS_COMMUNITY);
 
             // The optional arguments for DataCleaner
             //

@@ -10,9 +10,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.vfs.FileObject;
-import org.eobjects.datacleaner.kettle.jobentry.DataCleanerJobEntryConfiguration;
-import org.eobjects.datacleaner.kettle.jobentry.DataCleanerJobEntryDialog;
-import org.eobjects.datacleaner.kettle.jobentry.DataCleanerOutputType;
+import org.datacleaner.kettle.jobentry.DataCleanerJobEntryConfiguration;
+import org.datacleaner.kettle.jobentry.DataCleanerJobEntryDialog;
+import org.datacleaner.kettle.jobentry.DataCleanerOutputType;
 import org.pentaho.di.cluster.SlaveServer;
 import org.pentaho.di.core.Result;
 import org.pentaho.di.core.ResultFile;
