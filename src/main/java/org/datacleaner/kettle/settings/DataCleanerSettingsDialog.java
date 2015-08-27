@@ -106,7 +106,7 @@ public class DataCleanerSettingsDialog extends Dialog {
         new Label(_shell, SWT.NONE);
 
         final Label errorLabel = new Label(_shell, SWT.NONE);
-        errorLabel.setText("The selected folder does not contain DataCleaner installation");
+        errorLabel.setText("The selected folder does not contain a DataCleaner installation");
         errorLabel.setForeground(getParent().getDisplay().getSystemColor(SWT.COLOR_RED));
         errorLabel.setVisible(false);
         new Label(_shell, SWT.NONE);
