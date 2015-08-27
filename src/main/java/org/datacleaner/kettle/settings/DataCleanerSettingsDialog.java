@@ -81,7 +81,7 @@ public class DataCleanerSettingsDialog extends Dialog {
      */
     private void createContents() {
         _shell = new Shell(getParent(), getStyle());
-        _shell.setSize(500, 405);
+        _shell.setSize(500, 425);
         _shell.setText(getText());
         _shell.setLayout(new GridLayout(2, false));
         final DataCleanerBanner banner = new DataCleanerBanner(_shell);
@@ -109,6 +109,9 @@ public class DataCleanerSettingsDialog extends Dialog {
         errorLabel.setText("The selected folder does not contain DataCleaner instalation");
         errorLabel.setForeground(getParent().getDisplay().getSystemColor(SWT.COLOR_RED));
         errorLabel.setVisible(false);
+        new Label(_shell, SWT.NONE);
+        
+        new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
 
         final Label labelEdition = new Label(_shell, SWT.NONE);
