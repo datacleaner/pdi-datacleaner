@@ -33,7 +33,11 @@ import org.datacleaner.job.AnalysisJob;
 import org.datacleaner.job.JaxbJobWriter;
 import org.datacleaner.job.builder.AnalysisJobBuilder;
 import org.datacleaner.job.builder.AnalyzerComponentBuilder;
+import org.datacleaner.kettle.settings.DataCleanerSettingsDialog;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.program.Program;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.gui.SpoonFactory;
@@ -246,6 +250,22 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
     public void openProfiler() throws Exception {
         launchDataCleaner(null, null, null, null);
+    }
+
+    public void openSettings() throws InstantiationException, IllegalAccessException {
+        
+        Display display = Display.getDefault();
+        Shell shell = new Shell(display, SWT.SHELL_TRIM);
+        DataCleanerSettingsDialog dataCleanerSettingsDialog = new DataCleanerSettingsDialog(shell, SWT.SHELL_TRIM);
+
+        dataCleanerSettingsDialog.open();
+
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch())
+                display.sleep();
+        }
+        display.dispose();
+
     }
 
     public void readMore() {
