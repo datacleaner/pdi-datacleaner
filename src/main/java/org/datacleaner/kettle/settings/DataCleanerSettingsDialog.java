@@ -67,7 +67,7 @@ public class DataCleanerSettingsDialog extends Dialog {
         createContents();
         _shell.open();
         _shell.layout();
-        Display display = getParent().getDisplay();
+        final Display display = getParent().getDisplay();
         while (!_shell.isDisposed()) {
             if (!display.readAndDispatch()) {
                 display.sleep();
@@ -165,14 +165,14 @@ public class DataCleanerSettingsDialog extends Dialog {
                 directoryChooser.setFilterPath(_text.getText());
                 directoryChooser.setText("DataCleaner instalation folder");
                 directoryChooser.setMessage("Select a directory");
-                String dir = directoryChooser.open();
+                final String dir = directoryChooser.open();
                 if (dir != null) {
                     _text.setText(dir);
                     _result = dir;
                     try {
-                        SoftwareVersion editionDetails = getEditionDetails(dir);
+                        final SoftwareVersion editionDetails = getEditionDetails(dir);
                         if (editionDetails != null) {
-                            String edition = EDITION.trim() + " " + editionDetails.getName();
+                            final String edition = EDITION.trim() + " " + editionDetails.getName();
                             labelEdition.setText(edition);
                             labelVersion.setText(VERSION.trim() + " " + editionDetails.getVersion());
                             errorLabel.setVisible(false);
@@ -212,7 +212,7 @@ public class DataCleanerSettingsDialog extends Dialog {
     private static String getEdition(String file, File folder) {
         for (final File fileEntry : folder.listFiles()) {
             if (!fileEntry.isDirectory()) {
-                String fileName = fileEntry.getName();
+                final String fileName = fileEntry.getName();
                 if (fileName.contains(file)) {
                     return fileName;
                 }
