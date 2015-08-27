@@ -88,7 +88,6 @@ public class DataCleanerBanner extends Composite {
             backgroundLayoutData.grabExcessVerticalSpace = true;
             backgroundLayoutData.heightHint = HEIGHT;
             label.setLayoutData(backgroundLayoutData);
-            label.setText("DataCleaner");
             label.setAlignment(SWT.CENTER);
         }
 

@@ -254,9 +254,9 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
     public void openSettings() throws InstantiationException, IllegalAccessException {
         
-        Display display = Display.getDefault();
-        Shell shell = new Shell(display, SWT.SHELL_TRIM);
-        DataCleanerSettingsDialog dataCleanerSettingsDialog = new DataCleanerSettingsDialog(shell, SWT.SHELL_TRIM);
+        final Display display = Display.getDefault();
+        final Shell shell = new Shell(display, SWT.SHELL_TRIM);
+        final DataCleanerSettingsDialog dataCleanerSettingsDialog = new DataCleanerSettingsDialog(shell, SWT.SHELL_TRIM);
 
         dataCleanerSettingsDialog.open();
 

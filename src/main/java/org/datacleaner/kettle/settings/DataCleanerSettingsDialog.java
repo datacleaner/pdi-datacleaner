@@ -22,16 +22,16 @@ public class DataCleanerSettingsDialog extends Dialog {
 
     // The spaces are necessary because the label length cannot be modified at
     // runtime
-    private static String EDITION = "Edition:                     ";
-    private static String VERSION = "Version:                     ";
+    private static final String EDITION = "Edition:                     ";
+    private static final String VERSION = "Version:                     ";
 
     protected String _result;
     protected Shell _shell;
 
     private static class SoftwareVersion {
 
-        private String _name;
-        private String _version;
+        private final String _name;
+        private final String _version;
 
         SoftwareVersion(String name, String version) {
             _name = name;
@@ -55,7 +55,7 @@ public class DataCleanerSettingsDialog extends Dialog {
      */
     public DataCleanerSettingsDialog(Shell parent, int style) {
         super(parent, style);
-        setText("DataCleaner configuration settings");
+        setText("DataCleaner configuration");
     }
 
     /**
@@ -79,13 +79,15 @@ public class DataCleanerSettingsDialog extends Dialog {
     /**
      * Create contents of the dialog.
      */
+
     private void createContents() {
         _shell = new Shell(getParent(), getStyle());
         _shell.setSize(500, 425);
         _shell.setText(getText());
         _shell.setLayout(new GridLayout(2, false));
+        _shell.setOrientation(getStyle());
         final DataCleanerBanner banner = new DataCleanerBanner(_shell);
-        banner.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
+        banner.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
@@ -110,7 +112,7 @@ public class DataCleanerSettingsDialog extends Dialog {
         errorLabel.setForeground(getParent().getDisplay().getSystemColor(SWT.COLOR_RED));
         errorLabel.setVisible(false);
         new Label(_shell, SWT.NONE);
-        
+
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
 
@@ -140,7 +142,7 @@ public class DataCleanerSettingsDialog extends Dialog {
 
         btnBrowse.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                DirectoryDialog directoryChooser = new DirectoryDialog(_shell);
+                final DirectoryDialog directoryChooser = new DirectoryDialog(_shell);
                 directoryChooser.setFilterPath(_text.getText());
                 directoryChooser.setText("DataCleaner instalation folder");
                 directoryChooser.setMessage("Select a directory");
@@ -159,7 +161,8 @@ public class DataCleanerSettingsDialog extends Dialog {
                             errorLabel.setVisible(true);
                         }
                     } catch (IOException e) {
-
+                        errorLabel.setText("Exception while reading the directory");
+                        e.printStackTrace();
                     }
 
                 }
@@ -203,8 +206,8 @@ public class DataCleanerSettingsDialog extends Dialog {
         if (fileName == null) {
             return "Unknown";
         }
-        int lastIndexOfDash = fileName.lastIndexOf("-");
-        int lastIndexOfDot = fileName.lastIndexOf(".");
+        final int lastIndexOfDash = fileName.lastIndexOf("-");
+        final int lastIndexOfDot = fileName.lastIndexOf(".");
         if (lastIndexOfDash == -1 || lastIndexOfDot == -1) {
             return "Unknown";
         }
@@ -213,9 +216,9 @@ public class DataCleanerSettingsDialog extends Dialog {
 
     public static void main(String[] args) {
 
-        Display display = Display.getDefault();
-        Shell shell = new Shell(display, SWT.SHELL_TRIM);
-        DataCleanerSettingsDialog dataCleanerSettingsDialog = new DataCleanerSettingsDialog(shell, SWT.SHELL_TRIM);
+        final Display display = Display.getDefault();
+        final Shell shell = new Shell(display, SWT.SHELL_TRIM);
+        final DataCleanerSettingsDialog dataCleanerSettingsDialog = new DataCleanerSettingsDialog(shell, SWT.SHELL_TRIM);
 
         dataCleanerSettingsDialog.open();
 
