@@ -89,14 +89,12 @@ public class DataCleanerSettingsDialog extends Dialog {
         gridLayout.marginRight = -5;
         gridLayout.marginTop = -5;
         gridLayout.marginBottom = -5;
-        
-        
+
         _shell.setLayout(gridLayout);
         _shell.setOrientation(getStyle());
         final DataCleanerBanner banner = new DataCleanerBanner(_shell);
         banner.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
 
-        
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
@@ -119,7 +117,7 @@ public class DataCleanerSettingsDialog extends Dialog {
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
-        
+
         new Label(_shell, SWT.NONE);
         final Label errorLabel = new Label(_shell, SWT.NONE);
         errorLabel.setText("The selected folder does not contain a DataCleaner installation");
@@ -135,7 +133,7 @@ public class DataCleanerSettingsDialog extends Dialog {
         final Label labelEdition = new Label(_shell, SWT.NONE);
         labelEdition.setText(EDITION);
         new Label(_shell, SWT.NONE);
-        
+
         new Label(_shell, SWT.NONE);
         final Label labelVersion = new Label(_shell, SWT.NONE);
         labelVersion.setText(VERSION);
