@@ -143,16 +143,23 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             final String kettleLibPath = pluginFolderPath + "/../../lib";
 
-            final String pluginPath = pluginFolderPath + "/DataCleaner-PDI-plugin.jar";
-            final String DataCleanerInstallationPath = getDataCleanerInstalationPath(pluginFolderPath);
-            System.out.println("DC Installation Path " + pluginPath);
+            //final String pluginPath = pluginFolderPath + "/DataCleaner-PDI-plugin.jar";
+            final String dcInstallationFolder = getDataCleanerInstalationPath(pluginFolderPath);
+            
+            if (dcInstallationFolder == null) {
+                new ErrorDialog(Spoon.getInstance().getShell(), "Error launching DataCleaner",
+                        "The DataCleaner installation path could not be found", null);
+            }
+            
+            final String dcInstallationPath = getDataCleanerInstalationPath(pluginFolderPath) + "/DataCleaner.jar";
+            
             final String kettleCorePath = getJarFile(kettleLibPath, "kettle-core");
             final String commonsVfsPath = getJarFile(kettleLibPath, "commons-vfs");
             final String scannotationPath = getJarFile(kettleLibPath, "scannotation");
             final String javassistPath = getJarFile(kettleLibPath, "javassist");
 
             // Assemble the class path for DataCleaner
-            final String[] paths = new String[] { pluginPath, kettleCorePath, commonsVfsPath, scannotationPath,
+            final String[] paths = new String[] { dcInstallationPath, kettleCorePath, commonsVfsPath, scannotationPath,
                     javassistPath };
             final StringBuilder classPathBuilder = new StringBuilder();
             for (String path : paths) {
@@ -171,7 +178,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             // Finally, the class to launch
             //
-            final SoftwareVersion editionDetails = DataCleanerConfigurationDialog.getEditionDetails(pluginPath);
+            final SoftwareVersion editionDetails = DataCleanerConfigurationDialog.getEditionDetails(dcInstallationFolder);
 
             if (editionDetails != null) {
                 if (editionDetails.getName() == DataCleanerConfigurationDialog.DATACLEANER_COMMUNITY) {
@@ -205,6 +212,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             log.logBasic("DataCleaner launch commands : " + commandString);
 
+            System.out.println("Command string is " + commandString);
             ProcessBuilder processBuilder = new ProcessBuilder(cmds);
             processBuilder.environment().put("DATACLEANER_HOME", pluginFolderPath);
             Process process = processBuilder.start();
@@ -585,11 +593,10 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     public void updateMenu(Document doc) {
     }
 
-    public static void main(String[] args) throws InstantiationException, IllegalAccessException, XulException,
-            IOException {
+    public static void main(String[] args) throws Exception {
 
-        ModelerHelper modelerHelper = new ModelerHelper();
-        modelerHelper.openSettings();
+        final ModelerHelper modelerHelper = new ModelerHelper();
+        modelerHelper.openProfiler();
 
     }
 }
