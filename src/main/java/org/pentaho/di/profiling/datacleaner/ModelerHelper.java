@@ -1,7 +1,11 @@
 package org.pentaho.di.profiling.datacleaner;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +37,8 @@ import org.datacleaner.job.AnalysisJob;
 import org.datacleaner.job.JaxbJobWriter;
 import org.datacleaner.job.builder.AnalysisJobBuilder;
 import org.datacleaner.job.builder.AnalyzerComponentBuilder;
-import org.datacleaner.kettle.settings.DataCleanerSettingsDialog;
+import org.datacleaner.kettle.settings.DataCleanerConfigurationDialog;
+import org.datacleaner.kettle.settings.DataCleanerConfigurationDialog.SoftwareVersion;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Display;
@@ -67,7 +72,8 @@ import com.google.common.base.Splitter;
 public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenuController {
 
     private static final String MAIN_CLASS_COMMUNITY = "org.datacleaner.Main";
-    private static final String MAIN_CLASS_COMMERCIAL = "com.hi.datacleaner.Main";
+    private static final String MAIN_CLASS_ENTERPRISE = "com.hi.datacleaner.Main";
+    private static final String DATACLEANER_CONFIG_FILE = "datacleaner-configuration.xml";
 
     private static final Set<String> ID_COLUMN_TOKENS = new HashSet<>(Arrays.asList("id", "pk", "number", "no", "nr",
             "key"));
@@ -118,6 +124,14 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         return "profiler"; //$NON-NLS-1$
     }
 
+    private static String getDataCleanerInstalationPath(String pluginFolderPath) throws XulException, IOException {
+        final String configurationFilePath = pluginFolderPath + "/" + DATACLEANER_CONFIG_FILE;
+        final BufferedReader inputReader = new BufferedReader(new FileReader(configurationFilePath));
+        final String dcInstallationPath = inputReader.readLine().trim();
+        inputReader.close();
+        return dcInstallationPath;
+    }
+
     public static void launchDataCleaner(String confFile, String jobFile, String datastore, String dataFile) {
 
         final LogChannelInterface log = Spoon.getInstance().getLog();
@@ -130,6 +144,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             final String kettleLibPath = pluginFolderPath + "/../../lib";
 
             final String pluginPath = pluginFolderPath + "/DataCleaner-PDI-plugin.jar";
+            final String DataCleanerInstallationPath = getDataCleanerInstalationPath(pluginFolderPath);
+            System.out.println("DC Installation Path " + pluginPath);
             final String kettleCorePath = getJarFile(kettleLibPath, "kettle-core");
             final String commonsVfsPath = getJarFile(kettleLibPath, "commons-vfs");
             final String scannotationPath = getJarFile(kettleLibPath, "scannotation");
@@ -155,7 +171,15 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             // Finally, the class to launch
             //
-            cmds.add(MAIN_CLASS_COMMUNITY);
+            final SoftwareVersion editionDetails = DataCleanerConfigurationDialog.getEditionDetails(pluginPath);
+
+            if (editionDetails != null) {
+                if (editionDetails.getName() == DataCleanerConfigurationDialog.DATACLEANER_COMMUNITY) {
+                    cmds.add(MAIN_CLASS_COMMUNITY);
+                } else {
+                    cmds.add(MAIN_CLASS_ENTERPRISE);
+                }
+            }
 
             // The optional arguments for DataCleaner
             //
@@ -252,13 +276,24 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         launchDataCleaner(null, null, null, null);
     }
 
-    public void openSettings() throws InstantiationException, IllegalAccessException {
-        
+    public void openSettings() throws InstantiationException, IllegalAccessException, XulException, IOException {
+
         final Display display = Display.getDefault();
         final Shell shell = new Shell(display, SWT.SHELL_TRIM);
-        final DataCleanerSettingsDialog dataCleanerSettingsDialog = new DataCleanerSettingsDialog(shell, SWT.SHELL_TRIM);
+        final DataCleanerConfigurationDialog dataCleanerSettingsDialog = new DataCleanerConfigurationDialog(shell,
+                SWT.SHELL_TRIM);
 
-        dataCleanerSettingsDialog.open();
+        final String dialogResult = dataCleanerSettingsDialog.open();
+
+        final String pluginFolderPath = getPluginFolderPath();
+        final String configurationFilePath = pluginFolderPath + "/" + DATACLEANER_CONFIG_FILE;
+
+        if (dialogResult != null) {
+            final File file = new File(configurationFilePath);
+            final FileOutputStream outputStream = new FileOutputStream(file);
+            outputStream.write(dialogResult.getBytes());
+            outputStream.close();
+        }
 
         while (!shell.isDisposed()) {
             if (!display.readAndDispatch())
@@ -548,5 +583,13 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
     @Override
     public void updateMenu(Document doc) {
+    }
+
+    public static void main(String[] args) throws InstantiationException, IllegalAccessException, XulException,
+            IOException {
+
+        ModelerHelper modelerHelper = new ModelerHelper();
+        modelerHelper.openSettings();
+
     }
 }

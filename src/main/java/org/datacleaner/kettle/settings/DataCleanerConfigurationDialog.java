@@ -18,17 +18,21 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class DataCleanerSettingsDialog extends Dialog {
+public class DataCleanerConfigurationDialog extends Dialog {
 
     // The spaces are necessary because the label length cannot be modified at
     // runtime
     private static final String EDITION = "Edition:                     ";
     private static final String VERSION = "Version:                     ";
+    
+    public static final String DATACLEANER_COMMUNITY = "Community"; 
+    public static final String DATACLEANER_ENTERPRISE = "Enterprise"; 
+    
 
     protected String _result;
     protected Shell _shell;
 
-    private static class SoftwareVersion {
+    public static class SoftwareVersion {
 
         private final String _name;
         private final String _version;
@@ -53,7 +57,7 @@ public class DataCleanerSettingsDialog extends Dialog {
      * @param parent
      * @param style
      */
-    public DataCleanerSettingsDialog(Shell parent, int style) {
+    public DataCleanerConfigurationDialog(Shell parent, int style) {
         super(parent, style);
         setText("DataCleaner configuration");
     }
@@ -188,18 +192,18 @@ public class DataCleanerSettingsDialog extends Dialog {
 
     }
 
-    private static SoftwareVersion getEditionDetails(String path) throws IOException {
+    public static SoftwareVersion getEditionDetails(String path) throws IOException {
         final File folder = new File(path + "/lib");
         if (!folder.exists()) {
             return null;
         }
         final String fileEnterprise = getEdition("DataCleaner-enterprise-edition-core", folder);
         if (fileEnterprise != null) {
-            return new SoftwareVersion("Enterprise", getVersion(fileEnterprise));
+            return new SoftwareVersion(DATACLEANER_ENTERPRISE, getVersion(fileEnterprise));
         } else {
             final String fileCommunity = getEdition("DataCleaner-engine-core", folder);
             if (fileCommunity != null) {
-                return new SoftwareVersion("Community", getVersion(fileCommunity));
+                return new SoftwareVersion(DATACLEANER_COMMUNITY, getVersion(fileCommunity));
             }
         }
 
@@ -235,7 +239,7 @@ public class DataCleanerSettingsDialog extends Dialog {
 
         final Display display = Display.getDefault();
         final Shell shell = new Shell(display, SWT.SHELL_TRIM);
-        final DataCleanerSettingsDialog dataCleanerSettingsDialog = new DataCleanerSettingsDialog(shell, SWT.SHELL_TRIM);
+        final DataCleanerConfigurationDialog dataCleanerSettingsDialog = new DataCleanerConfigurationDialog(shell, SWT.SHELL_TRIM);
 
         dataCleanerSettingsDialog.open();
 

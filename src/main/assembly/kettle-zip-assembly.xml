@@ -18,5 +18,8 @@
 		<file>
 			<source>target/version.xml</source>
 		</file>
+		<file>
+			<source>target/datacleaner-configuration.xml</source>
+		</file>
 	</files>
 </assembly>
