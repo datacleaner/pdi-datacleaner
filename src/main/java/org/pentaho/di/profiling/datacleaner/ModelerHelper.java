@@ -124,12 +124,23 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         return "profiler"; //$NON-NLS-1$
     }
 
-    private static String getDataCleanerInstalationPath(String pluginFolderPath) throws XulException, IOException {
+    private static String getDataCleanerInstalationPath(String pluginFolderPath) {
         final String configurationFilePath = pluginFolderPath + "/" + DATACLEANER_CONFIG_FILE;
-        final BufferedReader inputReader = new BufferedReader(new FileReader(configurationFilePath));
-        final String dcInstallationPath = inputReader.readLine().trim();
-        inputReader.close();
-        return dcInstallationPath;
+
+        try {
+            final BufferedReader inputReader = new BufferedReader(new FileReader(configurationFilePath));
+            final String dcInstallationPath = inputReader.readLine().trim();
+            inputReader.close();
+            return dcInstallationPath;
+        } catch (Exception e) {
+            new ErrorDialog(
+                    Spoon.getInstance().getShell(),
+                    "Error launching DataCleaner",
+                    "The DataCleaner installation path could not be found.Please set the path in the menu Tools:DataCleaner configuration",
+                    e);
+        }
+
+        return null;
     }
 
     public static void launchDataCleaner(String confFile, String jobFile, String datastore, String dataFile) {
@@ -147,9 +158,13 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             // "/DataCleaner-PDI-plugin.jar";
             final String dcInstallationFolder = getDataCleanerInstalationPath(pluginFolderPath);
 
-            if (dcInstallationFolder == null) {
-                new ErrorDialog(Spoon.getInstance().getShell(), "Error launching DataCleaner",
-                        "The DataCleaner installation path could not be found", null);
+            // If the path is not set.File is empty
+            if (dcInstallationFolder == null || dcInstallationFolder.isEmpty()) {
+                new ErrorDialog(
+                        Spoon.getInstance().getShell(),
+                        "Error launching DataCleaner",
+                        "The DataCleaner installation path could not be found. Please set the path in the menu Tools:DataCleaner configuration",
+                        null);
             }
 
             final String dcInstallationPath = getDataCleanerInstalationPath(pluginFolderPath) + "/DataCleaner.jar";
@@ -214,7 +229,6 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             log.logBasic("DataCleaner launch commands : " + commandString);
 
-            System.out.println("Command string is " + commandString);
             ProcessBuilder processBuilder = new ProcessBuilder(cmds);
             processBuilder.environment().put("DATACLEANER_HOME", pluginFolderPath);
             Process process = processBuilder.start();

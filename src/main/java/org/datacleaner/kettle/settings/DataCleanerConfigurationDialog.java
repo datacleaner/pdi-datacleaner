@@ -24,10 +24,9 @@ public class DataCleanerConfigurationDialog extends Dialog {
     // runtime
     private static final String EDITION = "Edition:                     ";
     private static final String VERSION = "Version:                     ";
-    
-    public static final String DATACLEANER_COMMUNITY = "Community"; 
-    public static final String DATACLEANER_ENTERPRISE = "Enterprise"; 
-    
+
+    public static final String DATACLEANER_COMMUNITY = "Community";
+    public static final String DATACLEANER_ENTERPRISE = "Enterprise";
 
     protected String _result;
     protected Shell _shell;
@@ -170,7 +169,6 @@ public class DataCleanerConfigurationDialog extends Dialog {
                 final String dir = directoryChooser.open();
                 if (dir != null) {
                     _text.setText(dir);
-                    _result = dir;
                     try {
                         final SoftwareVersion editionDetails = getEditionDetails(dir);
                         if (editionDetails != null) {
@@ -178,8 +176,10 @@ public class DataCleanerConfigurationDialog extends Dialog {
                             labelEdition.setText(edition);
                             labelVersion.setText(VERSION.trim() + " " + editionDetails.getVersion());
                             errorLabel.setVisible(false);
+                            _result = dir;
                         } else {
                             errorLabel.setVisible(true);
+                            _result = null;
                         }
                     } catch (IOException e) {
                         errorLabel.setText("Exception while reading the directory");
@@ -239,7 +239,8 @@ public class DataCleanerConfigurationDialog extends Dialog {
 
         final Display display = Display.getDefault();
         final Shell shell = new Shell(display, SWT.SHELL_TRIM);
-        final DataCleanerConfigurationDialog dataCleanerSettingsDialog = new DataCleanerConfigurationDialog(shell, SWT.SHELL_TRIM);
+        final DataCleanerConfigurationDialog dataCleanerSettingsDialog = new DataCleanerConfigurationDialog(shell,
+                SWT.SHELL_TRIM);
 
         dataCleanerSettingsDialog.open();
 
