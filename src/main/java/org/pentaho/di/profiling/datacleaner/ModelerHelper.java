@@ -151,11 +151,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             // figure out path for DC
             //
             final String pluginFolderPath = getPluginFolderPath();
-
             final String kettleLibPath = pluginFolderPath + "/../../lib";
-
-            // final String pluginPath = pluginFolderPath +
-            // "/DataCleaner-PDI-plugin.jar";
             final String dcInstallationFolder = getDataCleanerInstalationPath(pluginFolderPath);
 
             // If the path is not set.File is empty
