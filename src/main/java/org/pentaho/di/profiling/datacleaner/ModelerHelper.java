@@ -143,16 +143,17 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             final String kettleLibPath = pluginFolderPath + "/../../lib";
 
-            //final String pluginPath = pluginFolderPath + "/DataCleaner-PDI-plugin.jar";
+            // final String pluginPath = pluginFolderPath +
+            // "/DataCleaner-PDI-plugin.jar";
             final String dcInstallationFolder = getDataCleanerInstalationPath(pluginFolderPath);
-            
+
             if (dcInstallationFolder == null) {
                 new ErrorDialog(Spoon.getInstance().getShell(), "Error launching DataCleaner",
                         "The DataCleaner installation path could not be found", null);
             }
-            
+
             final String dcInstallationPath = getDataCleanerInstalationPath(pluginFolderPath) + "/DataCleaner.jar";
-            
+
             final String kettleCorePath = getJarFile(kettleLibPath, "kettle-core");
             final String commonsVfsPath = getJarFile(kettleLibPath, "commons-vfs");
             final String scannotationPath = getJarFile(kettleLibPath, "scannotation");
@@ -178,7 +179,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             // Finally, the class to launch
             //
-            final SoftwareVersion editionDetails = DataCleanerConfigurationDialog.getEditionDetails(dcInstallationFolder);
+            final SoftwareVersion editionDetails = DataCleanerConfigurationDialog
+                    .getEditionDetails(dcInstallationFolder);
 
             if (editionDetails != null) {
                 if (editionDetails.getName() == DataCleanerConfigurationDialog.DATACLEANER_COMMUNITY) {
@@ -591,12 +593,5 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
     @Override
     public void updateMenu(Document doc) {
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        final ModelerHelper modelerHelper = new ModelerHelper();
-        modelerHelper.openProfiler();
-
     }
 }
