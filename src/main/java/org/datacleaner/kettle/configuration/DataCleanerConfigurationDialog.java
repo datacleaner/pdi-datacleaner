@@ -1,4 +1,4 @@
-package org.datacleaner.kettle.settings;
+package org.datacleaner.kettle.configuration;
 
 import java.io.File;
 import java.io.IOException;

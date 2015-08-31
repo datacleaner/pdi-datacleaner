@@ -37,8 +37,8 @@ import org.datacleaner.job.AnalysisJob;
 import org.datacleaner.job.JaxbJobWriter;
 import org.datacleaner.job.builder.AnalysisJobBuilder;
 import org.datacleaner.job.builder.AnalyzerComponentBuilder;
-import org.datacleaner.kettle.settings.DataCleanerConfigurationDialog;
-import org.datacleaner.kettle.settings.DataCleanerConfigurationDialog.SoftwareVersion;
+import org.datacleaner.kettle.configuration.DataCleanerConfigurationDialog;
+import org.datacleaner.kettle.configuration.DataCleanerConfigurationDialog.SoftwareVersion;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Display;
@@ -300,7 +300,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         launchDataCleaner(null, null, null, null);
     }
 
-    public void openSettings() throws InstantiationException, IllegalAccessException, XulException, IOException {
+    public void openConfiguration() throws InstantiationException, IllegalAccessException, XulException, IOException {
 
         final Display display = Display.getDefault();
         final Shell shell = new Shell(display, SWT.SHELL_TRIM);
