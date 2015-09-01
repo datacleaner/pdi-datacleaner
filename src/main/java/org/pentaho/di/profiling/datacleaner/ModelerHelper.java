@@ -154,6 +154,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             final String kettleLibPath = pluginFolderPath + "/../../lib";
             final String dcInstallationFolder = getDataCleanerInstalationPath(pluginFolderPath);
 
+            final String pluginPath = pluginFolderPath +  "/DataCleaner-PDI-plugin.jar"; 
             // If the path is not set.File is empty
             if (dcInstallationFolder == null || dcInstallationFolder.isEmpty()) {
                 new ErrorDialog(
@@ -171,8 +172,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             final String javassistPath = getJarFile(kettleLibPath, "javassist");
 
             // Assemble the class path for DataCleaner
-            final String[] paths = new String[] { dcInstallationPath, kettleCorePath, commonsVfsPath, scannotationPath,
-                    javassistPath };
+            final String[] paths = new String[] {  dcInstallationPath, kettleCorePath, commonsVfsPath, scannotationPath,
+                    javassistPath, pluginPath};
             final StringBuilder classPathBuilder = new StringBuilder();
             for (String path : paths) {
                 if (classPathBuilder.length() > 0) {
