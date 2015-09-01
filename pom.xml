@@ -7,7 +7,7 @@
 		<version>4.0.10</version>
 	</parent>
 	<properties>
-		<kettle.version>5.0.0</kettle.version>
+		<kettle.version>5.3.0.2</kettle.version>
 		<datacleaner.version>4.0.10</datacleaner.version>
 		<mainClass>org.datacleaner.Main</mainClass>
 	</properties>

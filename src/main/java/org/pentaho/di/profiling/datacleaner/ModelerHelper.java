@@ -80,6 +80,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
     private static ModelerHelper instance = null;
 
+    
     private ModelerHelper() {
     }
 
@@ -124,23 +125,12 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         return "profiler"; //$NON-NLS-1$
     }
 
-    private static String getDataCleanerInstalationPath(String pluginFolderPath) {
+    private static String getDataCleanerInstalationPath(String pluginFolderPath) throws IOException {
         final String configurationFilePath = pluginFolderPath + "/" + DATACLEANER_CONFIG_FILE;
-
-        try {
-            final BufferedReader inputReader = new BufferedReader(new FileReader(configurationFilePath));
-            final String dcInstallationPath = inputReader.readLine().trim();
-            inputReader.close();
-            return dcInstallationPath;
-        } catch (Exception e) {
-            new ErrorDialog(
-                    Spoon.getInstance().getShell(),
-                    "Error launching DataCleaner",
-                    "The DataCleaner installation path could not be found.Please set the path in the menu Tools:DataCleaner configuration",
-                    e);
-        }
-
-        return null;
+        final BufferedReader inputReader = new BufferedReader(new FileReader(configurationFilePath));
+        final String dcInstallationPath = inputReader.readLine().trim();
+        inputReader.close();
+        return dcInstallationPath;
     }
 
     public static void launchDataCleaner(String confFile, String jobFile, String datastore, String dataFile) {
@@ -154,14 +144,11 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             final String kettleLibPath = pluginFolderPath + "/../../lib";
             final String dcInstallationFolder = getDataCleanerInstalationPath(pluginFolderPath);
 
-            final String pluginPath = pluginFolderPath +  "/DataCleaner-PDI-plugin.jar"; 
+            final String pluginPath = pluginFolderPath + "/DataCleaner-PDI-plugin.jar";
             // If the path is not set.File is empty
             if (dcInstallationFolder == null || dcInstallationFolder.isEmpty()) {
-                new ErrorDialog(
-                        Spoon.getInstance().getShell(),
-                        "Error launching DataCleaner",
-                        "The DataCleaner installation path could not be found. Please set the path in the menu Tools:DataCleaner configuration",
-                        null);
+                throw new IOException(
+                        "The DataCleaner installation path could not be found. Please set the path in the menu Tools:DataCleaner configuration");
             }
 
             final String dcInstallationPath = getDataCleanerInstalationPath(pluginFolderPath) + "/DataCleaner.jar";
@@ -172,8 +159,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             final String javassistPath = getJarFile(kettleLibPath, "javassist");
 
             // Assemble the class path for DataCleaner
-            final String[] paths = new String[] {  dcInstallationPath, kettleCorePath, commonsVfsPath, scannotationPath,
-                    javassistPath, pluginPath};
+            final String[] paths = new String[] { dcInstallationPath, kettleCorePath, commonsVfsPath, scannotationPath,
+                    javassistPath, pluginPath };
             final StringBuilder classPathBuilder = new StringBuilder();
             for (String path : paths) {
                 if (classPathBuilder.length() > 0) {
@@ -257,8 +244,12 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                 new File(dataFile).delete();
             }
         } catch (Throwable e) {
+            String errorMessage = "There was an unexpected error launching DataCleaner";
+            if (e instanceof IOException){
+                errorMessage = "The DataCleaner installation path could not be found.Please set the path in the menu Tools:DataCleaner configuration";
+            }
             new ErrorDialog(Spoon.getInstance().getShell(), "Error launching DataCleaner",
-                    "There was an unexpected error launching DataCleaner", e);
+                    errorMessage, e);
         }
     }
 
