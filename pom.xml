@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.eobjects.datacleaner</groupId>
@@ -6,7 +7,7 @@
 		<version>4.0.10</version>
 	</parent>
 	<properties>
-		<kettle.version>5.0.0</kettle.version>
+		<kettle.version>5.3.0.2</kettle.version>
 		<datacleaner.version>4.0.10</datacleaner.version>
 		<mainClass>org.datacleaner.Main</mainClass>
 	</properties>
@@ -51,7 +52,7 @@
 		<plugins>
 
 			<plugin>
-			<!-- Configure release plugin to not deploy - no suitable repo -->
+				<!-- Configure release plugin to not deploy - no suitable repo -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
 				<configuration>
@@ -104,7 +105,7 @@
 					</archive>
 				</configuration>
 			</plugin>
-		
+
 			<!-- Assembly which creates the zip and tar.gz distributables -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -125,8 +126,8 @@
 					</execution>
 				</executions>
 			</plugin>
-			
-			<!-- Ban the xml-apis jar file because it conflicts with the one that is available in Kettle at runtime -->
+			<!-- Ban the xml-apis jar file because it conflicts with the one that 
+				is available in Kettle at runtime -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
@@ -142,6 +143,8 @@
 								<bannedDependencies>
 									<excludes>
 										<exclude>xml-apis:xml-apis</exclude>
+										<exclude>org.slf4j:slf4j-log4j12
+										</exclude>
 									</excludes>
 								</bannedDependencies>
 							</rules>
@@ -192,11 +195,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<!-- DataCleaner dependencies -->
+
+
 		<dependency>
 			<groupId>org.eobjects.datacleaner</groupId>
-			<artifactId>DataCleaner-desktop-ui</artifactId>
+			<artifactId>DataCleaner-xml-config</artifactId>
 			<version>${datacleaner.version}</version>
 			<exclusions>
 				<exclusion>
@@ -204,6 +209,57 @@
 					<artifactId>xml-apis</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eobjects.datacleaner</groupId>
+			<artifactId>DataCleaner-uniqueness</artifactId>
+			<version>${datacleaner.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eobjects.datacleaner</groupId>
+			<artifactId>DataCleaner-engine-core</artifactId>
+			<version>${datacleaner.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eobjects.datacleaner</groupId>
+			<artifactId>DataCleaner-basic-analyzers</artifactId>
+			<version>${datacleaner.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eobjects.datacleaner</groupId>
+			<artifactId>DataCleaner-api</artifactId>
+			<version>${datacleaner.version}</version>
+
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- TEST dependencies -->

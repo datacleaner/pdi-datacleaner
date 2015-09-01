@@ -1,4 +1,4 @@
-package org.datacleaner.kettle.settings;
+package org.datacleaner.kettle.configuration;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,17 +18,20 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class DataCleanerSettingsDialog extends Dialog {
+public class DataCleanerConfigurationDialog extends Dialog {
 
     // The spaces are necessary because the label length cannot be modified at
     // runtime
     private static final String EDITION = "Edition:                     ";
     private static final String VERSION = "Version:                     ";
 
+    public static final String DATACLEANER_COMMUNITY = "Community";
+    public static final String DATACLEANER_ENTERPRISE = "Enterprise";
+
     protected String _result;
     protected Shell _shell;
 
-    private static class SoftwareVersion {
+    public static class SoftwareVersion {
 
         private final String _name;
         private final String _version;
@@ -53,7 +56,7 @@ public class DataCleanerSettingsDialog extends Dialog {
      * @param parent
      * @param style
      */
-    public DataCleanerSettingsDialog(Shell parent, int style) {
+    public DataCleanerConfigurationDialog(Shell parent, int style) {
         super(parent, style);
         setText("DataCleaner configuration");
     }
@@ -89,14 +92,12 @@ public class DataCleanerSettingsDialog extends Dialog {
         gridLayout.marginRight = -5;
         gridLayout.marginTop = -5;
         gridLayout.marginBottom = -5;
-        
-        
+
         _shell.setLayout(gridLayout);
         _shell.setOrientation(getStyle());
         final DataCleanerBanner banner = new DataCleanerBanner(_shell);
         banner.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
 
-        
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
@@ -119,7 +120,7 @@ public class DataCleanerSettingsDialog extends Dialog {
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
-        
+
         new Label(_shell, SWT.NONE);
         final Label errorLabel = new Label(_shell, SWT.NONE);
         errorLabel.setText("The selected folder does not contain a DataCleaner installation");
@@ -135,7 +136,7 @@ public class DataCleanerSettingsDialog extends Dialog {
         final Label labelEdition = new Label(_shell, SWT.NONE);
         labelEdition.setText(EDITION);
         new Label(_shell, SWT.NONE);
-        
+
         new Label(_shell, SWT.NONE);
         final Label labelVersion = new Label(_shell, SWT.NONE);
         labelVersion.setText(VERSION);
@@ -168,7 +169,6 @@ public class DataCleanerSettingsDialog extends Dialog {
                 final String dir = directoryChooser.open();
                 if (dir != null) {
                     _text.setText(dir);
-                    _result = dir;
                     try {
                         final SoftwareVersion editionDetails = getEditionDetails(dir);
                         if (editionDetails != null) {
@@ -176,8 +176,10 @@ public class DataCleanerSettingsDialog extends Dialog {
                             labelEdition.setText(edition);
                             labelVersion.setText(VERSION.trim() + " " + editionDetails.getVersion());
                             errorLabel.setVisible(false);
+                            _result = dir;
                         } else {
                             errorLabel.setVisible(true);
+                            _result = null;
                         }
                     } catch (IOException e) {
                         errorLabel.setText("Exception while reading the directory");
@@ -190,18 +192,18 @@ public class DataCleanerSettingsDialog extends Dialog {
 
     }
 
-    private static SoftwareVersion getEditionDetails(String path) throws IOException {
+    public static SoftwareVersion getEditionDetails(String path) throws IOException {
         final File folder = new File(path + "/lib");
         if (!folder.exists()) {
             return null;
         }
         final String fileEnterprise = getEdition("DataCleaner-enterprise-edition-core", folder);
         if (fileEnterprise != null) {
-            return new SoftwareVersion("Enterprise", getVersion(fileEnterprise));
+            return new SoftwareVersion(DATACLEANER_ENTERPRISE, getVersion(fileEnterprise));
         } else {
             final String fileCommunity = getEdition("DataCleaner-engine-core", folder);
             if (fileCommunity != null) {
-                return new SoftwareVersion("Community", getVersion(fileCommunity));
+                return new SoftwareVersion(DATACLEANER_COMMUNITY, getVersion(fileCommunity));
             }
         }
 
@@ -237,7 +239,8 @@ public class DataCleanerSettingsDialog extends Dialog {
 
         final Display display = Display.getDefault();
         final Shell shell = new Shell(display, SWT.SHELL_TRIM);
-        final DataCleanerSettingsDialog dataCleanerSettingsDialog = new DataCleanerSettingsDialog(shell, SWT.SHELL_TRIM);
+        final DataCleanerConfigurationDialog dataCleanerSettingsDialog = new DataCleanerConfigurationDialog(shell,
+                SWT.SHELL_TRIM);
 
         dataCleanerSettingsDialog.open();
 

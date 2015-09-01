@@ -9,7 +9,7 @@
 	    <menuitem id="tools-datacleaner" label="Start DataCleaner"
               command="profiler.openProfiler()" class="menuitem-iconic" image="images/datacleaner-menuitem.png" />
        <menuitem id="tools-datacleaner-configuration" label="DataCleaner configuration"
-              command="profiler.openSettings()" class="menuitem-iconic" image="images/datacleaner-menuitem.png" />
+              command="profiler.openConfiguration()" class="menuitem-iconic" image="images/datacleaner-menuitem.png" />
 	</menupopup>	
   
 </overlay>
