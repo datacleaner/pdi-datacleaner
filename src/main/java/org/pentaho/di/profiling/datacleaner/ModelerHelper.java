@@ -80,7 +80,6 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
     private static ModelerHelper instance = null;
 
-    
     private ModelerHelper() {
     }
 
@@ -245,11 +244,10 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             }
         } catch (Throwable e) {
             String errorMessage = "There was an unexpected error launching DataCleaner";
-            if (e instanceof IOException){
+            if (e instanceof IOException) {
                 errorMessage = "The DataCleaner installation path could not be found.Please set the path in the menu Tools:DataCleaner configuration";
             }
-            new ErrorDialog(Spoon.getInstance().getShell(), "Error launching DataCleaner",
-                    errorMessage, e);
+            new ErrorDialog(Spoon.getInstance().getShell(), "Error launching DataCleaner", errorMessage, e);
         }
     }
 
@@ -427,16 +425,19 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                 jobFilename = KettleVFS.getFilename(jobFile);
             }
 
-            Spoon.getInstance().getDisplay().syncExec(new Runnable() {
+            final Thread thread = new Thread() {
+                @Override
                 public void run() {
-                    new Thread() {
+                    final Display display = Display.getDefault();
+                    display.syncExec(new Runnable() {
                         public void run() {
                             launchDataCleaner(KettleVFS.getFilename(confFile), jobFilename, transMeta.getName(),
                                     writer.getFilename());
                         }
-                    }.start();
+                    });
                 }
-            });
+            };
+            thread.start();
         } catch (final Exception e) {
             new ErrorDialog(spoon.getShell(), "Error", "unexpected error occurred", e);
         } finally {
