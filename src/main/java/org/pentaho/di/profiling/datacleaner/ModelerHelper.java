@@ -439,7 +439,9 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             };
             thread.start();
         } catch (final Exception e) {
-            new ErrorDialog(spoon.getShell(), "Error", "unexpected error occurred", e);
+            new ErrorDialog(spoon.getShell(), "Error", "Unexpected error occurred", e);
+        } catch (final NoClassDefFoundError e) {
+            new ErrorDialog(spoon.getShell(), "Error", "Failed to load DataCleaner plugin class: " + e.getMessage(), e);
         } finally {
             //
         }
