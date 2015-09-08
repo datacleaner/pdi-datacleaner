@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JOptionPane;
-
 import org.apache.commons.vfs.FileObject;
 import org.apache.metamodel.DataContext;
 import org.apache.metamodel.schema.Column;
@@ -221,27 +219,6 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             psrStdout.start();
             psrStderr.start();
 
-            final int exitCode = process.waitFor();
-            try {
-                psrStdout.join();
-                psrStderr.join();
-            } finally {
-                if (exitCode != 0) {
-                    JOptionPane.showMessageDialog(null, "Unexpected error code: " + exitCode);
-                }
-            }
-
-            // When DC finishes we clean up the temporary files...
-            //
-            if (!Const.isEmpty(confFile)) {
-                new File(confFile).delete();
-            }
-            if (!Const.isEmpty(jobFile)) {
-                new File(jobFile).delete();
-            }
-            if (!Const.isEmpty(dataFile)) {
-                new File(dataFile).delete();
-            }
         } catch (Throwable e) {
             String errorMessage = "There was an unexpected error launching DataCleaner";
             if (e instanceof IOException) {
@@ -283,7 +260,19 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     }
 
     public void openProfiler() throws Exception {
-        launchDataCleaner(null, null, null, null);
+
+        final Thread thread = new Thread() {
+            @Override
+            public void run() {
+                final Display display = Display.getDefault();
+                display.syncExec(new Runnable() {
+                    public void run() {
+                        launchDataCleaner(null, null, null, null);
+                    }
+                });
+            }
+        };
+        thread.start();
     }
 
     public void openConfiguration() throws InstantiationException, IllegalAccessException, XulException, IOException {
@@ -292,7 +281,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         final Shell shell = new Shell(display, SWT.DIALOG_TRIM);
         final DataCleanerConfigurationDialog dataCleanerSettingsDialog = new DataCleanerConfigurationDialog(shell,
                 SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-        
+
         final String dialogResult = dataCleanerSettingsDialog.open();
 
         final String pluginFolderPath = getPluginFolderPath();
