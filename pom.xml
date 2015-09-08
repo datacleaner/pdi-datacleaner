@@ -143,7 +143,8 @@
 								<bannedDependencies>
 									<excludes>
 										<exclude>xml-apis:xml-apis</exclude>
-										<exclude>org.slf4j:slf4j-log4j12</exclude>
+										<exclude>org.slf4j:slf4j-log4j12
+										</exclude>
 									</excludes>
 								</bannedDependencies>
 							</rules>
@@ -225,6 +226,10 @@
 					<groupId>xml-apis</groupId>
 					<artifactId>xml-apis</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -244,7 +249,17 @@
 					<groupId>org.slf4j</groupId>
 					<artifactId>slf4j-log4j12</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
 			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- TEST dependencies -->
