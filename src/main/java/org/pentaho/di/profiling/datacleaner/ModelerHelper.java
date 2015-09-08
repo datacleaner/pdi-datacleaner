@@ -289,10 +289,10 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     public void openConfiguration() throws InstantiationException, IllegalAccessException, XulException, IOException {
 
         final Display display = Display.getDefault();
-        final Shell shell = new Shell(display, SWT.SHELL_TRIM);
+        final Shell shell = new Shell(display, SWT.DIALOG_TRIM);
         final DataCleanerConfigurationDialog dataCleanerSettingsDialog = new DataCleanerConfigurationDialog(shell,
-                SWT.SHELL_TRIM);
-
+                SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+        
         final String dialogResult = dataCleanerSettingsDialog.open();
 
         final String pluginFolderPath = getPluginFolderPath();
@@ -309,7 +309,9 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             if (!display.readAndDispatch())
                 display.sleep();
         }
+        dataCleanerSettingsDialog.close();
         display.dispose();
+        display.close();
 
     }
 
@@ -320,7 +322,6 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     public void profileStep(final boolean buildJob) throws Exception {
 
         final Spoon spoon = ((Spoon) SpoonFactory.getInstance());
-
         try {
 
             final TransMeta transMeta = spoon.getActiveTransformation();

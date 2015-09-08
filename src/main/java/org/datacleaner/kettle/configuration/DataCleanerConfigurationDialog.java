@@ -22,8 +22,8 @@ public class DataCleanerConfigurationDialog extends Dialog {
 
     // The spaces are necessary because the label length cannot be modified at
     // runtime
-    private static final String EDITION = "Edition:                     ";
-    private static final String VERSION = "Version:                     ";
+    private static final String EDITION = "Edition:                       ";
+    private static final String VERSION = "Version:                       ";
 
     public static final String DATACLEANER_COMMUNITY = "Community";
     public static final String DATACLEANER_ENTERPRISE = "Enterprise";
@@ -235,6 +235,9 @@ public class DataCleanerConfigurationDialog extends Dialog {
         return fileName.substring(lastIndexOfDash + 1, lastIndexOfDot);
     }
 
+    public void close(){
+        this.close();
+    }
     public static void main(String[] args) {
 
         final Display display = Display.getDefault();
