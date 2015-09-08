@@ -38,7 +38,8 @@ import org.datacleaner.job.JaxbJobWriter;
 import org.datacleaner.job.builder.AnalysisJobBuilder;
 import org.datacleaner.job.builder.AnalyzerComponentBuilder;
 import org.datacleaner.kettle.configuration.DataCleanerConfigurationDialog;
-import org.datacleaner.kettle.configuration.DataCleanerConfigurationDialog.SoftwareVersion;
+import org.datacleaner.kettle.configuration.utils.SoftwareVersionHelper;
+import org.datacleaner.kettle.configuration.utils.SoftwareVersionHelper.SoftwareVersion;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Display;
@@ -124,7 +125,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         return "profiler"; //$NON-NLS-1$
     }
 
-    private static String getDataCleanerInstalationPath(String pluginFolderPath) throws IOException {
+    public static String getDataCleanerInstalationPath(String pluginFolderPath) throws IOException {
         final String configurationFilePath = pluginFolderPath + "/" + DATACLEANER_CONFIG_FILE;
         final BufferedReader inputReader = new BufferedReader(new FileReader(configurationFilePath));
         final String dcInstallationPath = inputReader.readLine().trim();
@@ -140,18 +141,17 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             // figure out path for DC
             //
             final String pluginFolderPath = getPluginFolderPath();
-            final String kettleLibPath = pluginFolderPath + "/../../lib";
             final String dcInstallationFolder = getDataCleanerInstalationPath(pluginFolderPath);
 
-            final String pluginPath = pluginFolderPath + "/DataCleaner-PDI-plugin.jar";
             // If the path is not set.File is empty
             if (dcInstallationFolder == null || dcInstallationFolder.isEmpty()) {
                 throw new IOException(
                         "The DataCleaner installation path could not be found. Please set the path in the menu Tools:DataCleaner configuration");
             }
 
-            final String dcInstallationPath = getDataCleanerInstalationPath(pluginFolderPath) + "/DataCleaner.jar";
-
+            final String dcInstallationPath = dcInstallationFolder + "/DataCleaner.jar";
+            final String pluginPath = pluginFolderPath + "/DataCleaner-PDI-plugin.jar";
+            final String kettleLibPath = pluginFolderPath + "/../../lib";
             final String kettleCorePath = getJarFile(kettleLibPath, "kettle-core");
             final String commonsVfsPath = getJarFile(kettleLibPath, "commons-vfs");
             final String scannotationPath = getJarFile(kettleLibPath, "scannotation");
@@ -177,11 +177,11 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             // Finally, the class to launch
             //
-            final SoftwareVersion editionDetails = DataCleanerConfigurationDialog
+            final SoftwareVersion editionDetails = SoftwareVersionHelper
                     .getEditionDetails(dcInstallationFolder);
 
             if (editionDetails != null) {
-                if (editionDetails.getName() == DataCleanerConfigurationDialog.DATACLEANER_COMMUNITY) {
+                if (editionDetails.getName() == SoftwareVersionHelper.DATACLEANER_COMMUNITY) {
                     cmds.add(MAIN_CLASS_COMMUNITY);
                 } else {
                     cmds.add(MAIN_CLASS_ENTERPRISE);
@@ -265,7 +265,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         return libPath + "/" + filenames[0];
     }
 
-    private static String getPluginFolderPath() throws XulException {
+    public static String getPluginFolderPath() throws XulException {
         final String pluginFolderPath;
         try {
             final PluginInterface spoonPlugin = PluginRegistry.getInstance().findPluginWithId(SpoonPluginType.class,
