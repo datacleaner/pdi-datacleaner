@@ -208,13 +208,11 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
-		
-<dependency>
-<groupId>org.slf4j</groupId>
-<artifactId>slf4j-simple</artifactId>
-<version>1.7.10</version>
-</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.7.10</version>
+		</dependency>
 		<dependency>
 			<groupId>org.eobjects.datacleaner</groupId>
 			<artifactId>DataCleaner-uniqueness</artifactId>
