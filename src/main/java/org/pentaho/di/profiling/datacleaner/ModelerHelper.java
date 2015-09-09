@@ -175,8 +175,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             // Finally, the class to launch
             //
-            final SoftwareVersion editionDetails = SoftwareVersionHelper
-                    .getEditionDetails(dcInstallationFolder);
+            final SoftwareVersion editionDetails = SoftwareVersionHelper.getEditionDetails(dcInstallationFolder);
 
             if (editionDetails != null) {
                 if (editionDetails.getName() == SoftwareVersionHelper.DATACLEANER_COMMUNITY) {
@@ -210,9 +209,10 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             log.logBasic("DataCleaner launch commands : " + commandString);
 
-            ProcessBuilder processBuilder = new ProcessBuilder(cmds);
+            final ProcessBuilder processBuilder = new ProcessBuilder(cmds);
             processBuilder.environment().put("DATACLEANER_HOME", pluginFolderPath);
-            Process process = processBuilder.start();
+
+            final Process process = processBuilder.start();
 
             ProcessStreamReader psrStdout = new ProcessStreamReader(process.getInputStream(), log, false);
             ProcessStreamReader psrStderr = new ProcessStreamReader(process.getErrorStream(), log, true);
@@ -260,19 +260,18 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     }
 
     public void openProfiler() throws Exception {
-
-        final Thread thread = new Thread() {
+        new Thread() {
             @Override
             public void run() {
                 final Display display = Display.getDefault();
-                display.syncExec(new Runnable() {
+                display.asyncExec(new Runnable() {
                     public void run() {
                         launchDataCleaner(null, null, null, null);
                     }
                 });
             }
-        };
-        thread.start();
+        }.start();
+        ;
     }
 
     public void openConfiguration() throws InstantiationException, IllegalAccessException, XulException, IOException {
@@ -415,19 +414,18 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                 jobFilename = KettleVFS.getFilename(jobFile);
             }
 
-            final Thread thread = new Thread() {
+            new Thread() {
                 @Override
                 public void run() {
                     final Display display = Display.getDefault();
-                    display.syncExec(new Runnable() {
+                    display.asyncExec(new Runnable() {
                         public void run() {
                             launchDataCleaner(KettleVFS.getFilename(confFile), jobFilename, transMeta.getName(),
                                     writer.getFilename());
                         }
                     });
                 }
-            };
-            thread.start();
+            }.start();
         } catch (final Exception e) {
             new ErrorDialog(spoon.getShell(), "Error", "Unexpected error occurred", e);
         } catch (final NoClassDefFoundError e) {
