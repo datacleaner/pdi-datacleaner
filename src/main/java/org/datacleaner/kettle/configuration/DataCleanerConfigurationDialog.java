@@ -19,8 +19,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.pentaho.di.profiling.datacleaner.ModelerHelper;
-import org.pentaho.di.ui.core.dialog.ErrorDialog;
-import org.pentaho.di.ui.spoon.Spoon;
 
 public class DataCleanerConfigurationDialog extends Dialog {
 
@@ -31,7 +29,6 @@ public class DataCleanerConfigurationDialog extends Dialog {
 
     protected String _result;
     protected Shell _shell;
-
 
     /**
      * Create the dialog.
@@ -174,26 +171,20 @@ public class DataCleanerConfigurationDialog extends Dialog {
             }
         });
 
-        String pluginFolderPath;
-        final String dcInstallationFolder;
         try {
-            pluginFolderPath = ModelerHelper.getPluginFolderPath();
-            dcInstallationFolder = ModelerHelper.getDataCleanerInstalationPath(pluginFolderPath);
+            final String pluginFolderPath = ModelerHelper.getPluginFolderPath();
+            final String dcInstallationFolder = ModelerHelper.getDataCleanerInstalationPath(pluginFolderPath);
             if (dcInstallationFolder != null) {
                 _text.setText(dcInstallationFolder);
             }
-            final SoftwareVersion editionDetails = SoftwareVersionHelper
-                    .getEditionDetails(dcInstallationFolder);
+            final SoftwareVersion editionDetails = SoftwareVersionHelper.getEditionDetails(dcInstallationFolder);
             if (editionDetails != null) {
                 labelEdition.setText(EDITION.trim() + " " + editionDetails.getName());
                 labelVersion.setText(VERSION.trim() + " " + editionDetails.getVersion());
             }
         } catch (Throwable e) {
-            String errorMessage = "There was an unexpected error launching DataCleaner";
-            if (e instanceof IOException) {
-                errorMessage = "The DataCleaner installation path could not be found.Please set the path in the menu Tools:DataCleaner configuration";
-            }
-            new ErrorDialog(Spoon.getInstance().getShell(), "Error launching DataCleaner", errorMessage, e);
+            // Do nothing If the file doesn't exit 
+
         }
 
     }

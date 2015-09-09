@@ -74,7 +74,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
     private static final String MAIN_CLASS_COMMUNITY = "org.datacleaner.Main";
     private static final String MAIN_CLASS_ENTERPRISE = "com.hi.datacleaner.Main";
-    private static final String DATACLEANER_CONFIG_FILE = "datacleaner-configuration.xml";
+    private static final String DATACLEANER_CONFIG_FILE = "datacleaner-configuration.txt";
 
     private static final Set<String> ID_COLUMN_TOKENS = new HashSet<>(Arrays.asList("id", "pk", "number", "no", "nr",
             "key"));
