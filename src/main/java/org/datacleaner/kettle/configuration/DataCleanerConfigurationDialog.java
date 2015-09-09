@@ -1,8 +1,9 @@
 package org.datacleaner.kettle.configuration;
 
-import java.io.File;
 import java.io.IOException;
 
+import org.datacleaner.kettle.configuration.utils.SoftwareVersionHelper;
+import org.datacleaner.kettle.configuration.utils.SoftwareVersionHelper.SoftwareVersion;
 import org.datacleaner.kettle.ui.DataCleanerBanner;
 import org.datacleaner.kettle.ui.DataCleanerFooter;
 import org.eclipse.swt.SWT;
@@ -17,6 +18,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.pentaho.di.profiling.datacleaner.ModelerHelper;
+import org.pentaho.di.ui.core.dialog.ErrorDialog;
+import org.pentaho.di.ui.spoon.Spoon;
 
 public class DataCleanerConfigurationDialog extends Dialog {
 
@@ -25,30 +29,9 @@ public class DataCleanerConfigurationDialog extends Dialog {
     private static final String EDITION = "Edition:                       ";
     private static final String VERSION = "Version:                       ";
 
-    public static final String DATACLEANER_COMMUNITY = "Community";
-    public static final String DATACLEANER_ENTERPRISE = "Enterprise";
-
     protected String _result;
     protected Shell _shell;
 
-    public static class SoftwareVersion {
-
-        private final String _name;
-        private final String _version;
-
-        SoftwareVersion(String name, String version) {
-            _name = name;
-            _version = version;
-        }
-
-        public String getName() {
-            return _name;
-        }
-
-        public String getVersion() {
-            return _version;
-        }
-    }
 
     /**
      * Create the dialog.
@@ -114,6 +97,7 @@ public class DataCleanerConfigurationDialog extends Dialog {
         new Label(_shell, SWT.NONE);
         final Text _text = new Text(_shell, SWT.BORDER);
         _text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+
         final Button btnBrowse = new Button(_shell, SWT.NONE);
         btnBrowse.setText("Browse");
 
@@ -135,6 +119,7 @@ public class DataCleanerConfigurationDialog extends Dialog {
         new Label(_shell, SWT.NONE);
         final Label labelEdition = new Label(_shell, SWT.NONE);
         labelEdition.setText(EDITION);
+
         new Label(_shell, SWT.NONE);
 
         new Label(_shell, SWT.NONE);
@@ -170,10 +155,9 @@ public class DataCleanerConfigurationDialog extends Dialog {
                 if (dir != null) {
                     _text.setText(dir);
                     try {
-                        final SoftwareVersion editionDetails = getEditionDetails(dir);
+                        final SoftwareVersion editionDetails = SoftwareVersionHelper.getEditionDetails(dir);
                         if (editionDetails != null) {
-                            final String edition = EDITION.trim() + " " + editionDetails.getName();
-                            labelEdition.setText(edition);
+                            labelEdition.setText(EDITION.trim() + " " + editionDetails.getName());
                             labelVersion.setText(VERSION.trim() + " " + editionDetails.getVersion());
                             errorLabel.setVisible(false);
                             _result = dir;
@@ -190,54 +174,34 @@ public class DataCleanerConfigurationDialog extends Dialog {
             }
         });
 
-    }
-
-    public static SoftwareVersion getEditionDetails(String path) throws IOException {
-        final File folder = new File(path + "/lib");
-        if (!folder.exists()) {
-            return null;
-        }
-        final String fileEnterprise = getEdition("DataCleaner-enterprise-edition-core", folder);
-        if (fileEnterprise != null) {
-            return new SoftwareVersion(DATACLEANER_ENTERPRISE, getVersion(fileEnterprise));
-        } else {
-            final String fileCommunity = getEdition("DataCleaner-engine-core", folder);
-            if (fileCommunity != null) {
-                return new SoftwareVersion(DATACLEANER_COMMUNITY, getVersion(fileCommunity));
+        String pluginFolderPath;
+        final String dcInstallationFolder;
+        try {
+            pluginFolderPath = ModelerHelper.getPluginFolderPath();
+            dcInstallationFolder = ModelerHelper.getDataCleanerInstalationPath(pluginFolderPath);
+            if (dcInstallationFolder != null) {
+                _text.setText(dcInstallationFolder);
             }
-        }
-
-        return null;
-
-    }
-
-    private static String getEdition(String file, File folder) {
-        for (final File fileEntry : folder.listFiles()) {
-            if (!fileEntry.isDirectory()) {
-                final String fileName = fileEntry.getName();
-                if (fileName.contains(file)) {
-                    return fileName;
-                }
+            final SoftwareVersion editionDetails = SoftwareVersionHelper
+                    .getEditionDetails(dcInstallationFolder);
+            if (editionDetails != null) {
+                labelEdition.setText(EDITION.trim() + " " + editionDetails.getName());
+                labelVersion.setText(VERSION.trim() + " " + editionDetails.getVersion());
             }
+        } catch (Throwable e) {
+            String errorMessage = "There was an unexpected error launching DataCleaner";
+            if (e instanceof IOException) {
+                errorMessage = "The DataCleaner installation path could not be found.Please set the path in the menu Tools:DataCleaner configuration";
+            }
+            new ErrorDialog(Spoon.getInstance().getShell(), "Error launching DataCleaner", errorMessage, e);
         }
-        return null;
+
     }
 
-    private static String getVersion(String fileName) {
-        if (fileName == null) {
-            return "Unknown";
-        }
-        final int lastIndexOfDash = fileName.lastIndexOf("-");
-        final int lastIndexOfDot = fileName.lastIndexOf(".");
-        if (lastIndexOfDash == -1 || lastIndexOfDot == -1) {
-            return "Unknown";
-        }
-        return fileName.substring(lastIndexOfDash + 1, lastIndexOfDot);
-    }
-
-    public void close(){
+    public void close() {
         this.close();
     }
+
     public static void main(String[] args) {
 
         final Display display = Display.getDefault();
