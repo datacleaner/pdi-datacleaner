@@ -218,6 +218,15 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             ProcessStreamReader psrStderr = new ProcessStreamReader(process.getErrorStream(), log, true);
             psrStdout.start();
             psrStderr.start();
+       
+            if (!process.isAlive()) {
+                final int exitValue = process.exitValue();
+                if (exitValue != 0) {
+                    throw new Exception(
+                            "There was an error while trying to run DataCleaner. The process exited with the value"
+                                    + exitValue);
+                }
+            }
 
         } catch (Throwable e) {
             String errorMessage = "There was an unexpected error launching DataCleaner";
