@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JOptionPane;
+
 import org.apache.commons.vfs.FileObject;
 import org.apache.metamodel.DataContext;
 import org.apache.metamodel.schema.Column;
@@ -72,7 +74,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
     private static final String MAIN_CLASS_COMMUNITY = "org.datacleaner.Main";
     private static final String MAIN_CLASS_ENTERPRISE = "com.hi.datacleaner.Main";
-    private static final String DATACLEANER_CONFIG_FILE = "datacleaner-configuration.xml";
+    private static final String DATACLEANER_CONFIG_FILE = "datacleaner-configuration.txt";
 
     private static final Set<String> ID_COLUMN_TOKENS = new HashSet<>(Arrays.asList("id", "pk", "number", "no", "nr",
             "key"));
@@ -218,22 +220,35 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             ProcessStreamReader psrStderr = new ProcessStreamReader(process.getErrorStream(), log, true);
             psrStdout.start();
             psrStderr.start();
-       
-            if (!process.isAlive()) {
-                final int exitValue = process.exitValue();
-                if (exitValue != 0) {
-                    throw new Exception(
-                            "There was an error while trying to run DataCleaner. The process exited with the value"
-                                    + exitValue);
+
+            final int exitCode = process.waitFor();
+            try {
+                psrStdout.join();
+                psrStderr.join();
+            } finally {
+                if (exitCode != 0) {
+                    JOptionPane.showMessageDialog(null, "Unexpected error code: " + exitCode);
                 }
             }
 
+            // When DC finishes we clean up the temporary files...
+            //
+            if (!Const.isEmpty(confFile)) {
+                new File(confFile).delete();
+            }
+            if (!Const.isEmpty(jobFile)) {
+                new File(jobFile).delete();
+            }
+            if (!Const.isEmpty(dataFile)) {
+                new File(dataFile).delete();
+            }
         } catch (Throwable e) {
             String errorMessage = "There was an unexpected error launching DataCleaner";
             if (e instanceof IOException) {
                 errorMessage = "The DataCleaner installation path could not be found.Please set the path in the menu Tools:DataCleaner configuration";
             }
-            new ErrorDialog(Spoon.getInstance().getShell(), "Error launching DataCleaner", errorMessage, e);
+            
+            JOptionPane.showMessageDialog(null, errorMessage);
         }
     }
 
@@ -272,12 +287,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         new Thread() {
             @Override
             public void run() {
-                final Display display = Display.getDefault();
-                display.asyncExec(new Runnable() {
-                    public void run() {
-                        launchDataCleaner(null, null, null, null);
-                    }
-                });
+                launchDataCleaner(null, null, null, null);
             }
         }.start();
         ;
@@ -426,14 +436,10 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             new Thread() {
                 @Override
                 public void run() {
-                    final Display display = Display.getDefault();
-                    display.asyncExec(new Runnable() {
-                        public void run() {
                             launchDataCleaner(KettleVFS.getFilename(confFile), jobFilename, transMeta.getName(),
                                     writer.getFilename());
                         }
-                    });
-                }
+                 
             }.start();
         } catch (final Exception e) {
             new ErrorDialog(spoon.getShell(), "Error", "Unexpected error occurred", e);
