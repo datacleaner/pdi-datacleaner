@@ -143,6 +143,7 @@
 								<bannedDependencies>
 									<excludes>
 										<exclude>xml-apis:xml-apis</exclude>
+										<exclude>javax.xml.bind:jaxb-api</exclude>
 									</excludes>
 								</bannedDependencies>
 							</rules>
@@ -227,6 +228,10 @@
 				<exclusion>
 					<groupId>xml-apis</groupId>
 					<artifactId>xml-apis</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.xml.bind</groupId>
+					<artifactId>jaxb-api</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>

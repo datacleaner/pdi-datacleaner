@@ -177,8 +177,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             // Finally, the class to launch
             //
-            final SoftwareVersion editionDetails = SoftwareVersionHelper
-                    .getEditionDetails(dcInstallationFolder);
+            final SoftwareVersion editionDetails = SoftwareVersionHelper.getEditionDetails(dcInstallationFolder);
 
             if (editionDetails != null) {
                 if (editionDetails.getName() == SoftwareVersionHelper.DATACLEANER_COMMUNITY) {
@@ -292,7 +291,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         final Shell shell = new Shell(display, SWT.DIALOG_TRIM);
         final DataCleanerConfigurationDialog dataCleanerSettingsDialog = new DataCleanerConfigurationDialog(shell,
                 SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-        
+
         final String dialogResult = dataCleanerSettingsDialog.open();
 
         final String pluginFolderPath = getPluginFolderPath();
