@@ -2,6 +2,7 @@ package org.pentaho.di.profiling.datacleaner;
 
 import java.io.DataInputStream;
 
+import org.apache.metamodel.MetaModelException;
 import org.apache.metamodel.data.AbstractDataSet;
 import org.apache.metamodel.data.DataSet;
 import org.apache.metamodel.data.DataSetHeader;
@@ -10,7 +11,9 @@ import org.apache.metamodel.data.Row;
 import org.apache.metamodel.schema.Column;
 import org.apache.metamodel.util.FileHelper;
 import org.pentaho.di.core.exception.KettleEOFException;
+import org.pentaho.di.core.exception.KettleValueException;
 import org.pentaho.di.core.row.RowMetaInterface;
+import org.pentaho.di.core.row.ValueMetaInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +42,13 @@ final class KettleDataSet extends AbstractDataSet implements DataSet {
             for (int i = 0; i < header.size(); i++) {
                 final Column column = header.getSelectItem(i).getColumn();
                 final int kettleIndex = rowMeta.indexOfValue(column.getName());
-                final Object value = row[kettleIndex];
-                values[i] = value;
+                final Object rawValue = row[kettleIndex];
+                try {
+                    final ValueMetaInterface valueMeta = rowMeta.getValueMeta(kettleIndex);
+                    values[i] = valueMeta.convertData(valueMeta, rawValue);
+                } catch (KettleValueException e) {
+                    throw new MetaModelException(e);
+                }
             }
         }
 
