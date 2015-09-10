@@ -30,7 +30,6 @@ public class DataCleanerConfigurationDialog extends Dialog {
     protected String _result;
     protected Shell _shell;
 
-
     /**
      * Create the dialog.
      * 
@@ -171,22 +170,19 @@ public class DataCleanerConfigurationDialog extends Dialog {
             }
         });
 
-        String pluginFolderPath;
-        final String dcInstallationFolder;
         try {
-            pluginFolderPath = ModelerHelper.getPluginFolderPath();
-            dcInstallationFolder = ModelerHelper.getDataCleanerInstalationPath(pluginFolderPath);
+            final String pluginFolderPath = ModelerHelper.getPluginFolderPath();
+            final String dcInstallationFolder = ModelerHelper.getDataCleanerInstalationPath(pluginFolderPath);
             if (dcInstallationFolder != null) {
                 _text.setText(dcInstallationFolder);
             }
-            final SoftwareVersion editionDetails = SoftwareVersionHelper
-                    .getEditionDetails(dcInstallationFolder);
+            final SoftwareVersion editionDetails = SoftwareVersionHelper.getEditionDetails(dcInstallationFolder);
             if (editionDetails != null) {
                 labelEdition.setText(EDITION.trim() + " " + editionDetails.getName());
                 labelVersion.setText(VERSION.trim() + " " + editionDetails.getVersion());
             }
         } catch (Throwable e) {
-           //Do nothing 
+            // Do nothing If the file doesn't exit 
         }
 
     }
