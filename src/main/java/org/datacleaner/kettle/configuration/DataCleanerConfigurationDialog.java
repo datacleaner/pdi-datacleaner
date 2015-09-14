@@ -48,8 +48,17 @@ public class DataCleanerConfigurationDialog extends Dialog {
      */
     public void open() {
         createContents();
+        
+        _shell.pack();
         _shell.open();
         _shell.layout();
+        
+        while (!_shell.isDisposed()) {
+            final Display display = _shell.getDisplay();
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
+        }
     }
 
     /**
@@ -169,10 +178,6 @@ public class DataCleanerConfigurationDialog extends Dialog {
         } else {
             _errorLabel.setVisible(true);
         }
-    }
-
-    public void close() {
-        this.close();
     }
 
     public static void main(String[] args) {
