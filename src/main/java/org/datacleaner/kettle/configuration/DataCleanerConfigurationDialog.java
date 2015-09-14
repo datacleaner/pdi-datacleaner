@@ -1,7 +1,5 @@
 package org.datacleaner.kettle.configuration;
 
-import java.io.IOException;
-
 import org.datacleaner.kettle.configuration.utils.SoftwareVersionHelper;
 import org.datacleaner.kettle.configuration.utils.SoftwareVersionHelper.SoftwareVersion;
 import org.datacleaner.kettle.ui.DataCleanerBanner;
@@ -145,9 +143,7 @@ public class DataCleanerConfigurationDialog extends Dialog {
                 directoryChooser.setText("DataCleaner instalation folder");
                 directoryChooser.setMessage("Select a directory");
                 final String dir = directoryChooser.open();
-                if (dir != null) {
-                    setDataCleanerInstallationFolder(dir);
-                }
+                setDataCleanerInstallationFolder(dir);
             }
         });
 
@@ -160,21 +156,18 @@ public class DataCleanerConfigurationDialog extends Dialog {
     }
 
     protected void setDataCleanerInstallationFolder(String dir) {
+        if (dir == null || dir.trim().isEmpty()) {
+            return;
+        }
         _text.setText(dir);
-        try {
-            final DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration = new DataCleanerSpoonConfiguration(null,
-                    dir);
-            final SoftwareVersion editionDetails = SoftwareVersionHelper
-                    .getEditionDetails(dataCleanerSpoonConfiguration);
-            if (editionDetails != null) {
-                _labelEdition.setText(EDITION.trim() + " " + editionDetails.getName());
-                _labelVersion.setText(VERSION.trim() + " " + editionDetails.getVersion());
-                _errorLabel.setVisible(false);
-            } else {
-                _errorLabel.setVisible(true);
-            }
-        } catch (IOException e) {
-            _errorLabel.setText("Exception while reading the directory");
+        final DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration = new DataCleanerSpoonConfiguration(null, dir);
+        final SoftwareVersion editionDetails = SoftwareVersionHelper.getEditionDetails(dataCleanerSpoonConfiguration);
+        if (editionDetails != null) {
+            _labelEdition.setText(EDITION.trim() + " " + editionDetails.getName());
+            _labelVersion.setText(VERSION.trim() + " " + editionDetails.getVersion());
+            _errorLabel.setVisible(false);
+        } else {
+            _errorLabel.setVisible(true);
         }
     }
 
