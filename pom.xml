@@ -143,6 +143,7 @@
 								<bannedDependencies>
 									<excludes>
 										<exclude>xml-apis:xml-apis</exclude>
+										<exclude>org.slf4j:slf4j-log4j12</exclude>
 										<exclude>javax.xml.bind:jaxb-api</exclude>
 									</excludes>
 								</bannedDependencies>
@@ -246,6 +247,13 @@
 			<groupId>org.eobjects.datacleaner</groupId>
 			<artifactId>DataCleaner-api</artifactId>
 			<version>${datacleaner.version}</version>
+
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- TEST dependencies -->

@@ -164,7 +164,6 @@ public class DataCleanerConfigurationDialog extends Dialog {
                         }
                     } catch (IOException e) {
                         errorLabel.setText("Exception while reading the directory");
-                        e.printStackTrace();
                     }
 
                 }
@@ -184,7 +183,6 @@ public class DataCleanerConfigurationDialog extends Dialog {
             }
         } catch (Throwable e) {
             // Do nothing If the file doesn't exit 
-
         }
 
     }
