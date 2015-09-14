@@ -269,22 +269,12 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     }
 
     public void openConfiguration() {
-
-        final Display display = Display.getDefault();
+        final Display display = getSpoon().getDisplay();
         final Shell shell = new Shell(display, SWT.DIALOG_TRIM);
         final DataCleanerConfigurationDialog dataCleanerSettingsDialog = new DataCleanerConfigurationDialog(shell,
                 SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 
         dataCleanerSettingsDialog.open();
-
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch())
-                display.sleep();
-        }
-        dataCleanerSettingsDialog.close();
-        display.dispose();
-        display.close();
-
     }
 
     public void readMore() {
