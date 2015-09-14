@@ -3,6 +3,8 @@ package org.datacleaner.kettle.configuration.utils;
 import java.io.File;
 import java.io.IOException;
 
+import org.datacleaner.kettle.configuration.DataCleanerSpoonConfiguration;
+
 public class SoftwareVersionHelper {
 
     public static final String DATACLEANER_COMMUNITY = "Community";
@@ -27,8 +29,9 @@ public class SoftwareVersionHelper {
         }
     }
 
-    public static SoftwareVersion getEditionDetails(String path) throws IOException {
-        final File folder = new File(path + "/lib");
+    public static SoftwareVersion getEditionDetails(DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration)
+            throws IOException {
+        final File folder = new File(dataCleanerSpoonConfiguration.getDataCleanerInstallationFolderPath() + "/lib");
         if (!folder.exists()) {
             return null;
         }
