@@ -1,7 +1,5 @@
 package org.datacleaner.kettle.configuration;
 
-import java.io.IOException;
-
 import org.datacleaner.kettle.configuration.utils.SoftwareVersionHelper;
 import org.datacleaner.kettle.configuration.utils.SoftwareVersionHelper.SoftwareVersion;
 import org.datacleaner.kettle.ui.DataCleanerBanner;
@@ -18,7 +16,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.pentaho.di.profiling.datacleaner.ModelerHelper;
 
 public class DataCleanerConfigurationDialog extends Dialog {
 
@@ -27,8 +24,11 @@ public class DataCleanerConfigurationDialog extends Dialog {
     private static final String EDITION = "Edition:                       ";
     private static final String VERSION = "Version:                       ";
 
-    protected String _result;
-    protected Shell _shell;
+    private Shell _shell;
+    private Text _text;
+    private Label _errorLabel;
+    private Label _labelEdition;
+    private Label _labelVersion;
 
     /**
      * Create the dialog.
@@ -46,17 +46,10 @@ public class DataCleanerConfigurationDialog extends Dialog {
      * 
      * @return the result
      */
-    public String open() {
+    public void open() {
         createContents();
         _shell.open();
         _shell.layout();
-        final Display display = getParent().getDisplay();
-        while (!_shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-        return _result;
     }
 
     /**
@@ -92,7 +85,7 @@ public class DataCleanerConfigurationDialog extends Dialog {
         new Label(_shell, SWT.NONE);
 
         new Label(_shell, SWT.NONE);
-        final Text _text = new Text(_shell, SWT.BORDER);
+        _text = new Text(_shell, SWT.BORDER);
         _text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
         final Button btnBrowse = new Button(_shell, SWT.NONE);
@@ -103,10 +96,10 @@ public class DataCleanerConfigurationDialog extends Dialog {
         new Label(_shell, SWT.NONE);
 
         new Label(_shell, SWT.NONE);
-        final Label errorLabel = new Label(_shell, SWT.NONE);
-        errorLabel.setText("The selected folder does not contain a DataCleaner installation");
-        errorLabel.setForeground(getParent().getDisplay().getSystemColor(SWT.COLOR_RED));
-        errorLabel.setVisible(false);
+        _errorLabel = new Label(_shell, SWT.NONE);
+        _errorLabel.setText("The selected folder does not contain a DataCleaner installation");
+        _errorLabel.setForeground(getParent().getDisplay().getSystemColor(SWT.COLOR_RED));
+        _errorLabel.setVisible(false);
         new Label(_shell, SWT.NONE);
 
         new Label(_shell, SWT.NONE);
@@ -114,14 +107,14 @@ public class DataCleanerConfigurationDialog extends Dialog {
         new Label(_shell, SWT.NONE);
 
         new Label(_shell, SWT.NONE);
-        final Label labelEdition = new Label(_shell, SWT.NONE);
-        labelEdition.setText(EDITION);
+        _labelEdition = new Label(_shell, SWT.NONE);
+        _labelEdition.setText(EDITION);
 
         new Label(_shell, SWT.NONE);
 
         new Label(_shell, SWT.NONE);
-        final Label labelVersion = new Label(_shell, SWT.NONE);
-        labelVersion.setText(VERSION);
+        _labelVersion = new Label(_shell, SWT.NONE);
+        _labelVersion.setText(VERSION);
         new Label(_shell, SWT.NONE);
 
         new Label(_shell, SWT.NONE);
@@ -135,6 +128,7 @@ public class DataCleanerConfigurationDialog extends Dialog {
         btnOK.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
+                DataCleanerSpoonConfiguration.save(_text.getText());
                 _shell.close();
             }
         });
@@ -149,42 +143,32 @@ public class DataCleanerConfigurationDialog extends Dialog {
                 directoryChooser.setText("DataCleaner instalation folder");
                 directoryChooser.setMessage("Select a directory");
                 final String dir = directoryChooser.open();
-                if (dir != null) {
-                    _text.setText(dir);
-                    try {
-                        final SoftwareVersion editionDetails = SoftwareVersionHelper.getEditionDetails(dir);
-                        if (editionDetails != null) {
-                            labelEdition.setText(EDITION.trim() + " " + editionDetails.getName());
-                            labelVersion.setText(VERSION.trim() + " " + editionDetails.getVersion());
-                            errorLabel.setVisible(false);
-                            _result = dir;
-                        } else {
-                            errorLabel.setVisible(true);
-                            _result = null;
-                        }
-                    } catch (IOException e) {
-                        errorLabel.setText("Exception while reading the directory");
-                    }
-
-                }
+                setDataCleanerInstallationFolder(dir);
             }
         });
 
         try {
-            final String pluginFolderPath = ModelerHelper.getPluginFolderPath();
-            final String dcInstallationFolder = ModelerHelper.getDataCleanerInstalationPath(pluginFolderPath);
-            if (dcInstallationFolder != null) {
-                _text.setText(dcInstallationFolder);
-            }
-            final SoftwareVersion editionDetails = SoftwareVersionHelper.getEditionDetails(dcInstallationFolder);
-            if (editionDetails != null) {
-                labelEdition.setText(EDITION.trim() + " " + editionDetails.getName());
-                labelVersion.setText(VERSION.trim() + " " + editionDetails.getVersion());
-            }
-        } catch (Throwable e) {
-            // Do nothing If the file doesn't exit 
+            DataCleanerSpoonConfiguration dcSpoonConfiguration = DataCleanerSpoonConfiguration.load();
+            setDataCleanerInstallationFolder(dcSpoonConfiguration.getDataCleanerInstallationFolderPath());
+        } catch (DataCleanerSpoonConfigurationException e) {
+            // Do nothing if a previous configuration could not be loaded
         }
+    }
 
+    protected void setDataCleanerInstallationFolder(String dir) {
+        if (dir == null || dir.trim().isEmpty()) {
+            return;
+        }
+        _text.setText(dir);
+        final DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration = new DataCleanerSpoonConfiguration(null, dir);
+        final SoftwareVersion editionDetails = SoftwareVersionHelper.getEditionDetails(dataCleanerSpoonConfiguration);
+        if (editionDetails != null) {
+            _labelEdition.setText(EDITION.trim() + " " + editionDetails.getName());
+            _labelVersion.setText(VERSION.trim() + " " + editionDetails.getVersion());
+            _errorLabel.setVisible(false);
+        } else {
+            _errorLabel.setVisible(true);
+        }
     }
 
     public void close() {

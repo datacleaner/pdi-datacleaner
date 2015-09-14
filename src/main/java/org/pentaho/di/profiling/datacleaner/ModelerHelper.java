@@ -1,11 +1,7 @@
 package org.pentaho.di.profiling.datacleaner;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,8 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.swing.JOptionPane;
 
 import org.apache.commons.vfs.FileObject;
 import org.apache.metamodel.DataContext;
@@ -38,6 +32,8 @@ import org.datacleaner.job.JaxbJobWriter;
 import org.datacleaner.job.builder.AnalysisJobBuilder;
 import org.datacleaner.job.builder.AnalyzerComponentBuilder;
 import org.datacleaner.kettle.configuration.DataCleanerConfigurationDialog;
+import org.datacleaner.kettle.configuration.DataCleanerSpoonConfiguration;
+import org.datacleaner.kettle.configuration.DataCleanerSpoonConfigurationException;
 import org.datacleaner.kettle.configuration.utils.SoftwareVersionHelper;
 import org.datacleaner.kettle.configuration.utils.SoftwareVersionHelper.SoftwareVersion;
 import org.eclipse.swt.SWT;
@@ -48,8 +44,6 @@ import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.gui.SpoonFactory;
 import org.pentaho.di.core.logging.LogChannelInterface;
-import org.pentaho.di.core.plugins.PluginInterface;
-import org.pentaho.di.core.plugins.PluginRegistry;
 import org.pentaho.di.core.variables.Variables;
 import org.pentaho.di.core.vfs.KettleVFS;
 import org.pentaho.di.core.xml.XMLHandler;
@@ -61,9 +55,7 @@ import org.pentaho.di.trans.steps.csvinput.CsvInputMeta;
 import org.pentaho.di.ui.core.dialog.ErrorDialog;
 import org.pentaho.di.ui.spoon.ISpoonMenuController;
 import org.pentaho.di.ui.spoon.Spoon;
-import org.pentaho.di.ui.spoon.SpoonPluginType;
 import org.pentaho.di.ui.trans.dialog.TransExecutionConfigurationDialog;
-import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.dom.Document;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 
@@ -74,7 +66,6 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
     private static final String MAIN_CLASS_COMMUNITY = "org.datacleaner.Main";
     private static final String MAIN_CLASS_ENTERPRISE = "com.hi.datacleaner.Main";
-    private static final String DATACLEANER_CONFIG_FILE = "datacleaner-configuration.txt";
 
     private static final Set<String> ID_COLUMN_TOKENS = new HashSet<>(Arrays.asList("id", "pk", "number", "no", "nr",
             "key"));
@@ -125,33 +116,27 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         return "profiler"; //$NON-NLS-1$
     }
 
-    public static String getDataCleanerInstalationPath(String pluginFolderPath) throws IOException {
-        final String configurationFilePath = pluginFolderPath + "/" + DATACLEANER_CONFIG_FILE;
-        final BufferedReader inputReader = new BufferedReader(new FileReader(configurationFilePath));
-        final String dcInstallationPath = inputReader.readLine().trim();
-        inputReader.close();
-        return dcInstallationPath;
+    private static DataCleanerSpoonConfiguration getDataCleanerSpoonConfigurationOrShowError() {
+        try {
+            DataCleanerSpoonConfiguration result = DataCleanerSpoonConfiguration.load();
+            return result;
+        } catch (DataCleanerSpoonConfigurationException e) {
+            showErrorMessage("DataCleaner configuration error", "DataCleaner configuration not available", e);
+            return null;
+        }
     }
 
-    public static void launchDataCleaner(String confFile, String jobFile, String datastore, String dataFile) {
+    public static void launchDataCleaner(DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration, String confFile,
+            String jobFile, String datastore, String dataFile) {
 
         final LogChannelInterface log = Spoon.getInstance().getLog();
 
         try {
-            // figure out path for DC
-            //
-            final String pluginFolderPath = getPluginFolderPath();
-            final String dcInstallationFolder = getDataCleanerInstalationPath(pluginFolderPath);
-
-            // If the path is not set.File is empty
-            if (dcInstallationFolder == null || dcInstallationFolder.isEmpty()) {
-                throw new IOException(
-                        "The DataCleaner installation path could not be found. Please set the path in the menu Tools:DataCleaner configuration");
-            }
-
-            final String dcInstallationPath = dcInstallationFolder + "/DataCleaner.jar";
-            final String pluginPath = pluginFolderPath + "/DataCleaner-PDI-plugin.jar";
-            final String kettleLibPath = pluginFolderPath + "/../../lib";
+            final String dcInstallationPath = dataCleanerSpoonConfiguration.getDataCleanerInstallationFolderPath()
+                    + "/DataCleaner.jar";
+            final String pluginPath = dataCleanerSpoonConfiguration.getPluginFolderPath()
+                    + "/DataCleaner-PDI-plugin.jar";
+            final String kettleLibPath = dataCleanerSpoonConfiguration.getPluginFolderPath() + "/../../lib";
             final String kettleCorePath = getJarFile(kettleLibPath, "kettle-core");
             final String commonsVfsPath = getJarFile(kettleLibPath, "commons-vfs");
             final String scannotationPath = getJarFile(kettleLibPath, "scannotation");
@@ -177,7 +162,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             // Finally, the class to launch
             //
-            final SoftwareVersion editionDetails = SoftwareVersionHelper.getEditionDetails(dcInstallationFolder);
+            final SoftwareVersion editionDetails = SoftwareVersionHelper
+                    .getEditionDetails(dataCleanerSpoonConfiguration);
 
             if (editionDetails != null) {
                 if (editionDetails.getName() == SoftwareVersionHelper.DATACLEANER_COMMUNITY) {
@@ -212,7 +198,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             log.logBasic("DataCleaner launch commands : " + commandString);
 
             final ProcessBuilder processBuilder = new ProcessBuilder(cmds);
-            processBuilder.environment().put("DATACLEANER_HOME", pluginFolderPath);
+            processBuilder.environment().put("DATACLEANER_HOME", dataCleanerSpoonConfiguration.getPluginFolderPath());
 
             final Process process = processBuilder.start();
 
@@ -222,17 +208,10 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             psrStderr.start();
 
             final int exitCode = process.waitFor();
-            try {
-                psrStdout.join();
-                psrStderr.join();
-            } finally {
-                if (exitCode != 0) {
-                    JOptionPane.showMessageDialog(null, "Unexpected error code: " + exitCode);
-                }
-            }
+            psrStdout.join();
+            psrStderr.join();
 
             // When DC finishes we clean up the temporary files...
-            //
             if (!Const.isEmpty(confFile)) {
                 new File(confFile).delete();
             }
@@ -242,14 +221,24 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             if (!Const.isEmpty(dataFile)) {
                 new File(dataFile).delete();
             }
-        } catch (Throwable e) {
-            String errorMessage = "There was an unexpected error launching DataCleaner";
-            if (e instanceof IOException) {
-                errorMessage = "The DataCleaner installation path could not be found.Please set the path in the menu Tools:DataCleaner configuration";
+
+            if (exitCode != 0) {
+                showErrorMessage("Unexpected exit code", "DataCleaner exited with exit code: " + exitCode, null);
             }
-            
-            JOptionPane.showMessageDialog(null, errorMessage);
+        } catch (final Exception e) {
+            showErrorMessage("Error launching DataCleaner", "An error occurred launching DataCleaner", e);
         }
+    }
+
+    private static void showErrorMessage(final String title, final String message, final Throwable e) {
+        final Spoon spoon = getSpoon();
+        spoon.getDisplay().syncExec(new Runnable() {
+            @Override
+            public void run() {
+                final Shell shell = spoon.getShell();
+                new ErrorDialog(shell, title, message, e);
+            }
+        });
     }
 
     private static String getJarFile(String libPath, final String filename) {
@@ -266,51 +255,27 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         return libPath + "/" + filenames[0];
     }
 
-    public static String getPluginFolderPath() throws XulException {
-        final String pluginFolderPath;
-        try {
-            final PluginInterface spoonPlugin = PluginRegistry.getInstance().findPluginWithId(SpoonPluginType.class,
-                    "SpoonDataCleaner");
-            pluginFolderPath = KettleVFS.getFilename(KettleVFS.getFileObject(spoonPlugin.getPluginDirectory()
-                    .toString()));
-        } catch (Exception e) {
-            throw new XulException(
-                    "Unable to determine location of the spoon profile plugin.  It is needed to know where DataCleaner is installed.");
+    public void openProfiler() {
+        final DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration = getDataCleanerSpoonConfigurationOrShowError();
+        if (dataCleanerSpoonConfiguration == null) {
+            return;
         }
-
-        final LogChannelInterface log = Spoon.getInstance().getLog();
-        log.logBasic("DataCleaner plugin path = '" + pluginFolderPath + "'");
-        return pluginFolderPath;
-    }
-
-    public void openProfiler() throws Exception {
         new Thread() {
             @Override
             public void run() {
-                launchDataCleaner(null, null, null, null);
+                launchDataCleaner(dataCleanerSpoonConfiguration, null, null, null, null);
             }
         }.start();
-        ;
     }
 
-    public void openConfiguration() throws InstantiationException, IllegalAccessException, XulException, IOException {
+    public void openConfiguration() {
 
         final Display display = Display.getDefault();
         final Shell shell = new Shell(display, SWT.DIALOG_TRIM);
         final DataCleanerConfigurationDialog dataCleanerSettingsDialog = new DataCleanerConfigurationDialog(shell,
                 SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 
-        final String dialogResult = dataCleanerSettingsDialog.open();
-
-        final String pluginFolderPath = getPluginFolderPath();
-        final String configurationFilePath = pluginFolderPath + "/" + DATACLEANER_CONFIG_FILE;
-
-        if (dialogResult != null) {
-            final File file = new File(configurationFilePath);
-            final FileOutputStream outputStream = new FileOutputStream(file);
-            outputStream.write(dialogResult.getBytes());
-            outputStream.close();
-        }
+        dataCleanerSettingsDialog.open();
 
         while (!shell.isDisposed()) {
             if (!display.readAndDispatch())
@@ -326,9 +291,18 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         Program.launch("http://datacleaner.org/focus/pentaho");
     }
 
-    public void profileStep(final boolean buildJob) throws Exception {
-
+    private static Spoon getSpoon() {
         final Spoon spoon = ((Spoon) SpoonFactory.getInstance());
+        return spoon;
+    }
+
+    public void profileStep(final boolean buildJob) throws Exception {
+        final DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration = getDataCleanerSpoonConfigurationOrShowError();
+        if (dataCleanerSpoonConfiguration == null) {
+            return;
+        }
+
+        final Spoon spoon = getSpoon();
         try {
 
             final TransMeta transMeta = spoon.getActiveTransformation();
@@ -436,17 +410,14 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             new Thread() {
                 @Override
                 public void run() {
-                            launchDataCleaner(KettleVFS.getFilename(confFile), jobFilename, transMeta.getName(),
-                                    writer.getFilename());
-                        }
-                 
+                    launchDataCleaner(dataCleanerSpoonConfiguration, KettleVFS.getFilename(confFile), jobFilename, transMeta.getName(),
+                            writer.getFilename());
+                }
             }.start();
-        } catch (final Exception e) {
-            new ErrorDialog(spoon.getShell(), "Error", "Unexpected error occurred", e);
         } catch (final NoClassDefFoundError e) {
-            new ErrorDialog(spoon.getShell(), "Error", "Failed to load DataCleaner plugin class: " + e.getMessage(), e);
-        } finally {
-            //
+            showErrorMessage("Unexpected error", "Failed to load DataCleaner plugin class: " + e.getMessage(), e);
+        } catch (final Exception e) {
+            showErrorMessage("Unexpected error", "An unexpected error occurred", e);
         }
     }
 

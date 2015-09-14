@@ -21,6 +21,7 @@ import org.datacleaner.connection.DatastoreConnection;
 import org.datacleaner.connection.JdbcDatastore;
 import org.datacleaner.job.JaxbJobWriter;
 import org.datacleaner.job.builder.AnalysisJobBuilder;
+import org.datacleaner.kettle.configuration.DataCleanerSpoonConfiguration;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.gui.SpoonFactory;
@@ -45,10 +46,10 @@ public class ProfilerDatabaseExplorerController extends AbstractXulEventHandler 
     }
 
     public void profileDbTable() throws Exception {
-
         final Spoon spoon = ((Spoon) SpoonFactory.getInstance());
 
         try {
+            final DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration = DataCleanerSpoonConfiguration.load();
 
             getDbController();
             // Close the db explorer...
@@ -158,8 +159,8 @@ public class ProfilerDatabaseExplorerController extends AbstractXulEventHandler 
                                     } else {
                                         jobFileName = KettleVFS.getFilename(jobFile);
                                     }
-                                    ModelerHelper.launchDataCleaner(KettleVFS.getFilename(confFile), jobFileName,
-                                            dbMeta.getName(), null);
+                                    ModelerHelper.launchDataCleaner(dataCleanerSpoonConfiguration,
+                                            KettleVFS.getFilename(confFile), jobFileName, dbMeta.getName(), null);
                                 }
                             }.start();
                         }
