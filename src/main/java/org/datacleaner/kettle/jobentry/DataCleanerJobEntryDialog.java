@@ -1,5 +1,6 @@
 package org.datacleaner.kettle.jobentry;
 
+import org.datacleaner.kettle.ui.AbstractJobEntryDialog;
 import org.datacleaner.kettle.ui.EnumCombo;
 import org.datacleaner.kettle.ui.WidgetFactory;
 import org.eclipse.swt.SWT;

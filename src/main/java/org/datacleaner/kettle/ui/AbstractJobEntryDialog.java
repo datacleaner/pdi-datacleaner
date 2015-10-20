@@ -1,10 +1,8 @@
-package org.datacleaner.kettle.jobentry;
+package org.datacleaner.kettle.ui;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.datacleaner.kettle.ui.DataCleanerBanner;
-import org.datacleaner.kettle.ui.DataCleanerFooter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -36,7 +34,7 @@ import org.pentaho.di.ui.trans.step.BaseStepDialog;
 
 import plugin.DataCleanerJobEntry;
 
-abstract class AbstractJobEntryDialog extends JobEntryDialog implements JobEntryDialogInterface, DisposeListener {
+public abstract class AbstractJobEntryDialog extends JobEntryDialog implements JobEntryDialogInterface, DisposeListener {
 
     private final String initialJobName;
     private Text jobNameField;

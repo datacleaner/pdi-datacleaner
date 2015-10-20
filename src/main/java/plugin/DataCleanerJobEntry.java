@@ -35,7 +35,7 @@ import org.w3c.dom.Node;
  * @author Kasper Sorensen
  * @since 22-03-2012
  */
-@JobEntry(id = "DataCleanerJobEntry", categoryDescription = "Utility", image = "http://datacleaner.org/images/dc-logo-50.png", name = DataCleanerJobEntry.NAME, description = "Executes a DataCleaner job")
+@JobEntry(id = "DataCleanerJobEntry", categoryDescription = "Utility", image = "org/datacleaner/logo.png", name = DataCleanerJobEntry.NAME, description = "Executes a DataCleaner job")
 public class DataCleanerJobEntry extends JobEntryBase implements JobEntryInterface, Cloneable {
 
     public static final String NAME = "Execute DataCleaner job";
