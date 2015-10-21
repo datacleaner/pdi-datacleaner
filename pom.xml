@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.eobjects.datacleaner</groupId>
@@ -140,9 +141,12 @@
 							<rules>
 								<bannedDependencies>
 									<excludes>
+										<exclude>org.apache.hadoop</exclude>
 										<exclude>xml-apis:xml-apis</exclude>
 										<exclude>org.slf4j:slf4j-log4j12</exclude>
 										<exclude>javax.xml.bind:jaxb-api</exclude>
+										<exclude>org.eobejcts.datacleaner:DataCleaner-desktop-api</exclude>
+										<exclude>org.eobejcts.datacleaner:DataCleaner-desktop-ui</exclude>
 									</excludes>
 								</bannedDependencies>
 							</rules>
@@ -210,6 +214,10 @@
 					<groupId>xml-apis</groupId>
 					<artifactId>xml-apis</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.eobjects.datacleaner</groupId>
+					<artifactId>DataCleaner-standard-components</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -234,6 +242,30 @@
 				<exclusion>
 					<groupId>javax.xml.bind</groupId>
 					<artifactId>jaxb-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.metamodel</groupId>
+					<artifactId>MetaModel-hbase</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.metamodel</groupId>
+					<artifactId>MetaModel-hadoop</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.metamodel</groupId>
+					<artifactId>MetaModel-elasticsearch</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.metamodel</groupId>
+					<artifactId>MetaModel-cassandra</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.metamodel</groupId>
+					<artifactId>MetaModel-couchdb</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.metamodel</groupId>
+					<artifactId>MetaModel-mongodb</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
