@@ -230,7 +230,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         }
     }
 
-    private static void showErrorMessage(final String title, final String message, final Throwable e) {
+    public static void showErrorMessage(final String title, final String message, final Throwable e) {
         final Spoon spoon = getSpoon();
         spoon.getDisplay().syncExec(new Runnable() {
             @Override

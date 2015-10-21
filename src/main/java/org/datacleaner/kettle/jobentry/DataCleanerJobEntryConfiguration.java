@@ -2,6 +2,10 @@ package org.datacleaner.kettle.jobentry;
 
 import java.io.Serializable;
 
+import org.datacleaner.kettle.configuration.DataCleanerSpoonConfiguration;
+import org.datacleaner.kettle.configuration.DataCleanerSpoonConfigurationException;
+import org.pentaho.di.profiling.datacleaner.ModelerHelper;
+
 public class DataCleanerJobEntryConfiguration implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 1L;
@@ -26,7 +30,17 @@ public class DataCleanerJobEntryConfiguration implements Serializable, Cloneable
 
     public String getExecutableFilename() {
         if (executableFilename == null) {
-            executableFilename = "${user.home}/DataCleaner/DataCleaner-console.exe";
+            try {
+                DataCleanerSpoonConfiguration dcSpoonConfiguration = DataCleanerSpoonConfiguration.load();
+                final String dataCleanerInstallationFolderPath = dcSpoonConfiguration
+                        .getDataCleanerInstallationFolderPath();
+                executableFilename = dataCleanerInstallationFolderPath + "/DataCleaner-console.exe";
+            } catch (DataCleanerSpoonConfigurationException e) {
+                ModelerHelper.showErrorMessage("DataCleaner configuration error",
+                        "DataCleaner configuration not available", e);
+                return null;
+            }
+
         }
         return executableFilename;
     }
