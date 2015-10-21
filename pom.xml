@@ -13,13 +13,13 @@
 	<artifactId>pdi-datacleaner</artifactId>
 	<name>DataCleaner for Pentaho Data Integration</name>
 	<packaging>jar</packaging>
-	<version>4.5.1</version>
+	<version>4.5.2-SNAPSHOT</version>
 
 	<scm>
 		<url>https://github.com/datacleaner/pdi-datacleaner</url>
 		<connection>scm:git:https://github.com/datacleaner/pdi-datacleaner.git</connection>
 		<developerConnection>scm:git:https://github.com/datacleaner/pdi-datacleaner.git</developerConnection>
-		<tag>pdi-datacleaner-4.5.1</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<repositories>
