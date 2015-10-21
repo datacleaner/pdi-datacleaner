@@ -34,7 +34,7 @@ public class DataCleanerJobEntryConfiguration implements Serializable, Cloneable
                 DataCleanerSpoonConfiguration dcSpoonConfiguration = DataCleanerSpoonConfiguration.load();
                 final String dataCleanerInstallationFolderPath = dcSpoonConfiguration
                         .getDataCleanerInstallationFolderPath();
-                executableFilename = dataCleanerInstallationFolderPath + "/DataCleaner.jar";
+                executableFilename = dataCleanerInstallationFolderPath + "/DataCleaner-console.exe";
             } catch (DataCleanerSpoonConfigurationException e) {
                 ModelerHelper.showErrorMessage("DataCleaner configuration error",
                         "DataCleaner configuration not available", e);
