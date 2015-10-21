@@ -4,11 +4,11 @@
 	<parent>
 		<groupId>org.eobjects.datacleaner</groupId>
 		<artifactId>DataCleaner</artifactId>
-		<version>4.0.10</version>
+		<version>4.5</version>
 	</parent>
 	<properties>
 		<kettle.version>5.3.0.2</kettle.version>
-		<datacleaner.version>4.0.10</datacleaner.version>
+		<datacleaner.version>4.5</datacleaner.version>
 		<mainClass>org.datacleaner.Main</mainClass>
 	</properties>
 	<artifactId>pdi-datacleaner</artifactId>
@@ -170,6 +170,10 @@
 				<exclusion>
 					<groupId>xml-apis</groupId>
 					<artifactId>xml-apis</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-beanutils</groupId>
+					<artifactId>commons-beanutils-core</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
