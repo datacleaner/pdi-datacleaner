@@ -4,7 +4,7 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.metamodel.DataContext;
 import org.apache.metamodel.schema.Column;
 import org.apache.metamodel.schema.Schema;

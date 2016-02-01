@@ -51,7 +51,7 @@ public abstract class AbstractJobEntryDialog extends JobEntryDialog implements J
     protected void initializeShell(Shell shell) {
         String id = PluginRegistry.getInstance().getPluginId(JobEntryPluginType.class, jobMeta);
         if (id != null) {
-            shell.setImage(GUIResource.getInstance().getImagesSteps().get(id));
+            shell.setImage(GUIResource.getInstance().getImagesStepsSmall().get(id));
         }
     }
 
