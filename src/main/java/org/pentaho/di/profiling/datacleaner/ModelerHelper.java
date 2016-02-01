@@ -64,8 +64,8 @@ import com.google.common.base.Splitter;
 
 public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenuController {
 
-    private static final String MAIN_CLASS_COMMUNITY = "org.datacleaner.Main";
-    private static final String MAIN_CLASS_ENTERPRISE = "com.hi.datacleaner.Main";
+    public static final String MAIN_CLASS_COMMUNITY = "org.datacleaner.Main";
+    public static final String MAIN_CLASS_ENTERPRISE = "com.hi.datacleaner.Main";
 
     private static final Set<String> ID_COLUMN_TOKENS = new HashSet<>(Arrays.asList("id", "pk", "number", "no", "nr",
             "key"));
@@ -116,7 +116,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         return "profiler"; //$NON-NLS-1$
     }
 
-    private static DataCleanerSpoonConfiguration getDataCleanerSpoonConfigurationOrShowError() {
+    public static DataCleanerSpoonConfiguration getDataCleanerSpoonConfigurationOrShowError() {
         try {
             DataCleanerSpoonConfiguration result = DataCleanerSpoonConfiguration.load();
             return result;
@@ -241,7 +241,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         });
     }
 
-    private static String getJarFile(String libPath, final String filename) {
+    public static String getJarFile(String libPath, final String filename) {
         final File directory = new File(libPath);
         assert directory.exists() && directory.isDirectory();
 
