@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs2.FileObject;
 import org.datacleaner.kettle.jobentry.DataCleanerJobEntryConfiguration;
 import org.datacleaner.kettle.jobentry.DataCleanerJobEntryDialog;
 import org.datacleaner.kettle.jobentry.DataCleanerOutputType;

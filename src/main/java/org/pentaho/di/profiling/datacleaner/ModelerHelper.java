@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.metamodel.DataContext;
 import org.apache.metamodel.schema.Column;
 import org.datacleaner.api.InputColumn;

@@ -3,7 +3,7 @@ package org.pentaho.di.profiling.datacleaner;
 import java.io.DataOutputStream;
 import java.util.List;
 
-import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs2.FileObject;
 import org.pentaho.di.core.exception.KettleFileException;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.logging.LogChannelInterface;
