@@ -1,18 +1,13 @@
 package plugin;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.vfs2.FileObject;
 import org.datacleaner.kettle.configuration.DataCleanerSpoonConfiguration;
-import org.datacleaner.kettle.configuration.utils.SoftwareVersionHelper;
-import org.datacleaner.kettle.configuration.utils.SoftwareVersionHelper.SoftwareVersion;
 import org.datacleaner.kettle.jobentry.DataCleanerJobEntryConfiguration;
 import org.datacleaner.kettle.jobentry.DataCleanerJobEntryDialog;
 import org.datacleaner.kettle.jobentry.DataCleanerOutputType;
@@ -52,98 +47,50 @@ public class DataCleanerJobEntry extends JobEntryBase implements JobEntryInterfa
     public Result execute(Result result, int nr) throws KettleException {
 
         final LogChannelInterface log = Spoon.getInstance().getLog();
+        int exitCode = -1;
 
-        final List<String> commands = new ArrayList<String>();
-        final String outputFilename = environmentSubstitute(configuration.getOutputFilename());
         final DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration = ModelerHelper
                 .getDataCleanerSpoonConfigurationOrShowError();
-        final String dcInstallationPath = dataCleanerSpoonConfiguration.getDataCleanerInstallationFolderPath()
-                + "/DataCleaner.jar";
-
-        // Assemble the class path for DataCleaner
-        commands.add(System.getProperty("java.home") + "/bin/java");
-        commands.add("-cp");
-        commands.add(environmentSubstitute(dcInstallationPath));
-
-        final SoftwareVersion editionDetails = SoftwareVersionHelper.getEditionDetails(dataCleanerSpoonConfiguration);
-        if (editionDetails != null) {
-            if (editionDetails.getName() == SoftwareVersionHelper.DATACLEANER_COMMUNITY) {
-                commands.add(ModelerHelper.MAIN_CLASS_COMMUNITY);
-            } else {
-                commands.add(ModelerHelper.MAIN_CLASS_ENTERPRISE);
-            }
-        }
-        commands.add("-job");
-        commands.add(environmentSubstitute(configuration.getJobFilename()));
-        commands.add("-ot");
-        commands.add(configuration.getOutputType().toString());
-        commands.add("-of");
-        commands.add(outputFilename);
-
+        final String outputFilename = environmentSubstitute(configuration.getOutputFilename());
+        final String jobFilename = environmentSubstitute(configuration.getJobFilename());
+        final String outputFiletype = configuration.getOutputType().toString();
         final String additionalArguments = configuration.getAdditionalArguments();
-        if (additionalArguments != null && additionalArguments.length() != 0) {
-            final String[] args = additionalArguments.split(" ");
-            for (String arg : args) {
-                commands.add(arg);
+
+        if (dataCleanerSpoonConfiguration != null) {
+            exitCode = ModelerHelper.launchDataCleanerSimple(dataCleanerSpoonConfiguration, jobFilename, outputFiletype,
+                    outputFilename, additionalArguments);
+        }
+        result.setExitStatus(exitCode);
+        result.setResult(true);
+
+        if (configuration.isOutputFileInResult()) {
+            File outputFile = new File(outputFilename);
+            if (!outputFile.exists()) {
+                outputFile = new File(dataCleanerSpoonConfiguration.getPluginFolderPath(), outputFilename);
             }
-        }
 
-        StringBuilder commandString = new StringBuilder();
-        for (String cmd : commands) {
-            commandString.append(cmd).append(" ");
-        }
-
-        log.logBasic("DataCleaner launch commands : " + commandString);
-
-        final ProcessBuilder processBuilder = new ProcessBuilder(commands);
-        final File dataCleanerDirectory = new File(dataCleanerSpoonConfiguration
-                .getDataCleanerInstallationFolderPath());
-        processBuilder.directory(dataCleanerDirectory);
-        processBuilder.redirectErrorStream(true);
-
-        try {
-            final Process process = processBuilder.start();
-
-            if (log.isBasic()) {
-                InputStream inputStream = process.getInputStream();
+            if (outputFile.exists()) {
+                final Map<String, ResultFile> files = new ConcurrentHashMap<String, ResultFile>();
+                FileObject fileObject;
                 try {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                    for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                        logBasic("DataCleaner: " + line);
-                    }
-                } finally {
-                    inputStream.close();
+                    fileObject = KettleVFS.getFileObject(outputFile.getCanonicalPath(), this);
+                } catch (IOException e) {
+                    log.logError("Exception " + e.getMessage());
+                    throw new KettleException("IO exception" + e.getMessage());
                 }
+                final ResultFile resultFile = new ResultFile(ResultFile.FILE_TYPE_GENERAL, fileObject, parentJob
+                        .getJobname(), toString());
+                files.put(outputFilename, resultFile);
+                result.setResultFiles(files);
             }
+        }
 
-            int exitCode = process.waitFor();
-
-            result.setExitStatus(exitCode);
-            result.setResult(true);
-
-            if (configuration.isOutputFileInResult()) {
-                File outputFile = new File(outputFilename);
-                if (!outputFile.exists()) {
-                    outputFile = new File(dataCleanerSpoonConfiguration.getPluginFolderPath(), outputFilename);
-                }
-
-                if (outputFile.exists()) {
-                    final Map<String, ResultFile> files = new ConcurrentHashMap<String, ResultFile>();
-                    final FileObject fileObject = KettleVFS.getFileObject(outputFile.getCanonicalPath(), this);
-                    final ResultFile resultFile = new ResultFile(ResultFile.FILE_TYPE_GENERAL, fileObject, parentJob
-                            .getJobname(), toString());
-                    files.put(outputFilename, resultFile);
-                    result.setResultFiles(files);
-                }
-            }
-
-        } catch (Exception e) {
-            logError("Error occurred while executing DataCleaner job", e);
+        if (exitCode != 0) {
             result.setResult(false);
-            throw new KettleException(e);
         }
 
         return result;
+
     }
 
     @Override

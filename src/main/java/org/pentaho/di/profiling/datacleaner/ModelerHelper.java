@@ -64,8 +64,8 @@ import com.google.common.base.Splitter;
 
 public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenuController {
 
-    public static final String MAIN_CLASS_COMMUNITY = "org.datacleaner.Main";
-    public static final String MAIN_CLASS_ENTERPRISE = "com.hi.datacleaner.Main";
+    private static final String MAIN_CLASS_COMMUNITY = "org.datacleaner.Main";
+    private static final String MAIN_CLASS_ENTERPRISE = "com.hi.datacleaner.Main";
 
     private static final Set<String> ID_COLUMN_TOKENS = new HashSet<>(Arrays.asList("id", "pk", "number", "no", "nr",
             "key"));
@@ -126,44 +126,41 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         }
     }
 
-    public static void launchDataCleaner(DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration, String confFile,
-            String jobFile, String datastore, String dataFile) {
+    public static int launchDataCleanerSimple(DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration,
+            String jobFile, String outputFiletype, String outputFilename, String additionalArguments) {
+        return launchDataCleaner(dataCleanerSpoonConfiguration, null, jobFile, null, null, outputFiletype,
+                outputFilename, additionalArguments, false);
+    }
+
+    public static int launchDataCleaner(DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration, String confFile,
+            String jobFile, String datastore, String dataFile, String outputFiletype, String outputFilename,
+            String additionalArguments, boolean profileStep) {
 
         final LogChannelInterface log = Spoon.getInstance().getLog();
+        int exitCode = 0;
 
         try {
             final String dcInstallationPath = dataCleanerSpoonConfiguration.getDataCleanerInstallationFolderPath()
                     + "/DataCleaner.jar";
-            final String pluginPath = dataCleanerSpoonConfiguration.getPluginFolderPath()
-                    + "/DataCleaner-PDI-plugin.jar";
-            final String kettleLibPath = dataCleanerSpoonConfiguration.getPluginFolderPath() + "/../../lib";
-            final String kettleCorePath = getJarFile(kettleLibPath, "kettle-core");
-            final String commonsVfsPath = getJarFile(kettleLibPath, "commons-vfs");
-            final String scannotationPath = getJarFile(kettleLibPath, "scannotation");
-            final String javassistPath = getJarFile(kettleLibPath, "javassist");
-
-            // Assemble the class path for DataCleaner
-            final String[] paths = new String[] { dcInstallationPath, kettleCorePath, commonsVfsPath, scannotationPath,
-                    javassistPath, pluginPath };
-            final StringBuilder classPathBuilder = new StringBuilder();
-            for (String path : paths) {
-                if (classPathBuilder.length() > 0) {
-                    classPathBuilder.append(File.pathSeparator);
-                }
-                classPathBuilder.append(path);
+            StringBuilder classPathBuilder;
+            if (profileStep) {
+                classPathBuilder = addAdditionalJars(dataCleanerSpoonConfiguration, dcInstallationPath);
+            } else {
+                classPathBuilder = new StringBuilder();
+                classPathBuilder.append(dcInstallationPath);
             }
-
             final List<String> cmds = new ArrayList<String>();
             cmds.add(System.getProperty("java.home") + "/bin/java");
             cmds.add("-cp");
             cmds.add(classPathBuilder.toString());
-            cmds.add("-Ddatacleaner.ui.visible=true");
-            cmds.add("-Ddatacleaner.embed.client=Kettle");
-
+            if (profileStep) {
+                cmds.add("-Ddatacleaner.ui.visible=true");
+                cmds.add("-Ddatacleaner.embed.client=Kettle");
+            }
             // Finally, the class to launch
             //
-            final SoftwareVersion editionDetails = SoftwareVersionHelper
-                    .getEditionDetails(dataCleanerSpoonConfiguration);
+            final SoftwareVersion editionDetails = SoftwareVersionHelper.getEditionDetails(
+                    dataCleanerSpoonConfiguration);
 
             if (editionDetails != null) {
                 if (editionDetails.getName() == SoftwareVersionHelper.DATACLEANER_COMMUNITY) {
@@ -187,7 +184,26 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                 cmds.add("-ds");
                 cmds.add(datastore);
             }
+            if (!Const.isEmpty(outputFiletype)) {
+                cmds.add("-ot");
+                cmds.add(outputFiletype);
 
+            }
+            if (!Const.isEmpty(outputFilename)) {
+                cmds.add("-of");
+                cmds.add(outputFilename);
+
+            }
+
+            if (!Const.isEmpty(additionalArguments)) {
+                if (additionalArguments != null && additionalArguments.length() != 0) {
+                    final String[] args = additionalArguments.split(" ");
+                    for (String arg : args) {
+                        cmds.add(arg);
+                    }
+
+                }
+            }
             // Log the command
             //
             StringBuilder commandString = new StringBuilder();
@@ -207,7 +223,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             psrStdout.start();
             psrStderr.start();
 
-            final int exitCode = process.waitFor();
+            exitCode = process.waitFor();
+
             psrStdout.join();
             psrStderr.join();
 
@@ -228,6 +245,29 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         } catch (final Exception e) {
             showErrorMessage("Error launching DataCleaner", "An error occurred launching DataCleaner", e);
         }
+        return exitCode;
+    }
+
+    private static StringBuilder addAdditionalJars(DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration,
+            final String dcInstallationPath) {
+        final String pluginPath = dataCleanerSpoonConfiguration.getPluginFolderPath() + "/DataCleaner-PDI-plugin.jar";
+        final String kettleLibPath = dataCleanerSpoonConfiguration.getPluginFolderPath() + "/../../lib";
+        final String kettleCorePath = getJarFile(kettleLibPath, "kettle-core");
+        final String commonsVfsPath = getJarFile(kettleLibPath, "commons-vfs");
+        final String scannotationPath = getJarFile(kettleLibPath, "scannotation");
+        final String javassistPath = getJarFile(kettleLibPath, "javassist");
+
+        // Assemble the class path for DataCleaner
+        final String[] paths = new String[] { dcInstallationPath, kettleCorePath, commonsVfsPath, scannotationPath,
+                javassistPath, pluginPath };
+        final StringBuilder classPathBuilder = new StringBuilder();
+        for (String path : paths) {
+            if (classPathBuilder.length() > 0) {
+                classPathBuilder.append(File.pathSeparator);
+            }
+            classPathBuilder.append(path);
+        }
+        return classPathBuilder;
     }
 
     public static void showErrorMessage(final String title, final String message, final Throwable e) {
@@ -263,7 +303,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         new Thread() {
             @Override
             public void run() {
-                launchDataCleaner(dataCleanerSpoonConfiguration, null, null, null, null);
+                launchDataCleaner(dataCleanerSpoonConfiguration, null, null, null, null, null, null, null, true);
             }
         }.start();
     }
@@ -354,8 +394,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             final AnalysisJob analysisJob = createAnalysisJob(transMeta, stepMeta, dataCleanerConfiguration, buildJob);
 
             // Write the job.xml to a temporary file...
-            FileObject jobFile = KettleVFS.createTempFile("datacleaner-job", ".xml",
-                    System.getProperty("java.io.tmpdir"), new Variables());
+            FileObject jobFile = KettleVFS.createTempFile("datacleaner-job", ".xml", System.getProperty(
+                    "java.io.tmpdir"), new Variables());
             OutputStream jobOutputStream = null;
 
             try {
@@ -374,8 +414,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             // Write the conf.xml to a temporary file...
             String confXml = generateConfXml(transMeta.getName(), stepMeta.getName(), writer.getFilename());
-            final FileObject confFile = KettleVFS.createTempFile("datacleaner-conf", ".xml",
-                    System.getProperty("java.io.tmpdir"), new Variables());
+            final FileObject confFile = KettleVFS.createTempFile("datacleaner-conf", ".xml", System.getProperty(
+                    "java.io.tmpdir"), new Variables());
             OutputStream confOutputStream = null;
             try {
                 confOutputStream = KettleVFS.getOutputStream(confFile, false);
@@ -400,8 +440,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             new Thread() {
                 @Override
                 public void run() {
-                    launchDataCleaner(dataCleanerSpoonConfiguration, KettleVFS.getFilename(confFile), jobFilename, transMeta.getName(),
-                            writer.getFilename());
+                    launchDataCleaner(dataCleanerSpoonConfiguration, KettleVFS.getFilename(confFile), jobFilename,
+                            transMeta.getName(), writer.getFilename(), null, null, null, true);
                 }
             }.start();
         } catch (final NoClassDefFoundError e) {
@@ -412,10 +452,11 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     }
 
     private AnalysisJob createAnalysisJob(final TransMeta transMeta, final StepMeta stepMeta,
-            final DataCleanerConfiguration dataCleanerConfiguration, final boolean buildJob) throws KettleStepException {
+            final DataCleanerConfiguration dataCleanerConfiguration, final boolean buildJob)
+                    throws KettleStepException {
         try (final AnalysisJobBuilder analysisJobBuilder = new AnalysisJobBuilder(dataCleanerConfiguration)) {
-            final Datastore datastore = new KettleDatastore(transMeta.getName(), stepMeta.getName(),
-                    transMeta.getStepFields(stepMeta));
+            final Datastore datastore = new KettleDatastore(transMeta.getName(), stepMeta.getName(), transMeta
+                    .getStepFields(stepMeta));
             analysisJobBuilder.setDatastore(datastore);
 
             try (final DatastoreConnection connection = datastore.openConnection();) {
@@ -432,8 +473,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                     // for it.
                     final Set<InputColumn<?>> idColumns = new HashSet<>();
                     {
-                        final CharMatcher charMatcher = CharMatcher.BREAKING_WHITESPACE.or(CharMatcher
-                                .anyOf("_-|#.,/+-!@&()[]"));
+                        final CharMatcher charMatcher = CharMatcher.BREAKING_WHITESPACE.or(CharMatcher.anyOf(
+                                "_-|#.,/+-!@&()[]"));
                         final Splitter splitter = Splitter.on(charMatcher).trimResults().omitEmptyStrings();
                         for (InputColumn<?> sourceColumn : sourceColumns) {
                             final String columnName = sourceColumn.getName().toLowerCase();
@@ -464,11 +505,11 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                     completenessAnalyzer.setConfiguredProperty(CompletenessAnalyzer.PROPERTY_CONDITIONS, conditions);
 
                     // add a number analyzer for all number columns
-                    final List<InputColumn<?>> numberColumns = analysisJobBuilder
-                            .getAvailableInputColumns(Number.class);
+                    final List<InputColumn<?>> numberColumns = analysisJobBuilder.getAvailableInputColumns(
+                            Number.class);
                     if (!numberColumns.isEmpty()) {
-                        final AnalyzerComponentBuilder<NumberAnalyzer> numberAnalyzer = analysisJobBuilder
-                                .addAnalyzer(NumberAnalyzer.class);
+                        final AnalyzerComponentBuilder<NumberAnalyzer> numberAnalyzer = analysisJobBuilder.addAnalyzer(
+                                NumberAnalyzer.class);
                         final ConfiguredPropertyDescriptor descriptiveStatisticsProperty = numberAnalyzer
                                 .getDescriptor().getConfiguredProperty("Descriptive statistics");
                         if (descriptiveStatisticsProperty != null) {
@@ -486,8 +527,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                     }
 
                     // add a boolean analyzer for all boolean columns
-                    final List<InputColumn<?>> booleanColumns = analysisJobBuilder
-                            .getAvailableInputColumns(Boolean.class);
+                    final List<InputColumn<?>> booleanColumns = analysisJobBuilder.getAvailableInputColumns(
+                            Boolean.class);
                     if (!booleanColumns.isEmpty()) {
                         final AnalyzerComponentBuilder<BooleanAnalyzer> booleanAnalyzer = analysisJobBuilder
                                 .addAnalyzer(BooleanAnalyzer.class);
@@ -495,11 +536,11 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                     }
 
                     // add a string analyzer for all string columns
-                    final List<InputColumn<?>> stringColumns = analysisJobBuilder
-                            .getAvailableInputColumns(String.class);
+                    final List<InputColumn<?>> stringColumns = analysisJobBuilder.getAvailableInputColumns(
+                            String.class);
                     if (!stringColumns.isEmpty()) {
-                        final AnalyzerComponentBuilder<StringAnalyzer> stringAnalyzer = analysisJobBuilder
-                                .addAnalyzer(StringAnalyzer.class);
+                        final AnalyzerComponentBuilder<StringAnalyzer> stringAnalyzer = analysisJobBuilder.addAnalyzer(
+                                StringAnalyzer.class);
                         stringAnalyzer.addInputColumns(stringColumns);
                     }
                 }
@@ -517,7 +558,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         StringBuilder xml = new StringBuilder();
 
         xml.append(XMLHandler.getXMLHeader());
-        xml.append("<configuration xmlns=\"http://eobjects.org/analyzerbeans/configuration/1.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
+        xml.append(
+                "<configuration xmlns=\"http://eobjects.org/analyzerbeans/configuration/1.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
         xml.append(XMLHandler.openTag("datastore-catalog"));
 
         // add a custom datastore

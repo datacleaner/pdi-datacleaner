@@ -160,7 +160,7 @@ public class ProfilerDatabaseExplorerController extends AbstractXulEventHandler 
                                         jobFileName = KettleVFS.getFilename(jobFile);
                                     }
                                     ModelerHelper.launchDataCleaner(dataCleanerSpoonConfiguration,
-                                            KettleVFS.getFilename(confFile), jobFileName, dbMeta.getName(), null);
+                                            KettleVFS.getFilename(confFile), jobFileName, dbMeta.getName(), null,null,null,null,true);
                                 }
                             }.start();
                         }
