@@ -17,7 +17,6 @@ import plugin.DataCleanerJobEntry;
 
 public class DataCleanerJobEntryDialog extends AbstractJobEntryDialog implements JobEntryDialogInterface {
 
-    private TextVar executableFilenameField;
     private TextVar jobFilenameField;
     private TextVar additionalArgumentsField;
     private OutputFileSelectionWidget outputFileSelectionWidget;
@@ -29,16 +28,6 @@ public class DataCleanerJobEntryDialog extends AbstractJobEntryDialog implements
 
     @Override
     protected void addConfigurationFields(Group propertiesGroup, int margin, int middle) {
-
-        // Executable field
-        {
-            final Label fieldLabel = new Label(propertiesGroup, SWT.RIGHT);
-            fieldLabel.setLayoutData(WidgetFactory.createGridData());
-            fieldLabel.setText("DataCleaner executable:");
-
-            executableFilenameField = new TextVar(jobMeta, propertiesGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-            executableFilenameField.setLayoutData(WidgetFactory.createGridData());
-        }
 
         // Job file
         {
@@ -84,7 +73,6 @@ public class DataCleanerJobEntryDialog extends AbstractJobEntryDialog implements
         {
             final DataCleanerJobEntryConfiguration configuration = getConfiguration();
             outputTypeCombo.setValue(configuration.getOutputType());
-            executableFilenameField.setText(configuration.getExecutableFilename());
             jobFilenameField.setText(configuration.getJobFilename());
             outputFileSelectionWidget.setOutputFilename(configuration.getOutputFilename());
             outputFileSelectionWidget.setOutputFileInResult(configuration.isOutputFileInResult());
@@ -95,7 +83,6 @@ public class DataCleanerJobEntryDialog extends AbstractJobEntryDialog implements
     @Override
     public void ok() {
         DataCleanerJobEntryConfiguration configuration = getConfiguration();
-        configuration.setExecutableFilename(executableFilenameField.getText());
         configuration.setJobFilename(jobFilenameField.getText());
         configuration.setOutputFilename(outputFileSelectionWidget.getOutputFilename());
         configuration.setOutputFileInResult(outputFileSelectionWidget.isOutputFileInResult());
