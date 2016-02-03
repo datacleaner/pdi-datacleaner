@@ -228,15 +228,17 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             psrStdout.join();
             psrStderr.join();
 
-            // When DC finishes we clean up the temporary files...
-            if (!Const.isEmpty(confFile)) {
-                new File(confFile).delete();
-            }
-            if (!Const.isEmpty(jobFile)) {
-                new File(jobFile).delete();
-            }
-            if (!Const.isEmpty(dataFile)) {
-                new File(dataFile).delete();
+            // When DC finishes we clean up the temporary files... only if it'a profiling step job
+            if (profileStep) {
+                if (!Const.isEmpty(confFile)) {
+                    new File(confFile).delete();
+                }
+                if (!Const.isEmpty(jobFile)) {
+                    new File(jobFile).delete();
+                }
+                if (!Const.isEmpty(dataFile)) {
+                    new File(dataFile).delete();
+                }
             }
 
             if (exitCode != 0) {
