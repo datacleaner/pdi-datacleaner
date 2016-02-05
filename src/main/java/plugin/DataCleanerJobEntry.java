@@ -107,6 +107,7 @@ public class DataCleanerJobEntry extends JobEntryBase implements JobEntryInterfa
     public String getDialogClassName() {
         return DataCleanerJobEntryDialog.class.getName();
     }
+   
 
     public String getXML() {
         final StringBuilder retval = new StringBuilder();

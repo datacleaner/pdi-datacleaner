@@ -1,23 +1,32 @@
-package org.datacleaner.kettle.configuration;
+package org.datacleaner.kettle.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.datacleaner.kettle.configuration.DataCleanerSpoonConfiguration;
+import org.datacleaner.kettle.configuration.DataCleanerSpoonConfigurationException;
 import org.datacleaner.kettle.configuration.utils.SoftwareVersionHelper;
 import org.datacleaner.kettle.configuration.utils.SoftwareVersionHelper.SoftwareVersion;
-import org.datacleaner.kettle.ui.DataCleanerBanner;
-import org.datacleaner.kettle.ui.DataCleanerFooter;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class DataCleanerConfigurationDialog extends Dialog {
+public class DataCleanerConfigurationDialog extends Dialog implements DisposeListener {
 
     // The spaces are necessary because the label length cannot be modified at
     // runtime
@@ -29,6 +38,8 @@ public class DataCleanerConfigurationDialog extends Dialog {
     private Label _errorLabel;
     private Label _labelEdition;
     private Label _labelVersion;
+    private Button _okButton; 
+    private List<Object> _resources = new ArrayList<Object>();
 
     /**
      * Create the dialog.
@@ -67,8 +78,13 @@ public class DataCleanerConfigurationDialog extends Dialog {
 
     private void createContents() {
         _shell = new Shell(getParent(), getStyle());
-        _shell.setSize(500, 425);
+        _shell.setSize(500, 700);
         _shell.setText(getText());
+        
+        //center the dialog in the middle of the screen
+        final Rectangle screenSize = _shell.getDisplay().getPrimaryMonitor().getBounds();
+        _shell.setLocation((screenSize.width - _shell.getBounds().width) / 2, (screenSize.height - _shell.getBounds().height) / 2);
+ 
         final GridLayout gridLayout = new GridLayout(3, false);
         gridLayout.marginLeft = -5;
         gridLayout.marginRight = -5;
@@ -118,9 +134,8 @@ public class DataCleanerConfigurationDialog extends Dialog {
         new Label(_shell, SWT.NONE);
         _labelEdition = new Label(_shell, SWT.NONE);
         _labelEdition.setText(EDITION);
-
         new Label(_shell, SWT.NONE);
-
+       
         new Label(_shell, SWT.NONE);
         _labelVersion = new Label(_shell, SWT.NONE);
         _labelVersion.setText(VERSION);
@@ -131,10 +146,24 @@ public class DataCleanerConfigurationDialog extends Dialog {
         new Label(_shell, SWT.NONE);
 
         new Label(_shell, SWT.NONE);
-        new Label(_shell, SWT.NONE);
-        final Button btnOK = new Button(_shell, SWT.NONE);
-        btnOK.setText("OK");
-        btnOK.addSelectionListener(new SelectionAdapter() {
+        final Button cancelButton = new Button(_shell, SWT.PUSH);
+        Image cancelImage = new Image(_shell.getDisplay(), DataCleanerConfigurationDialog.class.getResourceAsStream("cancel.png"));
+        _resources.add(cancelImage);
+        cancelButton.setImage(cancelImage);
+        cancelButton.setText("Cancel");
+        cancelButton.addListener(SWT.Selection, new Listener() {
+            @Override
+            public void handleEvent(Event arg0) {
+               _shell.close();
+            }
+        });
+
+        _okButton = new Button(_shell, SWT.PUSH);
+         final Image okImage = new Image(_shell.getDisplay(), DataCleanerConfigurationDialog.class.getResourceAsStream("save.png"));
+         _resources.add(okImage);
+        _okButton.setImage(okImage);
+        _okButton.setText("OK");
+        _okButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 DataCleanerSpoonConfiguration.save(_text.getText());
@@ -142,6 +171,7 @@ public class DataCleanerConfigurationDialog extends Dialog {
             }
         });
 
+        
         final DataCleanerFooter footer = new DataCleanerFooter(_shell);
         footer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
 
@@ -175,11 +205,22 @@ public class DataCleanerConfigurationDialog extends Dialog {
             _labelEdition.setText(EDITION.trim() + " " + editionDetails.getName());
             _labelVersion.setText(VERSION.trim() + " " + editionDetails.getVersion());
             _errorLabel.setVisible(false);
+            _okButton.setEnabled(true);
         } else {
             _errorLabel.setVisible(true);
+            _okButton.setEnabled(false);
+            
         }
     }
 
+    @Override
+    public void widgetDisposed(DisposeEvent arg0) {
+        for (Object resource : _resources) {
+            if (resource instanceof Image) {
+                ((Image) resource).dispose();
+            }
+        }
+    }
     public static void main(String[] args) {
 
         final Display display = Display.getDefault();
@@ -196,5 +237,7 @@ public class DataCleanerConfigurationDialog extends Dialog {
         display.dispose();
 
     }
+
+    
 
 }

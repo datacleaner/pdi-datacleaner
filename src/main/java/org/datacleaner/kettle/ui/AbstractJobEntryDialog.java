@@ -8,6 +8,7 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -62,10 +63,13 @@ public abstract class AbstractJobEntryDialog extends JobEntryDialog implements J
     public final JobEntryInterface open() {
         final Shell parent = getParent();
         final Display display = parent.getDisplay();
-
+        
         // initialize shell
         {
-            shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
+            shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX);
+            //center the dialog in the middle of the screen
+            final Rectangle screenSize = shell.getDisplay().getPrimaryMonitor().getBounds();
+            shell.setLocation((screenSize.width - shell.getBounds().width) / 2, (screenSize.height - shell.getBounds().height) / 2);
             initializeShell(shell);
 
             FormLayout shellLayout = new FormLayout();
@@ -168,7 +172,7 @@ public abstract class AbstractJobEntryDialog extends JobEntryDialog implements J
             final FormData footerLayoutData = new FormData();
             footerLayoutData.left = new FormAttachment(0, 0);
             footerLayoutData.right = new FormAttachment(100, 0);
-            footerLayoutData.top = new FormAttachment(okButton, margin * 2);
+            footerLayoutData.top = new FormAttachment(okButton, margin * 3);
             footer.setLayoutData(footerLayoutData);
         }
 
@@ -220,5 +224,5 @@ public abstract class AbstractJobEntryDialog extends JobEntryDialog implements J
     protected String getStepDescription() {
         return null;
     }
-
+   
 }
