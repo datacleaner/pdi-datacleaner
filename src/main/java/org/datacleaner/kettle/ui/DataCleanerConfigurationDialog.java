@@ -85,7 +85,9 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
         final Rectangle screenSize = _shell.getDisplay().getPrimaryMonitor().getBounds();
         _shell.setLocation((screenSize.width - _shell.getBounds().width) / 2, (screenSize.height - _shell.getBounds().height) / 2);
  
-        final GridLayout gridLayout = new GridLayout(3, false);
+        final GridLayout gridLayout = new GridLayout();
+        gridLayout.numColumns = 3;
+        gridLayout.makeColumnsEqualWidth=false;
         gridLayout.marginLeft = -5;
         gridLayout.marginRight = -5;
         gridLayout.marginTop = -5;
@@ -112,10 +114,10 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
         new Label(_shell, SWT.NONE);
         _text = new Text(_shell, SWT.BORDER);
         _text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
-        final Button btnBrowse = new Button(_shell, SWT.NONE);
+        final Button btnBrowse = new Button(_shell, SWT.PUSH);
         btnBrowse.setText("Browse");
-
+        btnBrowse.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, false));
+        
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
@@ -145,8 +147,9 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
 
+       
         new Label(_shell, SWT.NONE);
-        final Button cancelButton = new Button(_shell, SWT.PUSH);
+        final Button cancelButton = new Button(_shell, SWT.NONE);
         Image cancelImage = new Image(_shell.getDisplay(), DataCleanerConfigurationDialog.class.getResourceAsStream("cancel.png"));
         _resources.add(cancelImage);
         cancelButton.setImage(cancelImage);
@@ -157,9 +160,11 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
                _shell.close();
             }
         });
-
-        _okButton = new Button(_shell, SWT.PUSH);
+        
+        cancelButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 0));
+        _okButton = new Button(_shell, SWT.NONE);
          final Image okImage = new Image(_shell.getDisplay(), DataCleanerConfigurationDialog.class.getResourceAsStream("save.png"));
+       
          _resources.add(okImage);
         _okButton.setImage(okImage);
         _okButton.setText("OK");
@@ -170,8 +175,10 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
                 _shell.close();
             }
         });
-
         
+        final GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 0);
+        _okButton.setLayoutData(gridData);
+       
         final DataCleanerFooter footer = new DataCleanerFooter(_shell);
         footer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
 

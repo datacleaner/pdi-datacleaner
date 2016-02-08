@@ -66,10 +66,7 @@ public abstract class AbstractJobEntryDialog extends JobEntryDialog implements J
         
         // initialize shell
         {
-            shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX);
-            //center the dialog in the middle of the screen
-            final Rectangle screenSize = shell.getDisplay().getPrimaryMonitor().getBounds();
-            shell.setLocation((screenSize.width - shell.getBounds().width) / 2, (screenSize.height - shell.getBounds().height) / 2);
+            shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
             initializeShell(shell);
 
             FormLayout shellLayout = new FormLayout();
@@ -179,6 +176,9 @@ public abstract class AbstractJobEntryDialog extends JobEntryDialog implements J
         shell.addDisposeListener(this);
 
         shell.setSize(getDialogSize());
+        //center the dialog in the middle of the screen
+        final Rectangle screenSize = shell.getDisplay().getPrimaryMonitor().getBounds();
+        shell.setLocation((screenSize.width - shell.getBounds().width) / 2, (screenSize.height - shell.getBounds().height) / 2);
 
         shell.pack();
         shell.open();
