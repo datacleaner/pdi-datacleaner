@@ -119,7 +119,7 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
         _text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         final Button btnBrowse = new Button(_shell, SWT.NONE);
         btnBrowse.setText("Browse");
-        btnBrowse.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, false));
+        btnBrowse.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
         new Label(_shell, SWT.NONE);
         
         new Label(_shell, SWT.NONE);
@@ -185,7 +185,7 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
             }
         });
         
-        final GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 0);
+        final GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 0);
         _okButton.setLayoutData(gridData);
         new Label(_shell, SWT.NONE);
        

@@ -60,7 +60,7 @@ public class DataCleanerFooter extends Composite {
             Color color = new Color(getDisplay(), 233, 233, 233);
             resources.add(color);
             label.setForeground(color);
-            ImageData imageData = new ImageData(getClass().getResourceAsStream("footer-bg.png")).scaledTo(2000, 46);
+            ImageData imageData = new ImageData(getClass().getResourceAsStream("footer-bg.png")).scaledTo(2000, 49);
             Image image = new Image(getShell().getDisplay(), imageData);
             resources.add(image);
             label.setBackground(image);
@@ -68,7 +68,7 @@ public class DataCleanerFooter extends Composite {
             backgroundLayoutData.horizontalAlignment = SWT.FILL;
             backgroundLayoutData.grabExcessHorizontalSpace = true;
             backgroundLayoutData.grabExcessVerticalSpace = true;
-            backgroundLayoutData.heightHint = 46;
+            backgroundLayoutData.heightHint = 49;
             label.setLayoutData(backgroundLayoutData);
         }
 
