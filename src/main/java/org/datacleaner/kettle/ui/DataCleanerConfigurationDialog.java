@@ -78,7 +78,7 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
 
     private void createContents() {
         _shell = new Shell(getParent(), getStyle());
-        _shell.setSize(500, 700);
+        _shell.setSize(600, 425);
         _shell.setText(getText());
         
         //center the dialog in the middle of the screen
@@ -86,7 +86,7 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
         _shell.setLocation((screenSize.width - _shell.getBounds().width) / 2, (screenSize.height - _shell.getBounds().height) / 2);
  
         final GridLayout gridLayout = new GridLayout();
-        gridLayout.numColumns = 3;
+        gridLayout.numColumns = 4;
         gridLayout.makeColumnsEqualWidth=false;
         gridLayout.marginLeft = -5;
         gridLayout.marginRight = -5;
@@ -96,8 +96,9 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
         _shell.setLayout(gridLayout);
         _shell.setOrientation(getStyle());
         final DataCleanerBanner banner = new DataCleanerBanner(_shell);
-        banner.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
+        banner.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1));
 
+        new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
@@ -106,7 +107,9 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
         final Label lblSelectDatacleanerApplication = new Label(_shell, SWT.NONE);
         lblSelectDatacleanerApplication.setText("Select DataCleaner application directory:");
         new Label(_shell, SWT.NONE);
+        new Label(_shell, SWT.NONE);
 
+        new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
@@ -114,10 +117,12 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
         new Label(_shell, SWT.NONE);
         _text = new Text(_shell, SWT.BORDER);
         _text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        final Button btnBrowse = new Button(_shell, SWT.PUSH);
+        final Button btnBrowse = new Button(_shell, SWT.NONE);
         btnBrowse.setText("Browse");
         btnBrowse.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, false));
+        new Label(_shell, SWT.NONE);
         
+        new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
@@ -128,7 +133,9 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
         _errorLabel.setForeground(getParent().getDisplay().getSystemColor(SWT.COLOR_RED));
         _errorLabel.setVisible(false);
         new Label(_shell, SWT.NONE);
+        new Label(_shell, SWT.NONE);
 
+        new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
@@ -137,12 +144,15 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
         _labelEdition = new Label(_shell, SWT.NONE);
         _labelEdition.setText(EDITION);
         new Label(_shell, SWT.NONE);
+        new Label(_shell, SWT.NONE);
        
         new Label(_shell, SWT.NONE);
         _labelVersion = new Label(_shell, SWT.NONE);
         _labelVersion.setText(VERSION);
         new Label(_shell, SWT.NONE);
+        new Label(_shell, SWT.NONE);
 
+        new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
         new Label(_shell, SWT.NONE);
@@ -164,8 +174,7 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
         cancelButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 0));
         _okButton = new Button(_shell, SWT.NONE);
          final Image okImage = new Image(_shell.getDisplay(), DataCleanerConfigurationDialog.class.getResourceAsStream("save.png"));
-       
-         _resources.add(okImage);
+        _resources.add(okImage);
         _okButton.setImage(okImage);
         _okButton.setText("OK");
         _okButton.addSelectionListener(new SelectionAdapter() {
@@ -178,9 +187,10 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
         
         final GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 0);
         _okButton.setLayoutData(gridData);
+        new Label(_shell, SWT.NONE);
        
         final DataCleanerFooter footer = new DataCleanerFooter(_shell);
-        footer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
+        footer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 4, 1));
 
         btnBrowse.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
@@ -192,7 +202,7 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
                 setDataCleanerInstallationFolder(dir);
             }
         });
-
+        
         try {
             DataCleanerSpoonConfiguration dcSpoonConfiguration = DataCleanerSpoonConfiguration.load();
             setDataCleanerInstallationFolder(dcSpoonConfiguration.getDataCleanerInstallationFolderPath());
