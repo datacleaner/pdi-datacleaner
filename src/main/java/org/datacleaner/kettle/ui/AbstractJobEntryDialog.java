@@ -169,7 +169,7 @@ public abstract class AbstractJobEntryDialog extends JobEntryDialog implements J
             final FormData footerLayoutData = new FormData();
             footerLayoutData.left = new FormAttachment(0, 0);
             footerLayoutData.right = new FormAttachment(100, 0);
-            footerLayoutData.top = new FormAttachment(okButton, margin * 3);
+            footerLayoutData.top = new FormAttachment(okButton, margin * 2);
             footer.setLayoutData(footerLayoutData);
         }
 
