@@ -23,6 +23,7 @@ import org.eclipse.swt.widgets.Label;
 public class DataCleanerFooter extends Composite {
 
     private final List<Object> resources;
+    private static final int HEIGHT = 42;  
 
     /**
      * Create the composite.
@@ -60,7 +61,7 @@ public class DataCleanerFooter extends Composite {
             Color color = new Color(getDisplay(), 233, 233, 233);
             resources.add(color);
             label.setForeground(color);
-            ImageData imageData = new ImageData(getClass().getResourceAsStream("footer-bg.png")).scaledTo(2000, 49);
+            ImageData imageData = new ImageData(getClass().getResourceAsStream("footer-bg.png")).scaledTo(2000, HEIGHT);
             Image image = new Image(getShell().getDisplay(), imageData);
             resources.add(image);
             label.setBackground(image);
@@ -68,7 +69,7 @@ public class DataCleanerFooter extends Composite {
             backgroundLayoutData.horizontalAlignment = SWT.FILL;
             backgroundLayoutData.grabExcessHorizontalSpace = true;
             backgroundLayoutData.grabExcessVerticalSpace = true;
-            backgroundLayoutData.heightHint = 49;
+            backgroundLayoutData.heightHint = HEIGHT;
             label.setLayoutData(backgroundLayoutData);
         }
 

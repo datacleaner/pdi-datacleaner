@@ -78,7 +78,7 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
 
     private void createContents() {
         _shell = new Shell(getParent(), getStyle());
-        _shell.setSize(600, 425);
+        _shell.setSize(500, 425);
         _shell.setText(getText());
         
         //center the dialog in the middle of the screen
@@ -171,7 +171,7 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
             }
         });
         
-        cancelButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 0));
+        cancelButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
         _okButton = new Button(_shell, SWT.NONE);
          final Image okImage = new Image(_shell.getDisplay(), DataCleanerConfigurationDialog.class.getResourceAsStream("save.png"));
         _resources.add(okImage);
@@ -185,7 +185,7 @@ public class DataCleanerConfigurationDialog extends Dialog implements DisposeLis
             }
         });
         
-        final GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 0);
+        final GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
         _okButton.setLayoutData(gridData);
         new Label(_shell, SWT.NONE);
        
