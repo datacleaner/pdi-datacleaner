@@ -6,7 +6,7 @@ import org.apache.metamodel.util.FileHelper;
 import org.pentaho.di.core.plugins.PluginInterface;
 import org.pentaho.di.core.plugins.PluginRegistry;
 import org.pentaho.di.core.vfs.KettleVFS;
-import org.pentaho.di.ui.spoon.SpoonPluginType;
+import org.pentaho.di.core.plugins.JobEntryPluginType;
 
 public class DataCleanerSpoonConfiguration {
 
@@ -36,8 +36,8 @@ public class DataCleanerSpoonConfiguration {
 
     private static String detectPluginFolderPath() {
         try {
-            final PluginInterface spoonPlugin = PluginRegistry.getInstance().findPluginWithId(SpoonPluginType.class,
-                    "SpoonDataCleaner");
+            final PluginInterface spoonPlugin = PluginRegistry.getInstance().findPluginWithId(JobEntryPluginType.class,
+                    "DataCleanerJobEntry");
             return KettleVFS.getFilename(KettleVFS.getFileObject(spoonPlugin.getPluginDirectory().toString()));
         } catch (Exception e) {
             throw new RuntimeException(

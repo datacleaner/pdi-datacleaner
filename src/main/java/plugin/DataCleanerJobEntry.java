@@ -18,6 +18,7 @@ import org.pentaho.di.core.annotations.JobEntry;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleXMLException;
+import org.pentaho.di.core.logging.LogChannel;
 import org.pentaho.di.core.logging.LogChannelInterface;
 import org.pentaho.di.core.vfs.KettleVFS;
 import org.pentaho.di.core.xml.XMLHandler;
@@ -26,7 +27,6 @@ import org.pentaho.di.job.entry.JobEntryInterface;
 import org.pentaho.di.profiling.datacleaner.ModelerHelper;
 import org.pentaho.di.repository.ObjectId;
 import org.pentaho.di.repository.Repository;
-import org.pentaho.di.ui.spoon.Spoon;
 import org.pentaho.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -40,13 +40,13 @@ import org.w3c.dom.Node;
 public class DataCleanerJobEntry extends JobEntryBase implements JobEntryInterface, Cloneable {
 
     public static final String NAME = "Execute DataCleaner job";
+	public static final String LOGCHANNEL_NAME = "DataCleaner";
 
     private final DataCleanerJobEntryConfiguration configuration = new DataCleanerJobEntryConfiguration();
 
     @Override
     public Result execute(Result result, int nr) throws KettleException {
-
-        final LogChannelInterface log = Spoon.getInstance().getLog();
+		LogChannelInterface log = new LogChannel( LOGCHANNEL_NAME );
         int exitCode = -1;
 
         final DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration = ModelerHelper
@@ -54,8 +54,8 @@ public class DataCleanerJobEntry extends JobEntryBase implements JobEntryInterfa
         final String outputFilename = environmentSubstitute(configuration.getOutputFilename());
         final String jobFilename = environmentSubstitute(configuration.getJobFilename());
         final String outputFiletype = configuration.getOutputType().toString();
-        final String additionalArguments = configuration.getAdditionalArguments();
-
+        final String additionalArguments = environmentSubstitute( configuration.getAdditionalArguments() );
+		
         if (dataCleanerSpoonConfiguration != null) {
             exitCode = ModelerHelper.launchDataCleanerSimple(dataCleanerSpoonConfiguration, jobFilename, outputFiletype,
                     outputFilename, additionalArguments);
