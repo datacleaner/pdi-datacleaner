@@ -139,7 +139,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             String jobFile, String datastore, String dataFile, String outputFiletype, String outputFilename,
             String additionalArguments, boolean profileStep) {
 
-		LogChannelInterface log = new LogChannel( LOGCHANNEL_NAME );
+        final LogChannelInterface log = new LogChannel(LOGCHANNEL_NAME);
         int exitCode = 0;
 
         try {
