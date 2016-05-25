@@ -43,6 +43,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.gui.SpoonFactory;
+import org.pentaho.di.core.logging.LogChannel;
 import org.pentaho.di.core.logging.LogChannelInterface;
 import org.pentaho.di.core.variables.Variables;
 import org.pentaho.di.core.vfs.KettleVFS;
@@ -63,6 +64,8 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 
 public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenuController {
+
+	private static final String LOGCHANNEL_NAME = "DataCleaner";
 
     private static final String MAIN_CLASS_COMMUNITY = "org.datacleaner.Main";
     private static final String MAIN_CLASS_ENTERPRISE = "com.hi.datacleaner.Main";
@@ -136,7 +139,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             String jobFile, String datastore, String dataFile, String outputFiletype, String outputFilename,
             String additionalArguments, boolean profileStep) {
 
-        final LogChannelInterface log = Spoon.getInstance().getLog();
+        final LogChannelInterface log = new LogChannel(LOGCHANNEL_NAME);
         int exitCode = 0;
 
         try {
@@ -405,7 +408,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                 final JaxbJobWriter jobWriter = new JaxbJobWriter(dataCleanerConfiguration);
                 jobWriter.write(analysisJob, jobOutputStream);
             } catch (Exception e) {
-                final LogChannelInterface log = Spoon.getInstance().getLog();
+                final LogChannelInterface log = new LogChannel(LOGCHANNEL_NAME);
                 log.logError("Failed to save DataCleaner job", e);
                 jobFile = null;
             } finally {
