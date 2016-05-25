@@ -408,7 +408,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                 final JaxbJobWriter jobWriter = new JaxbJobWriter(dataCleanerConfiguration);
                 jobWriter.write(analysisJob, jobOutputStream);
             } catch (Exception e) {
-				LogChannelInterface log = new LogChannel( LOGCHANNEL_NAME );
+                final LogChannelInterface log = new LogChannel(LOGCHANNEL_NAME);
                 log.logError("Failed to save DataCleaner job", e);
                 jobFile = null;
             } finally {

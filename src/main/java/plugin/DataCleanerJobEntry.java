@@ -46,7 +46,7 @@ public class DataCleanerJobEntry extends JobEntryBase implements JobEntryInterfa
 
     @Override
     public Result execute(Result result, int nr) throws KettleException {
-		LogChannelInterface log = new LogChannel( LOGCHANNEL_NAME );
+        final LogChannelInterface log = new LogChannel(LOGCHANNEL_NAME);
         int exitCode = -1;
 
         final DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration = ModelerHelper
@@ -54,7 +54,7 @@ public class DataCleanerJobEntry extends JobEntryBase implements JobEntryInterfa
         final String outputFilename = environmentSubstitute(configuration.getOutputFilename());
         final String jobFilename = environmentSubstitute(configuration.getJobFilename());
         final String outputFiletype = configuration.getOutputType().toString();
-        final String additionalArguments = environmentSubstitute( configuration.getAdditionalArguments() );
+        final String additionalArguments = environmentSubstitute(configuration.getAdditionalArguments());
 		
         if (dataCleanerSpoonConfiguration != null) {
             exitCode = ModelerHelper.launchDataCleanerSimple(dataCleanerSpoonConfiguration, jobFilename, outputFiletype,
