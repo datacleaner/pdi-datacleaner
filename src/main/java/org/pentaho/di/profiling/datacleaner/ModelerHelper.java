@@ -210,7 +210,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                 }
             }
             // Log the command
-            //
+            
             StringBuilder commandString = new StringBuilder();
             for (String cmd : cmds) {
                 commandString.append(cmd).append(" ");
