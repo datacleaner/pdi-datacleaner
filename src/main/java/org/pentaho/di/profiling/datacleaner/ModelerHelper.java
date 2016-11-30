@@ -144,8 +144,10 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
         try {
             final String dcInstallationPath = dataCleanerSpoonConfiguration.getDataCleanerInstallationFolderPath()
-                    + "/DataCleaner.jar";
-            StringBuilder classPathBuilder;
+                    + "/DataCleaner.jar" + ";" + dataCleanerSpoonConfiguration.getDataCleanerInstallationFolderPath()
+                    + "/modules/*" + ";" + dataCleanerSpoonConfiguration.getDataCleanerInstallationFolderPath()
+                    + "/lib/*";
+            final StringBuilder classPathBuilder;
             if (profileStep) {
                 classPathBuilder = addAdditionalJars(dataCleanerSpoonConfiguration, dcInstallationPath);
             } else {
@@ -208,7 +210,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                 }
             }
             // Log the command
-            //
+            
             StringBuilder commandString = new StringBuilder();
             for (String cmd : cmds) {
                 commandString.append(cmd).append(" ");
