@@ -144,7 +144,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
         try {
             final String dcInstallationPath = dataCleanerSpoonConfiguration.getDataCleanerInstallationFolderPath()
-                    + "/DataCleaner.jar";
+                    + "/DataCleaner.jar" + ";" + dataCleanerSpoonConfiguration.getDataCleanerInstallationFolderPath() + "/modules/*" + ";" + dataCleanerSpoonConfiguration.getDataCleanerInstallationFolderPath() + "/lib/*";
             StringBuilder classPathBuilder;
             if (profileStep) {
                 classPathBuilder = addAdditionalJars(dataCleanerSpoonConfiguration, dcInstallationPath);

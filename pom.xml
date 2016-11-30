@@ -7,7 +7,7 @@
 	</parent>
 	<properties>
 		<kettle.version>6.0.1.0-386</kettle.version>
-		<datacleaner.version>4.5.4</datacleaner.version>
+		<datacleaner.version>5.1.5</datacleaner.version>
 		<mainClass>org.datacleaner.Main</mainClass>
 	</properties>
 	<artifactId>pdi-datacleaner</artifactId>
