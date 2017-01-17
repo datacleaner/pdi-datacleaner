@@ -21,12 +21,12 @@ public class DataCleanerSpoonConfiguration {
 
         final File file = new File(configurationFilePath);
         if (!file.exists()) {
-            throw new DataCleanerSpoonConfigurationException("No configuration file: " + configurationFilePath);
+            throw new DataCleanerSpoonConfigurationException("No configuration file: " + configurationFilePath + ". Please set DataCleaner configuration from the Tools menu.");
         }
 
         final String installationPath = FileHelper.readFileAsString(file);
         if (installationPath == null || installationPath.trim().isEmpty()) {
-            throw new DataCleanerSpoonConfigurationException("Configuration file is empty: " + configurationFilePath);
+            throw new DataCleanerSpoonConfigurationException("Configuration file is empty: " + configurationFilePath +". Please set DataCleaner configuration from the Tools menu.");
         }
 
         final DataCleanerSpoonConfiguration configuration = new DataCleanerSpoonConfiguration(pluginFolderPath,
