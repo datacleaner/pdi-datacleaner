@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.eobjects.datacleaner</groupId>
@@ -6,7 +7,7 @@
 		<version>5.4.0</version>
 	</parent>
 	<properties>
-		<kettle.version>6.1.0.9-307</kettle.version>
+		<kettle.version>8.1.0.0-232</kettle.version>
 		<datacleaner.version>5.4.0</datacleaner.version>
 		<mainClass>org.datacleaner.Main</mainClass>
 	</properties>
@@ -153,7 +154,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
 		</plugins>
 	</build>
 
@@ -174,6 +175,10 @@
 					<artifactId>xml-apis</artifactId>
 				</exclusion>
 				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+				<exclusion>
 					<groupId>commons-beanutils</groupId>
 					<artifactId>commons-beanutils-core</artifactId>
 				</exclusion>
@@ -184,6 +189,44 @@
 			<artifactId>kettle-engine</artifactId>
 			<version>${kettle.version}</version>
 			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.codehaus.jackson</groupId>
+					<artifactId>jackson-jaxrs</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.codehaus.jackson</groupId>
+					<artifactId>jackson-core-asl</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.codehaus.jackson</groupId>
+					<artifactId>jackson-mapper-asl</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.servlet</groupId>
+					<artifactId>jsp-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xerces</groupId>
+					<artifactId>xmlParserAPIs</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xerces</groupId>
+					<artifactId>xercesImpl</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>asm</groupId>
+					<artifactId>asm</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>pentaho-kettle</groupId>
@@ -203,8 +246,6 @@
 		</dependency>
 
 		<!-- DataCleaner dependencies -->
-
-
 		<dependency>
 			<groupId>org.eobjects.datacleaner</groupId>
 			<artifactId>DataCleaner-xml-config</artifactId>
@@ -245,29 +286,33 @@
 				</exclusion>
 				<exclusion>
 					<groupId>org.apache.metamodel</groupId>
+					<artifactId>MetaModel-full</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.metamodel</groupId>
+					<artifactId>MetaModel-csv</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.metamodel</groupId>
 					<artifactId>MetaModel-hbase</artifactId>
 				</exclusion>
 				<exclusion>
-					<groupId>org.apache.metamodel</groupId>
-					<artifactId>MetaModel-hadoop</artifactId>
+					<groupId>org.eobjects.metamodel-extras</groupId>
+					<artifactId>MetaModel-extras-sas</artifactId>
 				</exclusion>
 				<exclusion>
-					<groupId>org.apache.metamodel</groupId>
-					<artifactId>MetaModel-elasticsearch</artifactId>
+					<groupId>org.eobjects.metamodel-extras</groupId>
+					<artifactId>MetaModel-extras-dbase</artifactId>
 				</exclusion>
 				<exclusion>
-					<groupId>org.apache.metamodel</groupId>
-					<artifactId>MetaModel-cassandra</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.metamodel</groupId>
-					<artifactId>MetaModel-couchdb</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.metamodel</groupId>
-					<artifactId>MetaModel-mongodb</artifactId>
+					<groupId>org.eobjects.metamodel-extras</groupId>
+					<artifactId>MetaModel-extras-access</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.metamodel</groupId>
+			<artifactId>MetaModel-core</artifactId>
 		</dependency>
 
 		<dependency>

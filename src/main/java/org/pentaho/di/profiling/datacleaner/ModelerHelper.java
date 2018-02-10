@@ -62,6 +62,7 @@ import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 
 public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenuController {
 
@@ -178,30 +179,30 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             // The optional arguments for DataCleaner
             //
-            if (!Const.isEmpty(confFile)) {
+            if (!Strings.isNullOrEmpty(confFile)) {
                 cmds.add("-conf");
                 cmds.add(confFile);
             }
-            if (!Const.isEmpty(jobFile)) {
+            if (!Strings.isNullOrEmpty(jobFile)) {
                 cmds.add("-job");
                 cmds.add(jobFile);
             }
-            if (!Const.isEmpty(datastore)) {
+            if (!Strings.isNullOrEmpty(datastore)) {
                 cmds.add("-ds");
                 cmds.add(datastore);
             }
-            if (!Const.isEmpty(outputFiletype)) {
+            if (!Strings.isNullOrEmpty(outputFiletype)) {
                 cmds.add("-ot");
                 cmds.add(outputFiletype);
 
             }
-            if (!Const.isEmpty(outputFilename)) {
+            if (!Strings.isNullOrEmpty(outputFilename)) {
                 cmds.add("-of");
                 cmds.add(outputFilename);
 
             }
 
-            if (!Const.isEmpty(additionalArguments)) {
+            if (!Strings.isNullOrEmpty(additionalArguments)) {
                 if (additionalArguments != null && additionalArguments.length() != 0) {
                     final String[] args = additionalArguments.split(" ");
                     for (String arg : args) {
@@ -236,13 +237,13 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             // When DC finishes we clean up the temporary files... only if it'a profiling step job
             if (profileStep) {
-                if (!Const.isEmpty(confFile)) {
+                if (!Strings.isNullOrEmpty(confFile)) {
                     new File(confFile).delete();
                 }
-                if (!Const.isEmpty(jobFile)) {
+                if (!Strings.isNullOrEmpty(jobFile)) {
                     new File(jobFile).delete();
                 }
-                if (!Const.isEmpty(dataFile)) {
+                if (!Strings.isNullOrEmpty(dataFile)) {
                     new File(dataFile).delete();
                 }
             }
