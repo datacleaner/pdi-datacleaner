@@ -55,6 +55,7 @@ public class KettleDataContext extends QueryPostprocessDataContext {
      *            the filename to read from
      */
     public KettleDataContext(String filename) {
+        super(false);
         if (filename == null || filename.length() == 0) {
             throw new IllegalArgumentException(
                     "You need to provide a Kettle serialized file for DataCleaner to read from");
@@ -71,6 +72,7 @@ public class KettleDataContext extends QueryPostprocessDataContext {
      * @param rowMeta
      */
     public KettleDataContext(String transformationName, String stepName, RowMetaInterface rowMeta) {
+        super(false);
         this.filename = null;
         this.transformationName = transformationName;
         this.stepName = stepName;
