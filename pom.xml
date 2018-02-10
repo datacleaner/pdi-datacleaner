@@ -3,17 +3,17 @@
 	<parent>
 		<groupId>org.eobjects.datacleaner</groupId>
 		<artifactId>DataCleaner</artifactId>
-		<version>4.5</version>
+		<version>5.4.0</version>
 	</parent>
 	<properties>
-		<kettle.version>6.1.0.8-267</kettle.version>
-		<datacleaner.version>5.1.5</datacleaner.version>
+		<kettle.version>6.1.0.9-307</kettle.version>
+		<datacleaner.version>5.4.0</datacleaner.version>
 		<mainClass>org.datacleaner.Main</mainClass>
 	</properties>
 	<artifactId>pdi-datacleaner</artifactId>
 	<name>DataCleaner for Pentaho Data Integration</name>
 	<packaging>jar</packaging>
-	<version>5.1.8-SNAPSHOT</version>
+	<version>5.4.0-SNAPSHOT</version>
 
 	<scm>
 		<url>https://github.com/datacleaner/pdi-datacleaner</url>
@@ -25,8 +25,8 @@
 	<repositories>
 		<!-- PENTAHO REPOSITORIES -->
 		<repository>
-			<id>pentaho-repo</id>
-			<url>http://repo.pentaho.org/artifactory/repo</url>
+			<id>pentaho-omni</id>
+			<url>https://public.nexus.pentaho.org/content/groups/omni/</url>
 		</repository>
 		<repository>
 			<id>pentaho-third-party</id>
