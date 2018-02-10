@@ -471,7 +471,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                 final DataContext dataContext = connection.getDataContext();
 
                 // add all columns of a table
-                final Column[] customerColumns = dataContext.getTableByQualifiedLabel(stepMeta.getName()).getColumns();
+                final List<Column> customerColumns = dataContext.getTableByQualifiedLabel(stepMeta.getName()).getColumns();
                 analysisJobBuilder.addSourceColumns(customerColumns);
 
                 final List<MetaModelInputColumn> sourceColumns = analysisJobBuilder.getSourceColumns();

@@ -85,7 +85,7 @@ public class ProfilerDatabaseExplorerController extends AbstractXulEventHandler 
                         // Could not resolve table, this sometimes happens
                         jobFile = null;
                     } else {
-                        Column[] customerColumns = table.getColumns();
+                        List<Column> customerColumns = table.getColumns();
                         analysisJobBuilder.addSourceColumns(customerColumns);
 
                         List<InputColumn<?>> numberColumns = analysisJobBuilder.getAvailableInputColumns(Number.class);

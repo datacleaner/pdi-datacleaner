@@ -1,6 +1,8 @@
 package org.pentaho.di.profiling.datacleaner;
 
 import java.io.DataInputStream;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.metamodel.MetaModelException;
 import org.apache.metamodel.data.AbstractDataSet;
@@ -8,6 +10,7 @@ import org.apache.metamodel.data.DataSet;
 import org.apache.metamodel.data.DataSetHeader;
 import org.apache.metamodel.data.DefaultRow;
 import org.apache.metamodel.data.Row;
+import org.apache.metamodel.query.SelectItem;
 import org.apache.metamodel.schema.Column;
 import org.apache.metamodel.util.FileHelper;
 import org.pentaho.di.core.exception.KettleEOFException;
@@ -26,8 +29,8 @@ final class KettleDataSet extends AbstractDataSet implements DataSet {
 
     private Object[] row;
 
-    public KettleDataSet(Column[] columns, DataInputStream inputStream, RowMetaInterface rowMeta) {
-        super(columns);
+    public KettleDataSet(List<Column> columns, DataInputStream inputStream, RowMetaInterface rowMeta) {
+        super(columns.stream().map(c -> new SelectItem(c)).collect(Collectors.toList()));
         this.inputStream = inputStream;
         this.rowMeta = rowMeta;
         this.row = null;
