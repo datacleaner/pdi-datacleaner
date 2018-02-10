@@ -40,9 +40,8 @@ public class KettleDataContext extends QueryPostprocessDataContext {
     private RowMetaInterface rowMeta;
 
     /**
-     * This constructor opens up a file containing all the metadata and data
-     * needed to profile The data in the file is comprised of the following
-     * item:
+     * This constructor opens up a file containing all the metadata and data needed to profile The data in the file is
+     * comprised of the following item:
      * <p>
      * 
      * - The name of the transformation<br>
@@ -51,8 +50,7 @@ public class KettleDataContext extends QueryPostprocessDataContext {
      * - Rows of data corresponding to RowMeta<br>
      * <br>
      * 
-     * @param filename
-     *            the filename to read from
+     * @param filename the filename to read from
      */
     public KettleDataContext(String filename) {
         super(false);
@@ -142,7 +140,7 @@ public class KettleDataContext extends QueryPostprocessDataContext {
     private ColumnType getColumnType(ValueMetaInterface valueMeta) {
         switch (valueMeta.getType()) {
         case ValueMetaInterface.TYPE_STRING:
-            return ColumnType.VARCHAR;
+            return ColumnType.STRING;
         case ValueMetaInterface.TYPE_INTEGER:
             return ColumnType.INTEGER;
         case ValueMetaInterface.TYPE_DATE:
@@ -155,8 +153,12 @@ public class KettleDataContext extends QueryPostprocessDataContext {
             return ColumnType.BINARY;
         case ValueMetaInterface.TYPE_BIGNUMBER:
             return ColumnType.DECIMAL;
+        case ValueMetaInterface.TYPE_TIMESTAMP:
+            return ColumnType.TIMESTAMP;
+        default:
+            throw new RuntimeException(
+                    "It is currently not possible to profile values of type: " + valueMeta.getTypeDesc());
         }
-        throw new RuntimeException("It is currently not possible to profile values of type: " + valueMeta.getTypeDesc());
     }
 
     @Override

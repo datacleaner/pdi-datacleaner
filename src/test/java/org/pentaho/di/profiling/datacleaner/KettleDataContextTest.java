@@ -54,7 +54,7 @@ public class KettleDataContextTest extends TestCase {
         assertEquals("Table[name=Data Grid,type=TABLE,remarks=null]", table.toString());
 
         assertEquals(2, table.getColumnCount());
-        assertEquals("Column[name=name,columnNumber=0,type=VARCHAR,nullable=true,nativeType=String,columnSize=-1]",
+        assertEquals("Column[name=name,columnNumber=0,type=STRING,nullable=true,nativeType=String,columnSize=-1]",
                 table.getColumns().get(0).toString());
         assertEquals("Column[name=age,columnNumber=1,type=DOUBLE,nullable=true,nativeType=Number,columnSize=-1]",
                 table.getColumns().get(1).toString());

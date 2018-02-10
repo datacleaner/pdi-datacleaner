@@ -34,14 +34,14 @@ public class DataCleanerKettleFileWriter extends RowAdapter {
     }
 
     public void run() throws Exception {
-        FileObject tempFile = KettleVFS.createTempFile("datacleaner", ".kettlestream",
-                System.getProperty("java.io.tmpdir"));
+        final FileObject tempFile =
+                KettleVFS.createTempFile("datacleaner", ".kettlestream", System.getProperty("java.io.tmpdir"));
         filename = KettleVFS.getFilename(tempFile);
 
         outputStream = new DataOutputStream(KettleVFS.getOutputStream(tempFile, false));
         log.logBasic("DataCleaner temp file created: " + filename);
 
-        RowMetaInterface rowMeta = transMeta.getStepFields(stepMeta);
+        final RowMetaInterface rowMeta = transMeta.getStepFields(stepMeta);
 
         log.logBasic("Opened an output stream to DataCleaner.");
 
@@ -63,7 +63,7 @@ public class DataCleanerKettleFileWriter extends RowAdapter {
 
         // Just do one step copy for the time being...
         //
-        StepInterface step = steps.get(0);
+        final StepInterface step = steps.get(0);
 
         step.addRowListener(this);
         log.logBasic("Added the row listener to step: " + step.toString());

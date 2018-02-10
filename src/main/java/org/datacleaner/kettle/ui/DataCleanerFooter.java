@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.Label;
 public class DataCleanerFooter extends Composite {
 
     private final List<Object> resources;
-    private static final int HEIGHT = 42;  
+    private static final int HEIGHT = 42;
 
     /**
      * Create the composite.
@@ -46,8 +46,8 @@ public class DataCleanerFooter extends Composite {
         {
             Label label = new Label(this, SWT.SHADOW_NONE | SWT.RIGHT);
             label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
-            Image image = new Image(getShell().getDisplay(), new ImageData(getClass().getResourceAsStream(
-                    "footer-left.png")));
+            Image image = new Image(getShell().getDisplay(),
+                    new ImageData(getClass().getResourceAsStream("footer-left.png")));
             resources.add(image);
             label.setImage(image);
         }
@@ -77,8 +77,8 @@ public class DataCleanerFooter extends Composite {
         {
             Label label = new Label(this, SWT.SHADOW_NONE | SWT.RIGHT);
             label.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false, 1, 1));
-            Image image = new Image(getShell().getDisplay(), new ImageData(getClass().getResourceAsStream(
-                    "footer-right.png")));
+            Image image = new Image(getShell().getDisplay(),
+                    new ImageData(getClass().getResourceAsStream("footer-right.png")));
             resources.add(image);
             label.setImage(image);
             Cursor cursor = new Cursor(label.getDisplay(), SWT.CURSOR_HAND);

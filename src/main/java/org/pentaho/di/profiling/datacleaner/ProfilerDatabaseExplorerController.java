@@ -62,7 +62,7 @@ public class ProfilerDatabaseExplorerController extends AbstractXulEventHandler 
 
             // Pass along the configuration of the KettleDatabaseStore...
             final DataCleanerConfiguration dataCleanerConfiguration = new DataCleanerConfigurationImpl();
-            try (final AnalysisJobBuilder analysisJobBuilder = new AnalysisJobBuilder(dataCleanerConfiguration)) {
+            try (AnalysisJobBuilder analysisJobBuilder = new AnalysisJobBuilder(dataCleanerConfiguration)) {
 
                 final Datastore datastore = new JdbcDatastore(dbMeta.getName(), dbMeta.getURL(),
                         dbMeta.getDriverClass(), dbMeta.getUsername(), dbMeta.getPassword(), false);
@@ -98,8 +98,8 @@ public class ProfilerDatabaseExplorerController extends AbstractXulEventHandler 
                             analysisJobBuilder.addAnalyzer(DateAndTimeAnalyzer.class).addInputColumns(dateColumns);
                         }
 
-                        List<InputColumn<?>> booleanColumns = analysisJobBuilder
-                                .getAvailableInputColumns(Boolean.class);
+                        List<InputColumn<?>> booleanColumns =
+                                analysisJobBuilder.getAvailableInputColumns(Boolean.class);
                         if (!booleanColumns.isEmpty()) {
                             analysisJobBuilder.addAnalyzer(BooleanAnalyzer.class).addInputColumns(booleanColumns);
                         }
@@ -160,7 +160,8 @@ public class ProfilerDatabaseExplorerController extends AbstractXulEventHandler 
                                         jobFileName = KettleVFS.getFilename(jobFile);
                                     }
                                     ModelerHelper.launchDataCleaner(dataCleanerSpoonConfiguration,
-                                            KettleVFS.getFilename(confFile), jobFileName, dbMeta.getName(), null,null,null,null,true);
+                                            KettleVFS.getFilename(confFile), jobFileName, dbMeta.getName(), null, null,
+                                            null, null, true);
                                 }
                             }.start();
                         }
@@ -178,11 +179,12 @@ public class ProfilerDatabaseExplorerController extends AbstractXulEventHandler 
         StringBuilder xml = new StringBuilder();
 
         xml.append(XMLHandler.getXMLHeader());
-        xml.append("<configuration xmlns=\"http://eobjects.org/analyzerbeans/configuration/1.0\"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
+        xml.append(
+                "<configuration xmlns=\"http://eobjects.org/analyzerbeans/configuration/1.0\"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
         xml.append(XMLHandler.openTag("datastore-catalog"));
 
-        xml.append("<jdbc-datastore name=\"" + name
-                + "\" description=\"Database defined in Pentaho Data Integration\">");
+        xml.append(
+                "<jdbc-datastore name=\"" + name + "\" description=\"Database defined in Pentaho Data Integration\">");
         xml.append(XMLHandler.addTagValue("url", url));
         xml.append(XMLHandler.addTagValue("driver", driver));
         xml.append(XMLHandler.addTagValue("username", username));
@@ -193,7 +195,10 @@ public class ProfilerDatabaseExplorerController extends AbstractXulEventHandler 
 
         xml.append("<multithreaded-taskrunner max-threads=\"30\" />");
         xml.append(XMLHandler.openTag("classpath-scanner"));
-        xml.append("<package recursive=\"true\">org.eobjects.analyzer.beans</package> <package>org.eobjects.analyzer.result.renderer</package> <package>org.eobjects.datacleaner.output.beans</package> <package>org.eobjects.datacleaner.panels</package> <package recursive=\"true\">org.eobjects.datacleaner.widgets.result</package> <package recursive=\"true\">com.hi</package>");
+        xml.append(
+                "<package recursive=\"true\">org.eobjects.analyzer.beans</package> <package>org.eobjects.analyzer.result.renderer</package> "
+                        + "<package>org.eobjects.datacleaner.output.beans</package> <package>org.eobjects.datacleaner.panels</package> "
+                        + "<package recursive=\"true\">org.eobjects.datacleaner.widgets.result</package> <package recursive=\"true\">com.hi</package>");
         xml.append(XMLHandler.closeTag("classpath-scanner"));
 
         xml.append(XMLHandler.closeTag("configuration"));
@@ -203,8 +208,8 @@ public class ProfilerDatabaseExplorerController extends AbstractXulEventHandler 
 
     private XulDatabaseExplorerController getDbController() throws XulException {
         if (dbExplorerController == null) {
-            dbExplorerController = (XulDatabaseExplorerController) this.getXulDomContainer().getEventHandler(
-                    "dbexplorer");
+            dbExplorerController =
+                    (XulDatabaseExplorerController) this.getXulDomContainer().getEventHandler("dbexplorer");
         }
         return dbExplorerController;
     }

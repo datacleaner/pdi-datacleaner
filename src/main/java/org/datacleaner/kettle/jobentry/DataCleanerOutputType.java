@@ -2,7 +2,9 @@ package org.datacleaner.kettle.jobentry;
 
 public enum DataCleanerOutputType {
 
-    HTML("html"), TEXT("txt"), SERIALIZED("analysis.result.dat");
+    HTML("html"),
+    TEXT("txt"),
+    SERIALIZED("analysis.result.dat");
 
     private final String fileExtension;
 

@@ -10,13 +10,11 @@ import org.pentaho.di.core.logging.LogChannelInterface;
 /**
  * Reads an output stream from an external process. Implemented as a thread.
  */
-class ProcessStreamReader extends Thread {
+final class ProcessStreamReader extends Thread {
 
-    BufferedReader in;
-    LogChannelInterface log;
-    boolean logWarn;
-
-    final static int BUFFER_SIZE = 1024;
+    private final BufferedReader in;
+    private final LogChannelInterface log;
+    private final boolean logWarn;
 
     /**
      * Creates new ProcessStreamReader object.

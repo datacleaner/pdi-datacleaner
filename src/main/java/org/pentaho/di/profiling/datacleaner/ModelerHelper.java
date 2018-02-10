@@ -65,13 +65,13 @@ import com.google.common.base.Splitter;
 
 public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenuController {
 
-	private static final String LOGCHANNEL_NAME = "DataCleaner";
+    private static final String LOGCHANNEL_NAME = "DataCleaner";
 
     private static final String MAIN_CLASS_COMMUNITY = "org.datacleaner.Main";
     private static final String MAIN_CLASS_ENTERPRISE = "com.hi.datacleaner.Main";
 
-    private static final Set<String> ID_COLUMN_TOKENS = new HashSet<>(Arrays.asList("id", "pk", "number", "no", "nr",
-            "key"));
+    private static final Set<String> ID_COLUMN_TOKENS =
+            new HashSet<>(Arrays.asList("id", "pk", "number", "no", "nr", "key"));
 
     private static ModelerHelper instance = null;
 
@@ -88,8 +88,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     }
 
     /**
-     * this method is used to see if a valid TableOutput step has been selected
-     * in a trans graph before attempting to model or quick vis
+     * this method is used to see if a valid TableOutput step has been selected in a trans graph before attempting to
+     * model or quick vis
      * 
      * @return true if valid
      */
@@ -99,9 +99,9 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             return false;
         }
 
-        if (stepMeta.getStepMetaInterface() instanceof CsvInputMeta)
+        if (stepMeta.getStepMetaInterface() instanceof CsvInputMeta) {
             return true;
-
+        }
         return false;
     }
 
@@ -142,11 +142,11 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         final LogChannelInterface log = new LogChannel(LOGCHANNEL_NAME);
         int exitCode = 0;
 
-        
         try {
             final String dcInstallationPath = dataCleanerSpoonConfiguration.getDataCleanerInstallationFolderPath()
-                    + "/DataCleaner.jar" + File.pathSeparatorChar + dataCleanerSpoonConfiguration.getDataCleanerInstallationFolderPath()
-                    + "/modules/*" + File.pathSeparatorChar + dataCleanerSpoonConfiguration.getDataCleanerInstallationFolderPath()
+                    + "/DataCleaner.jar" + File.pathSeparatorChar
+                    + dataCleanerSpoonConfiguration.getDataCleanerInstallationFolderPath() + "/modules/*"
+                    + File.pathSeparatorChar + dataCleanerSpoonConfiguration.getDataCleanerInstallationFolderPath()
                     + "/lib/*";
             final StringBuilder classPathBuilder;
             if (profileStep) {
@@ -165,8 +165,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             }
             // Finally, the class to launch
             //
-            final SoftwareVersion editionDetails = SoftwareVersionHelper.getEditionDetails(
-                    dataCleanerSpoonConfiguration);
+            final SoftwareVersion editionDetails =
+                    SoftwareVersionHelper.getEditionDetails(dataCleanerSpoonConfiguration);
 
             if (editionDetails != null) {
                 if (editionDetails.getName() == SoftwareVersionHelper.DATACLEANER_COMMUNITY) {
@@ -211,7 +211,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                 }
             }
             // Log the command
-            
+
             StringBuilder commandString = new StringBuilder();
             for (String cmd : cmds) {
                 commandString.append(cmd).append(" ");
@@ -304,7 +304,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     }
 
     public void openProfiler() {
-        final DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration = getDataCleanerSpoonConfigurationOrShowError();
+        final DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration =
+                getDataCleanerSpoonConfigurationOrShowError();
         if (dataCleanerSpoonConfiguration == null) {
             return;
         }
@@ -319,8 +320,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     public void openConfiguration() {
         final Display display = getSpoon().getDisplay();
         final Shell shell = new Shell(display, SWT.DIALOG_TRIM);
-        final DataCleanerConfigurationDialog dataCleanerSettingsDialog = new DataCleanerConfigurationDialog(shell,
-                SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+        final DataCleanerConfigurationDialog dataCleanerSettingsDialog =
+                new DataCleanerConfigurationDialog(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 
         dataCleanerSettingsDialog.open();
     }
@@ -335,7 +336,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     }
 
     public void profileStep(final boolean buildJob) throws Exception {
-        final DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration = getDataCleanerSpoonConfigurationOrShowError();
+        final DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration =
+                getDataCleanerSpoonConfigurationOrShowError();
         if (dataCleanerSpoonConfiguration == null) {
             return;
         }
@@ -355,10 +357,11 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             // Show the transformation execution configuration dialog
             TransExecutionConfiguration executionConfiguration = spoon.getTransPreviewExecutionConfiguration();
-            TransExecutionConfigurationDialog tecd = new TransExecutionConfigurationDialog(spoon.getShell(),
-                    executionConfiguration, transMeta);
-            if (!tecd.open())
+            TransExecutionConfigurationDialog tecd =
+                    new TransExecutionConfigurationDialog(spoon.getShell(), executionConfiguration, transMeta);
+            if (!tecd.open()) {
                 return;
+            }
 
             // Pass the configuration to the transMeta object:
             final String[] args = convertArguments(executionConfiguration.getArguments());
@@ -402,8 +405,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             final AnalysisJob analysisJob = createAnalysisJob(transMeta, stepMeta, dataCleanerConfiguration, buildJob);
 
             // Write the job.xml to a temporary file...
-            FileObject jobFile = KettleVFS.createTempFile("datacleaner-job", ".xml", System.getProperty(
-                    "java.io.tmpdir"), new Variables());
+            FileObject jobFile = KettleVFS.createTempFile("datacleaner-job", ".xml",
+                    System.getProperty("java.io.tmpdir"), new Variables());
             OutputStream jobOutputStream = null;
 
             try {
@@ -422,8 +425,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             // Write the conf.xml to a temporary file...
             String confXml = generateConfXml(transMeta.getName(), stepMeta.getName(), writer.getFilename());
-            final FileObject confFile = KettleVFS.createTempFile("datacleaner-conf", ".xml", System.getProperty(
-                    "java.io.tmpdir"), new Variables());
+            final FileObject confFile = KettleVFS.createTempFile("datacleaner-conf", ".xml",
+                    System.getProperty("java.io.tmpdir"), new Variables());
             OutputStream confOutputStream = null;
             try {
                 confOutputStream = KettleVFS.getOutputStream(confFile, false);
@@ -461,17 +464,18 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
     private AnalysisJob createAnalysisJob(final TransMeta transMeta, final StepMeta stepMeta,
             final DataCleanerConfiguration dataCleanerConfiguration, final boolean buildJob)
-                    throws KettleStepException {
-        try (final AnalysisJobBuilder analysisJobBuilder = new AnalysisJobBuilder(dataCleanerConfiguration)) {
-            final Datastore datastore = new KettleDatastore(transMeta.getName(), stepMeta.getName(), transMeta
-                    .getStepFields(stepMeta));
+            throws KettleStepException {
+        try (AnalysisJobBuilder analysisJobBuilder = new AnalysisJobBuilder(dataCleanerConfiguration)) {
+            final Datastore datastore =
+                    new KettleDatastore(transMeta.getName(), stepMeta.getName(), transMeta.getStepFields(stepMeta));
             analysisJobBuilder.setDatastore(datastore);
 
-            try (final DatastoreConnection connection = datastore.openConnection();) {
+            try (DatastoreConnection connection = datastore.openConnection();) {
                 final DataContext dataContext = connection.getDataContext();
 
                 // add all columns of a table
-                final List<Column> customerColumns = dataContext.getTableByQualifiedLabel(stepMeta.getName()).getColumns();
+                final List<Column> customerColumns =
+                        dataContext.getTableByQualifiedLabel(stepMeta.getName()).getColumns();
                 analysisJobBuilder.addSourceColumns(customerColumns);
 
                 final List<MetaModelInputColumn> sourceColumns = analysisJobBuilder.getSourceColumns();
@@ -481,8 +485,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                     // for it.
                     final Set<InputColumn<?>> idColumns = new HashSet<>();
                     {
-                        final CharMatcher charMatcher = CharMatcher.BREAKING_WHITESPACE.or(CharMatcher.anyOf(
-                                "_-|#.,/+-!@&()[]"));
+                        final CharMatcher charMatcher =
+                                CharMatcher.BREAKING_WHITESPACE.or(CharMatcher.anyOf("_-|#.,/+-!@&()[]"));
                         final Splitter splitter = Splitter.on(charMatcher).trimResults().omitEmptyStrings();
                         for (InputColumn<?> sourceColumn : sourceColumns) {
                             final String columnName = sourceColumn.getName().toLowerCase();
@@ -497,29 +501,29 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                         }
                     }
                     for (InputColumn<?> idColumn : idColumns) {
-                        final AnalyzerComponentBuilder<UniqueKeyCheckAnalyzer> uniqueKeyCheck = analysisJobBuilder
-                                .addAnalyzer(UniqueKeyCheckAnalyzer.class);
+                        final AnalyzerComponentBuilder<UniqueKeyCheckAnalyzer> uniqueKeyCheck =
+                                analysisJobBuilder.addAnalyzer(UniqueKeyCheckAnalyzer.class);
                         uniqueKeyCheck.setName("Uniqueness of " + idColumn.getName());
                         uniqueKeyCheck.addInputColumn(idColumn);
                     }
 
                     // add a completeness analyzer for all columns
-                    final AnalyzerComponentBuilder<CompletenessAnalyzer> completenessAnalyzer = analysisJobBuilder
-                            .addAnalyzer(CompletenessAnalyzer.class);
+                    final AnalyzerComponentBuilder<CompletenessAnalyzer> completenessAnalyzer =
+                            analysisJobBuilder.addAnalyzer(CompletenessAnalyzer.class);
                     completenessAnalyzer.addInputColumns(sourceColumns);
-                    final CompletenessAnalyzer.Condition[] conditions = new CompletenessAnalyzer.Condition[sourceColumns
-                            .size()];
+                    final CompletenessAnalyzer.Condition[] conditions =
+                            new CompletenessAnalyzer.Condition[sourceColumns.size()];
                     Arrays.fill(conditions, CompletenessAnalyzer.Condition.NOT_BLANK_OR_NULL);
                     completenessAnalyzer.setConfiguredProperty(CompletenessAnalyzer.PROPERTY_CONDITIONS, conditions);
 
                     // add a number analyzer for all number columns
-                    final List<InputColumn<?>> numberColumns = analysisJobBuilder.getAvailableInputColumns(
-                            Number.class);
+                    final List<InputColumn<?>> numberColumns =
+                            analysisJobBuilder.getAvailableInputColumns(Number.class);
                     if (!numberColumns.isEmpty()) {
-                        final AnalyzerComponentBuilder<NumberAnalyzer> numberAnalyzer = analysisJobBuilder.addAnalyzer(
-                                NumberAnalyzer.class);
-                        final ConfiguredPropertyDescriptor descriptiveStatisticsProperty = numberAnalyzer
-                                .getDescriptor().getConfiguredProperty("Descriptive statistics");
+                        final AnalyzerComponentBuilder<NumberAnalyzer> numberAnalyzer =
+                                analysisJobBuilder.addAnalyzer(NumberAnalyzer.class);
+                        final ConfiguredPropertyDescriptor descriptiveStatisticsProperty =
+                                numberAnalyzer.getDescriptor().getConfiguredProperty("Descriptive statistics");
                         if (descriptiveStatisticsProperty != null) {
                             numberAnalyzer.setConfiguredProperty(descriptiveStatisticsProperty, true);
                         }
@@ -529,26 +533,26 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                     // add a date/time analyzer for all date columns
                     final List<InputColumn<?>> dateColumns = analysisJobBuilder.getAvailableInputColumns(Date.class);
                     if (!dateColumns.isEmpty()) {
-                        final AnalyzerComponentBuilder<DateAndTimeAnalyzer> dateAndTimeAnalyzer = analysisJobBuilder
-                                .addAnalyzer(DateAndTimeAnalyzer.class);
+                        final AnalyzerComponentBuilder<DateAndTimeAnalyzer> dateAndTimeAnalyzer =
+                                analysisJobBuilder.addAnalyzer(DateAndTimeAnalyzer.class);
                         dateAndTimeAnalyzer.addInputColumns(dateColumns);
                     }
 
                     // add a boolean analyzer for all boolean columns
-                    final List<InputColumn<?>> booleanColumns = analysisJobBuilder.getAvailableInputColumns(
-                            Boolean.class);
+                    final List<InputColumn<?>> booleanColumns =
+                            analysisJobBuilder.getAvailableInputColumns(Boolean.class);
                     if (!booleanColumns.isEmpty()) {
-                        final AnalyzerComponentBuilder<BooleanAnalyzer> booleanAnalyzer = analysisJobBuilder
-                                .addAnalyzer(BooleanAnalyzer.class);
+                        final AnalyzerComponentBuilder<BooleanAnalyzer> booleanAnalyzer =
+                                analysisJobBuilder.addAnalyzer(BooleanAnalyzer.class);
                         booleanAnalyzer.addInputColumns(booleanColumns);
                     }
 
                     // add a string analyzer for all string columns
-                    final List<InputColumn<?>> stringColumns = analysisJobBuilder.getAvailableInputColumns(
-                            String.class);
+                    final List<InputColumn<?>> stringColumns =
+                            analysisJobBuilder.getAvailableInputColumns(String.class);
                     if (!stringColumns.isEmpty()) {
-                        final AnalyzerComponentBuilder<StringAnalyzer> stringAnalyzer = analysisJobBuilder.addAnalyzer(
-                                StringAnalyzer.class);
+                        final AnalyzerComponentBuilder<StringAnalyzer> stringAnalyzer =
+                                analysisJobBuilder.addAnalyzer(StringAnalyzer.class);
                         stringAnalyzer.addInputColumns(stringColumns);
                     }
                 }
@@ -599,10 +603,10 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
         if (arguments == null || arguments.isEmpty()) {
             return new String[0];
         }
-        String[] argumentNames = arguments.keySet().toArray(new String[arguments.size()]);
+        final String[] argumentNames = arguments.keySet().toArray(new String[arguments.size()]);
         Arrays.sort(argumentNames);
 
-        String args[] = new String[argumentNames.length];
+        final String[] args = new String[argumentNames.length];
         for (int i = 0; i < args.length; i++) {
             String argumentName = argumentNames[i];
             args[i] = arguments.get(argumentName);

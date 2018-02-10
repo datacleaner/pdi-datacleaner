@@ -57,7 +57,7 @@
 			<property name="allowNonPrintableEscapes" value="true"/>
 		</module>
 		<module name="LineLength">
-			<property name="max" value="130"/>
+			<property name="max" value="200"/>
 			<property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
 		</module>
 		<module name="OneTopLevelClass"/>
@@ -193,7 +193,9 @@
 			<property name="tokens" value="METHOD_DEF, VARIABLE_DEF, ANNOTATION_FIELD_DEF, INTERFACE_DEF, CLASS_DEF, ENUM_DEF, RESOURCE"/>
 		</module>
 
+		<!-- 
 		<module name="FinalLocalVariable"/>
+		 -->
 
 		<!-- Configured, but ignore for now. TODO: Make these viable checks by fixing our code  -->
 

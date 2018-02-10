@@ -35,7 +35,9 @@ import org.pentaho.di.ui.trans.step.BaseStepDialog;
 
 import plugin.DataCleanerJobEntry;
 
-public abstract class AbstractJobEntryDialog extends JobEntryDialog implements JobEntryDialogInterface, DisposeListener {
+public abstract class AbstractJobEntryDialog extends JobEntryDialog implements
+        JobEntryDialogInterface,
+        DisposeListener {
 
     private final String initialJobName;
     private Text jobNameField;
@@ -63,7 +65,7 @@ public abstract class AbstractJobEntryDialog extends JobEntryDialog implements J
     public final JobEntryInterface open() {
         final Shell parent = getParent();
         final Display display = parent.getDisplay();
-        
+
         // initialize shell
         {
             shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
@@ -147,8 +149,8 @@ public abstract class AbstractJobEntryDialog extends JobEntryDialog implements J
         });
 
         cancelButton = new Button(shell, SWT.PUSH);
-        Image cancelImage = new Image(shell.getDisplay(),
-                AbstractJobEntryDialog.class.getResourceAsStream("cancel.png"));
+        Image cancelImage =
+                new Image(shell.getDisplay(), AbstractJobEntryDialog.class.getResourceAsStream("cancel.png"));
         resources.add(cancelImage);
         cancelButton.setImage(cancelImage);
         cancelButton.setText("Cancel");
@@ -176,9 +178,10 @@ public abstract class AbstractJobEntryDialog extends JobEntryDialog implements J
         shell.addDisposeListener(this);
 
         shell.setSize(getDialogSize());
-        //center the dialog in the middle of the screen
+        // center the dialog in the middle of the screen
         final Rectangle screenSize = shell.getDisplay().getPrimaryMonitor().getBounds();
-        shell.setLocation((screenSize.width - shell.getBounds().width) / 2, (screenSize.height - shell.getBounds().height) / 2);
+        shell.setLocation((screenSize.width - shell.getBounds().width) / 2,
+                (screenSize.height - shell.getBounds().height) / 2);
 
         shell.pack();
         shell.open();
@@ -224,5 +227,5 @@ public abstract class AbstractJobEntryDialog extends JobEntryDialog implements J
     protected String getStepDescription() {
         return null;
     }
-   
+
 }

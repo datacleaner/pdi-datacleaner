@@ -36,11 +36,12 @@ import org.w3c.dom.Node;
  * @author Kasper Sorensen
  * @since 22-03-2012
  */
-@JobEntry(id = "DataCleanerJobEntry", categoryDescription = "Utility", image = "org/datacleaner/logo.png", name = DataCleanerJobEntry.NAME, description = "Executes a DataCleaner job")
+@JobEntry(id = "DataCleanerJobEntry", categoryDescription = "Utility", image = "org/datacleaner/logo.png",
+        name = DataCleanerJobEntry.NAME, description = "Executes a DataCleaner job")
 public class DataCleanerJobEntry extends JobEntryBase implements JobEntryInterface, Cloneable {
 
     public static final String NAME = "Execute DataCleaner job";
-	public static final String LOGCHANNEL_NAME = "DataCleaner";
+    public static final String LOGCHANNEL_NAME = "DataCleaner";
 
     private final DataCleanerJobEntryConfiguration configuration = new DataCleanerJobEntryConfiguration();
 
@@ -49,13 +50,13 @@ public class DataCleanerJobEntry extends JobEntryBase implements JobEntryInterfa
         final LogChannelInterface log = new LogChannel(LOGCHANNEL_NAME);
         int exitCode = -1;
 
-        final DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration = ModelerHelper
-                .getDataCleanerSpoonConfigurationOrShowError();
+        final DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration =
+                ModelerHelper.getDataCleanerSpoonConfigurationOrShowError();
         final String outputFilename = environmentSubstitute(configuration.getOutputFilename());
         final String jobFilename = environmentSubstitute(configuration.getJobFilename());
         final String outputFiletype = configuration.getOutputType().toString();
         final String additionalArguments = environmentSubstitute(configuration.getAdditionalArguments());
-		
+
         if (dataCleanerSpoonConfiguration != null) {
             exitCode = ModelerHelper.launchDataCleanerSimple(dataCleanerSpoonConfiguration, jobFilename, outputFiletype,
                     outputFilename, additionalArguments);
@@ -78,8 +79,8 @@ public class DataCleanerJobEntry extends JobEntryBase implements JobEntryInterfa
                     log.logError("Exception " + e.getMessage());
                     throw new KettleException("IO exception" + e.getMessage());
                 }
-                final ResultFile resultFile = new ResultFile(ResultFile.FILE_TYPE_GENERAL, fileObject, parentJob
-                        .getJobname(), toString());
+                final ResultFile resultFile =
+                        new ResultFile(ResultFile.FILE_TYPE_GENERAL, fileObject, parentJob.getJobname(), toString());
                 files.put(outputFilename, resultFile);
                 result.setResultFiles(files);
             }
@@ -107,7 +108,6 @@ public class DataCleanerJobEntry extends JobEntryBase implements JobEntryInterfa
     public String getDialogClassName() {
         return DataCleanerJobEntryDialog.class.getName();
     }
-   
 
     public String getXML() {
         final StringBuilder retval = new StringBuilder();
@@ -116,10 +116,10 @@ public class DataCleanerJobEntry extends JobEntryBase implements JobEntryInterfa
         retval.append("      ").append(XMLHandler.addTagValue("job_file", configuration.getJobFilename()));
         retval.append("      ").append(XMLHandler.addTagValue("output_file", configuration.getOutputFilename()));
         retval.append("      ").append(XMLHandler.addTagValue("output_type", configuration.getOutputType().toString()));
-        retval.append("      ").append(XMLHandler.addTagValue("output_file_in_result", configuration
-                .isOutputFileInResult()));
-        retval.append("      ").append(XMLHandler.addTagValue("additional_arguments", configuration
-                .getAdditionalArguments()));
+        retval.append("      ")
+                .append(XMLHandler.addTagValue("output_file_in_result", configuration.isOutputFileInResult()));
+        retval.append("      ")
+                .append(XMLHandler.addTagValue("additional_arguments", configuration.getAdditionalArguments()));
 
         return retval.toString();
     }
@@ -131,8 +131,8 @@ public class DataCleanerJobEntry extends JobEntryBase implements JobEntryInterfa
 
             configuration.setJobFilename(XMLHandler.getTagValue(entrynode, "job_file"));
             configuration.setOutputFilename(XMLHandler.getTagValue(entrynode, "output_file"));
-            configuration.setOutputType(DataCleanerOutputType.valueOf(XMLHandler.getTagValue(entrynode,
-                    "output_type")));
+            configuration
+                    .setOutputType(DataCleanerOutputType.valueOf(XMLHandler.getTagValue(entrynode, "output_type")));
             final String outputFileInResult = XMLHandler.getTagValue(entrynode, "output_file_in_result");
             if ("false".equalsIgnoreCase(outputFileInResult)) {
                 configuration.setOutputFileInResult(false);
@@ -140,8 +140,8 @@ public class DataCleanerJobEntry extends JobEntryBase implements JobEntryInterfa
 
             configuration.setAdditionalArguments(XMLHandler.getTagValue(entrynode, "additional_arguments"));
 
-        } catch (KettleXMLException xe) {
-            throw new KettleXMLException("Unable to load job entry from XML node", xe);
+        } catch (KettleXMLException e) {
+            throw new KettleXMLException("Unable to load job entry from XML node", e);
         }
     }
 
@@ -153,8 +153,8 @@ public class DataCleanerJobEntry extends JobEntryBase implements JobEntryInterfa
         rep.saveJobEntryAttribute(id_job, getObjectId(), "output_file", configuration.getOutputFilename());
         rep.saveJobEntryAttribute(id_job, getObjectId(), "output_type", configuration.getOutputType().toString());
         rep.saveJobEntryAttribute(id_job, getObjectId(), "output_file_in_result", configuration.isOutputFileInResult());
-        rep.saveJobEntryAttribute(id_job, getObjectId(), "additional_arguments", configuration
-                .getAdditionalArguments());
+        rep.saveJobEntryAttribute(id_job, getObjectId(), "additional_arguments",
+                configuration.getAdditionalArguments());
     }
 
     @Override
@@ -164,10 +164,10 @@ public class DataCleanerJobEntry extends JobEntryBase implements JobEntryInterfa
 
         configuration.setJobFilename(rep.getJobEntryAttributeString(id_jobentry, "job_file"));
         configuration.setOutputFilename(rep.getJobEntryAttributeString(id_jobentry, "output_file"));
-        configuration.setOutputType(DataCleanerOutputType.valueOf(rep.getJobEntryAttributeString(id_jobentry,
-                "output_type")));
-        configuration.setOutputFileInResult(rep.getJobEntryAttributeBoolean(id_jobentry, "output_file_in_result",
-                true));
+        configuration.setOutputType(
+                DataCleanerOutputType.valueOf(rep.getJobEntryAttributeString(id_jobentry, "output_type")));
+        configuration
+                .setOutputFileInResult(rep.getJobEntryAttributeBoolean(id_jobentry, "output_file_in_result", true));
         configuration.setAdditionalArguments(rep.getJobEntryAttributeString(id_jobentry, "additional_arguments"));
     }
 }
