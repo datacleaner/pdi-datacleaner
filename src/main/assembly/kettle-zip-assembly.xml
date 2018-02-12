@@ -4,7 +4,7 @@
 		<format>zip</format>
 	</formats>
 	<includeBaseDirectory>true</includeBaseDirectory>
-	<baseDirectory>kettle6-profiling-datacleaner</baseDirectory>
+	<baseDirectory>pdi-datacleaner</baseDirectory>
 	<fileSets>
 		<fileSet>
 			<outputDirectory>lib</outputDirectory>

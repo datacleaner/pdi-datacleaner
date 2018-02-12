@@ -9,7 +9,6 @@
 	<properties>
 		<kettle.version>8.1.0.0-232</kettle.version>
 		<datacleaner.version>5.4.0</datacleaner.version>
-		<mainClass>org.datacleaner.Main</mainClass>
 	</properties>
 	<artifactId>pdi-datacleaner</artifactId>
 	<name>DataCleaner for Pentaho Data Integration</name>
@@ -79,31 +78,6 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
-
-			<plugin>
-				<!-- make the jar file executable when dependencies are available in 
-					lib/ folder -->
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3.1</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<addDefaultImplementationEntries>true
-							</addDefaultImplementationEntries>
-							<addDefaultSpecificationEntries>true
-							</addDefaultSpecificationEntries>
-							<classpathPrefix>lib</classpathPrefix>
-							<mainClass>${mainClass}</mainClass>
-							<useUniqueVersions>false</useUniqueVersions>
-						</manifest>
-						<manifestEntries>
-							<SplashScreen-Image>images/splash.png</SplashScreen-Image>
-						</manifestEntries>
-					</archive>
-				</configuration>
 			</plugin>
 
 			<!-- Assembly which creates the zip and tar.gz distributables -->
