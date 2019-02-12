@@ -71,8 +71,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     private static final String MAIN_CLASS_COMMUNITY = "org.datacleaner.Main";
     private static final String MAIN_CLASS_ENTERPRISE = "com.hi.datacleaner.Main";
 
-    private static final Set<String> ID_COLUMN_TOKENS =
-            new HashSet<>(Arrays.asList("id", "pk", "number", "no", "nr", "key"));
+    private static final Set<String> ID_COLUMN_TOKENS = new HashSet<>(Arrays.asList("id", "pk", "number", "no", "nr",
+            "key"));
 
     private static ModelerHelper instance = null;
 
@@ -89,8 +89,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     }
 
     /**
-     * this method is used to see if a valid TableOutput step has been selected in a trans graph before attempting to
-     * model or quick vis
+     * this method is used to see if a valid TableOutput step has been selected in a
+     * trans graph before attempting to model or quick vis
      * 
      * @return true if valid
      */
@@ -145,10 +145,9 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
         try {
             final String dcInstallationPath = dataCleanerSpoonConfiguration.getDataCleanerInstallationFolderPath()
-                    + "/DataCleaner.jar" + File.pathSeparatorChar
-                    + dataCleanerSpoonConfiguration.getDataCleanerInstallationFolderPath() + "/modules/*"
-                    + File.pathSeparatorChar + dataCleanerSpoonConfiguration.getDataCleanerInstallationFolderPath()
-                    + "/lib/*";
+                    + "/DataCleaner.jar" + File.pathSeparatorChar + dataCleanerSpoonConfiguration
+                            .getDataCleanerInstallationFolderPath() + "/modules/*" + File.pathSeparatorChar
+                    + dataCleanerSpoonConfiguration.getDataCleanerInstallationFolderPath() + "/lib/*";
             final StringBuilder classPathBuilder;
             if (profileStep) {
                 classPathBuilder = addAdditionalJars(dataCleanerSpoonConfiguration, dcInstallationPath);
@@ -166,8 +165,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             }
             // Finally, the class to launch
             //
-            final SoftwareVersion editionDetails =
-                    SoftwareVersionHelper.getEditionDetails(dataCleanerSpoonConfiguration);
+            final SoftwareVersion editionDetails = SoftwareVersionHelper.getEditionDetails(
+                    dataCleanerSpoonConfiguration);
 
             if (editionDetails != null) {
                 if (editionDetails.getName() == SoftwareVersionHelper.DATACLEANER_COMMUNITY) {
@@ -235,7 +234,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             psrStdout.join();
             psrStderr.join();
 
-            // When DC finishes we clean up the temporary files... only if it'a profiling step job
+            // When DC finishes we clean up the temporary files... only if it'a profiling
+            // step job
             if (profileStep) {
                 if (!Strings.isNullOrEmpty(confFile)) {
                     new File(confFile).delete();
@@ -305,8 +305,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     }
 
     public void openProfiler() {
-        final DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration =
-                getDataCleanerSpoonConfigurationOrShowError();
+        final DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration = getDataCleanerSpoonConfigurationOrShowError();
         if (dataCleanerSpoonConfiguration == null) {
             return;
         }
@@ -321,8 +320,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     public void openConfiguration() {
         final Display display = getSpoon().getDisplay();
         final Shell shell = new Shell(display, SWT.DIALOG_TRIM);
-        final DataCleanerConfigurationDialog dataCleanerSettingsDialog =
-                new DataCleanerConfigurationDialog(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+        final DataCleanerConfigurationDialog dataCleanerSettingsDialog = new DataCleanerConfigurationDialog(shell,
+                SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 
         dataCleanerSettingsDialog.open();
     }
@@ -337,8 +336,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
     }
 
     public void profileStep(final boolean buildJob) throws Exception {
-        final DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration =
-                getDataCleanerSpoonConfigurationOrShowError();
+        final DataCleanerSpoonConfiguration dataCleanerSpoonConfiguration = getDataCleanerSpoonConfigurationOrShowError();
         if (dataCleanerSpoonConfiguration == null) {
             return;
         }
@@ -358,8 +356,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             // Show the transformation execution configuration dialog
             TransExecutionConfiguration executionConfiguration = spoon.getTransPreviewExecutionConfiguration();
-            TransExecutionConfigurationDialog tecd =
-                    new TransExecutionConfigurationDialog(spoon.getShell(), executionConfiguration, transMeta);
+            TransExecutionConfigurationDialog tecd = new TransExecutionConfigurationDialog(spoon.getShell(),
+                    executionConfiguration, transMeta);
             if (!tecd.open()) {
                 return;
             }
@@ -406,8 +404,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             final AnalysisJob analysisJob = createAnalysisJob(transMeta, stepMeta, dataCleanerConfiguration, buildJob);
 
             // Write the job.xml to a temporary file...
-            FileObject jobFile = KettleVFS.createTempFile("datacleaner-job", ".xml",
-                    System.getProperty("java.io.tmpdir"), new Variables());
+            FileObject jobFile = KettleVFS.createTempFile("datacleaner-job", ".xml", System.getProperty(
+                    "java.io.tmpdir"), new Variables());
             OutputStream jobOutputStream = null;
 
             try {
@@ -426,8 +424,8 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
 
             // Write the conf.xml to a temporary file...
             String confXml = generateConfXml(transMeta.getName(), stepMeta.getName(), writer.getFilename());
-            final FileObject confFile = KettleVFS.createTempFile("datacleaner-conf", ".xml",
-                    System.getProperty("java.io.tmpdir"), new Variables());
+            final FileObject confFile = KettleVFS.createTempFile("datacleaner-conf", ".xml", System.getProperty(
+                    "java.io.tmpdir"), new Variables());
             OutputStream confOutputStream = null;
             try {
                 confOutputStream = KettleVFS.getOutputStream(confFile, false);
@@ -467,16 +465,16 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
             final DataCleanerConfiguration dataCleanerConfiguration, final boolean buildJob)
             throws KettleStepException {
         try (AnalysisJobBuilder analysisJobBuilder = new AnalysisJobBuilder(dataCleanerConfiguration)) {
-            final Datastore datastore =
-                    new KettleDatastore(transMeta.getName(), stepMeta.getName(), transMeta.getStepFields(stepMeta));
+            final Datastore datastore = new KettleDatastore(transMeta.getName(), stepMeta.getName(), transMeta
+                    .getStepFields(stepMeta));
             analysisJobBuilder.setDatastore(datastore);
 
             try (DatastoreConnection connection = datastore.openConnection();) {
                 final DataContext dataContext = connection.getDataContext();
 
                 // add all columns of a table
-                final List<Column> customerColumns =
-                        dataContext.getTableByQualifiedLabel(stepMeta.getName()).getColumns();
+                final List<Column> customerColumns = dataContext.getTableByQualifiedLabel(stepMeta.getName())
+                        .getColumns();
                 analysisJobBuilder.addSourceColumns(customerColumns);
 
                 final List<MetaModelInputColumn> sourceColumns = analysisJobBuilder.getSourceColumns();
@@ -486,8 +484,7 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                     // for it.
                     final Set<InputColumn<?>> idColumns = new HashSet<>();
                     {
-                        final CharMatcher charMatcher =
-                                CharMatcher.BREAKING_WHITESPACE.or(CharMatcher.anyOf("_-|#.,/+-!@&()[]"));
+                        final CharMatcher charMatcher = CharMatcher.anyOf("_-|#.,/+-!@&()[] \n\r\t");
                         final Splitter splitter = Splitter.on(charMatcher).trimResults().omitEmptyStrings();
                         for (InputColumn<?> sourceColumn : sourceColumns) {
                             final String columnName = sourceColumn.getName().toLowerCase();
@@ -502,29 +499,29 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                         }
                     }
                     for (InputColumn<?> idColumn : idColumns) {
-                        final AnalyzerComponentBuilder<UniqueKeyCheckAnalyzer> uniqueKeyCheck =
-                                analysisJobBuilder.addAnalyzer(UniqueKeyCheckAnalyzer.class);
+                        final AnalyzerComponentBuilder<UniqueKeyCheckAnalyzer> uniqueKeyCheck = analysisJobBuilder
+                                .addAnalyzer(UniqueKeyCheckAnalyzer.class);
                         uniqueKeyCheck.setName("Uniqueness of " + idColumn.getName());
                         uniqueKeyCheck.addInputColumn(idColumn);
                     }
 
                     // add a completeness analyzer for all columns
-                    final AnalyzerComponentBuilder<CompletenessAnalyzer> completenessAnalyzer =
-                            analysisJobBuilder.addAnalyzer(CompletenessAnalyzer.class);
+                    final AnalyzerComponentBuilder<CompletenessAnalyzer> completenessAnalyzer = analysisJobBuilder
+                            .addAnalyzer(CompletenessAnalyzer.class);
                     completenessAnalyzer.addInputColumns(sourceColumns);
-                    final CompletenessAnalyzer.Condition[] conditions =
-                            new CompletenessAnalyzer.Condition[sourceColumns.size()];
+                    final CompletenessAnalyzer.Condition[] conditions = new CompletenessAnalyzer.Condition[sourceColumns
+                            .size()];
                     Arrays.fill(conditions, CompletenessAnalyzer.Condition.NOT_BLANK_OR_NULL);
                     completenessAnalyzer.setConfiguredProperty(CompletenessAnalyzer.PROPERTY_CONDITIONS, conditions);
 
                     // add a number analyzer for all number columns
-                    final List<InputColumn<?>> numberColumns =
-                            analysisJobBuilder.getAvailableInputColumns(Number.class);
+                    final List<InputColumn<?>> numberColumns = analysisJobBuilder.getAvailableInputColumns(
+                            Number.class);
                     if (!numberColumns.isEmpty()) {
-                        final AnalyzerComponentBuilder<NumberAnalyzer> numberAnalyzer =
-                                analysisJobBuilder.addAnalyzer(NumberAnalyzer.class);
-                        final ConfiguredPropertyDescriptor descriptiveStatisticsProperty =
-                                numberAnalyzer.getDescriptor().getConfiguredProperty("Descriptive statistics");
+                        final AnalyzerComponentBuilder<NumberAnalyzer> numberAnalyzer = analysisJobBuilder.addAnalyzer(
+                                NumberAnalyzer.class);
+                        final ConfiguredPropertyDescriptor descriptiveStatisticsProperty = numberAnalyzer
+                                .getDescriptor().getConfiguredProperty("Descriptive statistics");
                         if (descriptiveStatisticsProperty != null) {
                             numberAnalyzer.setConfiguredProperty(descriptiveStatisticsProperty, true);
                         }
@@ -534,26 +531,26 @@ public class ModelerHelper extends AbstractXulEventHandler implements ISpoonMenu
                     // add a date/time analyzer for all date columns
                     final List<InputColumn<?>> dateColumns = analysisJobBuilder.getAvailableInputColumns(Date.class);
                     if (!dateColumns.isEmpty()) {
-                        final AnalyzerComponentBuilder<DateAndTimeAnalyzer> dateAndTimeAnalyzer =
-                                analysisJobBuilder.addAnalyzer(DateAndTimeAnalyzer.class);
+                        final AnalyzerComponentBuilder<DateAndTimeAnalyzer> dateAndTimeAnalyzer = analysisJobBuilder
+                                .addAnalyzer(DateAndTimeAnalyzer.class);
                         dateAndTimeAnalyzer.addInputColumns(dateColumns);
                     }
 
                     // add a boolean analyzer for all boolean columns
-                    final List<InputColumn<?>> booleanColumns =
-                            analysisJobBuilder.getAvailableInputColumns(Boolean.class);
+                    final List<InputColumn<?>> booleanColumns = analysisJobBuilder.getAvailableInputColumns(
+                            Boolean.class);
                     if (!booleanColumns.isEmpty()) {
-                        final AnalyzerComponentBuilder<BooleanAnalyzer> booleanAnalyzer =
-                                analysisJobBuilder.addAnalyzer(BooleanAnalyzer.class);
+                        final AnalyzerComponentBuilder<BooleanAnalyzer> booleanAnalyzer = analysisJobBuilder
+                                .addAnalyzer(BooleanAnalyzer.class);
                         booleanAnalyzer.addInputColumns(booleanColumns);
                     }
 
                     // add a string analyzer for all string columns
-                    final List<InputColumn<?>> stringColumns =
-                            analysisJobBuilder.getAvailableInputColumns(String.class);
+                    final List<InputColumn<?>> stringColumns = analysisJobBuilder.getAvailableInputColumns(
+                            String.class);
                     if (!stringColumns.isEmpty()) {
-                        final AnalyzerComponentBuilder<StringAnalyzer> stringAnalyzer =
-                                analysisJobBuilder.addAnalyzer(StringAnalyzer.class);
+                        final AnalyzerComponentBuilder<StringAnalyzer> stringAnalyzer = analysisJobBuilder.addAnalyzer(
+                                StringAnalyzer.class);
                         stringAnalyzer.addInputColumns(stringColumns);
                     }
                 }
